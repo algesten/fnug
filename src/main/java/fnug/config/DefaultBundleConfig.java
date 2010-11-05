@@ -1,6 +1,9 @@
-package fnug;
+package fnug.config;
 
 import java.util.regex.Pattern;
+
+import fnug.BundleConfig;
+import fnug.Resource;
 
 public class DefaultBundleConfig implements BundleConfig {
 

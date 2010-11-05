@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import fnug.config.ConfigParser;
+import fnug.config.JsonConfigParser;
+
 public class ResourceResolver {
 
     private static final String SEPARATOR = "/";

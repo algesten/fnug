@@ -1,4 +1,4 @@
-package fnug;
+package fnug.config;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -13,6 +13,10 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonParser.Feature;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import fnug.BundleConfig;
+import fnug.Config;
+import fnug.Resource;
 
 public class JsonConfigParser implements ConfigParser {
 

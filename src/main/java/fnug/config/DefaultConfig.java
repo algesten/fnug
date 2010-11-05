@@ -1,6 +1,9 @@
-package fnug;
+package fnug.config;
 
 import java.util.Collection;
+
+import fnug.BundleConfig;
+import fnug.Config;
 
 public class DefaultConfig implements Config {
 

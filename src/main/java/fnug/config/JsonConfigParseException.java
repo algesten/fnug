@@ -1,4 +1,4 @@
-package fnug;
+package fnug.config;
 
 import org.codehaus.jackson.JsonLocation;
 

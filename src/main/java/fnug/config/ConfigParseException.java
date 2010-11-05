@@ -1,4 +1,4 @@
-package fnug;
+package fnug.config;
 
 @SuppressWarnings("serial")
 public class ConfigParseException extends RuntimeException {

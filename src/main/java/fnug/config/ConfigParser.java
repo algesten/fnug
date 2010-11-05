@@ -1,4 +1,7 @@
-package fnug;
+package fnug.config;
+
+import fnug.Config;
+import fnug.Resource;
 
 
 public interface ConfigParser {
