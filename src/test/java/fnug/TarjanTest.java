@@ -43,7 +43,7 @@ public class TarjanTest {
     public static void beforeClass() {
         ResourceResolver.setThreadLocal(new ResourceResolver() {
             @Override
-            public Resource getResource(String path) {
+            public Resource resolve(String path) {
                 return makeResource(path);
             }
         });

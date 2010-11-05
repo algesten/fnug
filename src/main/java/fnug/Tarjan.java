@@ -136,7 +136,7 @@ public class Tarjan {
                 adjacent = new LinkedList<Node>();
                 List<String> deps = resource.parseRequires();
                 for (String dep : deps) {
-                    Resource res = ResourceResolver.getInstance().getResource(dep);
+                    Resource res = ResourceResolver.getInstance().resolve(dep);
                     if (res != null && !(res instanceof AggregatedResource)) {
                         adjacent.add(getNodeForResource(res));
                     }

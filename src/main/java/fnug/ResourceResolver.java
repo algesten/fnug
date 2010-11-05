@@ -39,7 +39,7 @@ public class ResourceResolver {
     protected ResourceResolver() {
     }
 
-    public Resource getResource(String path) {
+    public Resource resolve(String path) {
         if (configs.isEmpty()) {
             initConfigs();
         }
