@@ -12,6 +12,8 @@ import java.net.URL;
 import org.junit.Assert;
 import org.junit.Test;
 
+import fnug.util.IOUtils;
+
 public class DefaultResourceTest {
 
     @Test

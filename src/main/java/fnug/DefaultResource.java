@@ -6,12 +6,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import fnug.util.IOUtils;
 
 public class DefaultResource extends AbstractResource {
 
@@ -186,5 +193,22 @@ public class DefaultResource extends AbstractResource {
         String md5sig = IOUtils.md5(s);
         return new File(TMP_EXTRACT_DIR, md5sig);
 
+    }
+
+    private final static Pattern REQUIRES_PAT = Pattern.compile("\\s*[*]\\s*@requires\\s+\\([^ \\t\\n\\x0B\\f\\r]+\\)");
+
+    @Override
+    public List<String> parseRequires() {
+        LinkedList<String> result = new LinkedList<String>();
+        try {
+            String s = new String(getBytes(), "utf-8");
+            Matcher m = REQUIRES_PAT.matcher(s);
+            while (m.find()) {
+                result.add(m.group(1));
+            }
+        } catch (UnsupportedEncodingException e) {
+            // not happening.
+        }
+        return result;
     }
 }

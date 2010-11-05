@@ -88,7 +88,7 @@ public abstract class AbstractResource implements Resource {
         if (l == null || Math.abs(l - lastModified) > 1000) {
             synchronized (this) {
                 lastModified = null;
-                doReadEntry();
+                bytes = null;
             }
             return true;
         }

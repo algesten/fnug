@@ -1,15 +1,13 @@
 package fnug;
 
-public interface Bundle extends AggregatedResource {
+public interface Bundle {
 
     BundleConfig getConfig();
 
     String getName();
 
-    Bundle[] getBundles();
+    Resource resolve(String path);
 
-    byte[] getCompressedJs();
-
-    byte[] getCompressedCss();
+    BundleResourceCollection[] getResources();
 
 }

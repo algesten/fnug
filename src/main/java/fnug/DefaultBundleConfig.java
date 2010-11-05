@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 public class DefaultBundleConfig implements BundleConfig {
 
+    private Resource configResource;
     private String name;
     private String basePath;
     private Pattern[] matches;
@@ -12,8 +13,10 @@ public class DefaultBundleConfig implements BundleConfig {
     private String[] jsCompileArgs;
     private String[] files;
 
-    public DefaultBundleConfig(String name, String basePath, Pattern[] matches, boolean jsLint, boolean checkModified,
+    public DefaultBundleConfig(Resource configResource, String name, String basePath, Pattern[] matches,
+            boolean jsLint, boolean checkModified,
             String[] jsCompileArgs, String[] files) {
+        this.configResource = configResource;
         this.name = name;
         this.basePath = basePath;
         this.matches = matches;
@@ -23,6 +26,11 @@ public class DefaultBundleConfig implements BundleConfig {
         this.files = files;
     }
 
+    @Override
+    public Resource configResource() {
+        return configResource;
+    }
+    
     @Override
     public String name() {
         return name;

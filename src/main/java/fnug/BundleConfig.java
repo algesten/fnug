@@ -7,6 +7,8 @@ public interface BundleConfig {
     static final boolean DEFAULT_CHECK_MODIFIED = true;
     static final boolean DEFAULT_JS_LINT = true;
 
+    Resource configResource();
+
     String name();
 
     String basePath();

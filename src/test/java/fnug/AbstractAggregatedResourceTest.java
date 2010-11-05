@@ -1,5 +1,7 @@
 package fnug;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,36 +24,12 @@ public class AbstractAggregatedResourceTest {
             // ok
         }
 
-        TestResource r1 = new TestResource("/", "foo.js", null, null);
-
-        Assert.assertNotNull(r1.getAggregates());
-        Assert.assertNotNull(r1.getDependencies());
-
-        Assert.assertEquals(0, r1.getAggregates().length);
-        Assert.assertEquals(0, r1.getDependencies().length);
-
-        r1 = new TestResource("/", "foo.js", new Resource[] { makeResource("1", 0), makeResource("2", 0) }, null);
-
-        Assert.assertNotNull(r1.getAggregates());
-        Assert.assertNotNull(r1.getDependencies());
-
-        Assert.assertEquals(2, r1.getAggregates().length);
-        Assert.assertEquals(0, r1.getDependencies().length);
-
-        r1 = new TestResource("/", "foo.js", null, new Resource[] { makeResource("1", 0), makeResource("2", 0) });
-
-        Assert.assertNotNull(r1.getAggregates());
-        Assert.assertNotNull(r1.getDependencies());
-
-        Assert.assertEquals(0, r1.getAggregates().length);
-        Assert.assertEquals(2, r1.getDependencies().length);
-
     }
 
     @Test
     public void testLastModified() {
 
-        TestResource r1 = new TestResource("/", "foo.js", null, new Resource[] { makeResource("1", 1),
+        TestResource r1 = new TestResource("/", "foo.js", new Resource[] {}, new Resource[] { makeResource("1", 1),
                 makeResource("2", 2) });
 
         Assert.assertEquals(2l, r1.getLastModified());
@@ -100,18 +78,43 @@ public class AbstractAggregatedResourceTest {
             public boolean checkModified() {
                 return false;
             }
+
+            @Override
+            public List<String> parseRequires() {
+                return null;
+            }
         };
     }
 
     private class TestResource extends AbstractAggregatedResource {
 
+        private Resource[] aggregates;
+        private Resource[] dependencies;
+
         protected TestResource(String basePath, String path, Resource[] aggregates, Resource[] dependencies) {
-            super(basePath, path, aggregates, dependencies);
+            super(basePath, path);
+            this.aggregates = aggregates;
+            this.dependencies = dependencies;
         }
 
         @Override
         protected byte[] buildAggregate() {
             return new byte[] { 1, 2, 3 };
+        }
+
+        @Override
+        public Resource[] getAggregates() {
+            return aggregates;
+        }
+
+        @Override
+        public Resource[] getDependencies() {
+            return dependencies;
+        }
+
+        @Override
+        public List<String> parseRequires() {
+            return null;
         }
     }
 

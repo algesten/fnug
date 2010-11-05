@@ -1,50 +1,20 @@
 package fnug;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
-public class DefaultBundle extends AbstractAggregatedResource implements Bundle {
+public class DefaultBundle implements Bundle {
 
     private BundleConfig config;
-    private byte[] compressedJs;
-    private byte[] compressedCss;
 
-    private JsCompressor jsCompressor;
-    private CssCompressor cssCompressor;
-    private byte[] cssBytes;
+    private volatile HashMap<String, Resource> cache = new HashMap<String, Resource>();
 
-    public DefaultBundle(BundleConfig config, Resource[] aggregates, Resource[] dependencies) {
-        super(config.basePath(), config.name(), aggregates, dependencies);
-        this.jsCompressor = new JsCompressor(config.jsCompileArgs());
-        this.cssCompressor = new CssCompressor();
-    }
+    private volatile BundleResourceCollection[] resources;
 
-    @Override
-    protected byte[] buildAggregate() {
-        compressedJs = null;
-        compressedCss = null;
-        ByteArrayOutputStream jsBaos = new ByteArrayOutputStream();
-        ByteArrayOutputStream cssBaos = new ByteArrayOutputStream();
-        try {
-            for (Resource res : getAggregates()) {
-                if (res.isJs()) {
-                    jsBaos.write(res.getBytes());
-                } else if (res.isCss()) {
-                    cssBaos.write(res.getBytes());
-                }
-            }
-            this.cssBytes = cssBaos.toByteArray();
-            return jsBaos.toByteArray();
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to build aggregate", e);
-        }
-    }
-
-    public byte[] getCssBytes() {
-        // this will ultimately call buildAggregate which populates cssBytes.
-        ensureReadEntry();
-        assert cssBytes != null;
-        return cssBytes;
+    public DefaultBundle(BundleConfig config) {
+        this.config = config;
     }
 
     @Override
@@ -58,32 +28,79 @@ public class DefaultBundle extends AbstractAggregatedResource implements Bundle 
     }
 
     @Override
-    public Bundle[] getBundles() {
-        return null;
-    }
-
-    @Override
-    public byte[] getCompressedJs() {
-        if (compressedJs == null) {
+    public Resource resolve(String path) {
+        Resource res = cache.get(path);
+        if (res == null) {
             synchronized (this) {
-                if (compressedJs == null) {
-                    compressedJs = jsCompressor.compress(getBytes());
+                res = cache.get(path);
+                if (res == null) {
+                    res = new DefaultBundleResource(this, path);
+                    cache.put(path, res);
                 }
             }
         }
-        return compressedJs;
+        return res;
     }
 
     @Override
-    public byte[] getCompressedCss() {
-        if (compressedCss == null) {
+    public BundleResourceCollection[] getResources() {
+        if (resources == null) {
             synchronized (this) {
-                if (compressedCss == null) {
-                    compressedCss = cssCompressor.compress(getCssBytes());
+                if (resources == null) {
+                    resources = buildResources();
                 }
             }
         }
-        return compressedCss;
+        return resources;
+    }
+
+    private BundleResourceCollection[] buildResources() {
+
+        LinkedList<Resource> l = new LinkedList<Resource>();
+        for (String file : config.files()) {
+            l.add(resolve(file));
+        }
+
+        Tarjan tarjan = new Tarjan(l);
+
+        List<List<Resource>> order = tarjan.getResult();
+
+        LinkedHashMap<Bundle, List<Resource>> bundleResources = new LinkedHashMap<Bundle, List<Resource>>();
+
+        for (List<Resource> cur : order) {
+            if (cur.size() > 1) {
+                StringBuilder bld = new StringBuilder();
+                for (Resource r : cur) {
+                    bld.append(r.getPath() + " -> ");
+                }
+                // remove last " -> "
+                bld.delete(bld.length() - 4, bld.length());
+                throw new IllegalStateException("Found cyclic dependency: " + bld.toString());
+            }
+            Resource r = cur.get(0);
+            if (!(r instanceof BundleResource)) {
+                throw new IllegalStateException("Can only resolve dependencies to BundleResource");
+            }
+            Bundle b = ((BundleResource) r).getBundle();
+            List<Resource> lr = bundleResources.get(b);
+            if (lr == null) {
+                lr = new LinkedList<Resource>();
+                bundleResources.put(b, lr);
+            }
+            lr.add(r);
+        }
+
+        BundleResourceCollection[] result = new BundleResourceCollection[bundleResources.size()];
+
+        int i = 0;
+        for (Bundle b : bundleResources.keySet()) {
+            List<Resource> lr = bundleResources.get(b);
+            Resource[] alr = lr.toArray(new Resource[lr.size()]);
+            result[i++] = new DefaultBundleResourceCollection(b, alr, null);
+        }
+
+        return result;
+
     }
 
 }

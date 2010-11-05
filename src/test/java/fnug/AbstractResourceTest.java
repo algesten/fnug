@@ -1,6 +1,7 @@
 package fnug;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,7 +59,7 @@ public class AbstractResourceTest {
         Assert.assertTrue(res.checkModified()); // > 1000
 
         Assert.assertEquals(5, res.readLastModifiedCount);
-        Assert.assertEquals(2, res.readEntryCount);
+        Assert.assertEquals(1, res.readEntryCount);
 
         res.getBytes();
 
@@ -96,6 +97,11 @@ public class AbstractResourceTest {
         protected long readLastModified() {
             readLastModifiedCount++;
             return lastModified;
+        }
+
+        @Override
+        public List<String> parseRequires() {
+            return null;
         }
     }
 

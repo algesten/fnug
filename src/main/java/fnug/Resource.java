@@ -1,5 +1,7 @@
 package fnug;
 
+import java.util.List;
+
 public interface Resource {
 
     String getPath();
@@ -15,5 +17,7 @@ public interface Resource {
     long getLastModified();
 
     boolean checkModified();
+
+    List<String> parseRequires();
 
 }

@@ -39,8 +39,12 @@ public class JsonConfigParser implements ConfigParser {
             LinkedList<BundleConfig> bundleConfigs = new LinkedList<BundleConfig>();
 
             while (parser.nextToken() != null) {
-                DefaultBundleConfig config = buildConfig(parser, basePath);
+                DefaultBundleConfig config = buildConfig(parser, res, basePath);
                 bundleConfigs.add(config);
+            }
+
+            if (bundleConfigs.isEmpty()) {
+                throw new IllegalArgumentException("Failed to read at least one bundle config in: " + res.getPath());
             }
 
             result.add(new DefaultConfig(bundleConfigs));
@@ -59,7 +63,7 @@ public class JsonConfigParser implements ConfigParser {
 
     private String extractBasePath(Resource res) {
 
-        // may not point to a file in the file syste, but handy to pick out
+        // may not point to a file in the file system, but handy to pick out
         // path.
         File f = new File(res.getPath());
 
@@ -67,7 +71,8 @@ public class JsonConfigParser implements ConfigParser {
 
     }
 
-    private DefaultBundleConfig buildConfig(JsonParser parser, String basePath) throws JsonParseException, IOException {
+    private DefaultBundleConfig buildConfig(JsonParser parser, Resource configResource, String basePath)
+            throws JsonParseException, IOException {
 
         if (parser.getCurrentToken() != JsonToken.START_OBJECT) {
             throw new JsonConfigParseException("Expected object", parser.getCurrentLocation());
@@ -84,7 +89,8 @@ public class JsonConfigParser implements ConfigParser {
         String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
         String[] files = parseStringArray(node, KEY_FILES, loc, null);
 
-        return new DefaultBundleConfig(name, basePath, matches, jsLint, checkModified, jsCompileArgs, files);
+        return new DefaultBundleConfig(configResource, name, basePath, matches, jsLint, checkModified, jsCompileArgs,
+                files);
     }
 
     private String[] parseStringArray(JsonNode node, String key, JsonLocation loc, String[] def) {
