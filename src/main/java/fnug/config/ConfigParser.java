@@ -1,6 +1,5 @@
 package fnug.config;
 
-import fnug.Config;
 import fnug.Resource;
 
 

@@ -1,4 +1,5 @@
-package fnug;
+package fnug.config;
+
 
 public interface Config {
 

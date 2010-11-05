@@ -1,5 +1,7 @@
 package fnug;
 
+import fnug.config.BundleConfig;
+
 public interface Bundle {
 
     BundleConfig getConfig();

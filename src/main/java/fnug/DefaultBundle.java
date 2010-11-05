@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import fnug.config.BundleConfig;
+
 public class DefaultBundle implements Bundle {
 
     private BundleConfig config;

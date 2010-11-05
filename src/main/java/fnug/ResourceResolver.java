@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import fnug.config.BundleConfig;
+import fnug.config.Config;
 import fnug.config.ConfigParser;
 import fnug.config.JsonConfigParser;
 
