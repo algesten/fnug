@@ -9,7 +9,7 @@ public class JsCompressor {
 
     private GoogleClosureCompilerWrapper wrapper;
 
-    public JsCompressor(String[] args) {
+    public JsCompressor(String... args) {
         wrapper = new GoogleClosureCompilerWrapper(args);
     }
 
@@ -21,8 +21,7 @@ public class JsCompressor {
             // not happening.
             return null;
         } catch (CompilationFailedException e) {
-            // TODO
-            throw new RuntimeException(e);
+            throw new JsCompilationFailedException(e.getMessage(), e);
         }
     }
 
