@@ -1,5 +1,7 @@
 package fnug;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Assert;
@@ -11,14 +13,14 @@ public class AbstractAggregatedResourceTest {
     public void testConstructor() {
 
         try {
-            new TestResource("", "foo.js", null, null);
+            new TestAggResource("", "foo.js", null, null);
             Assert.fail();
         } catch (IllegalArgumentException iae) {
             // ok
         }
 
         try {
-            new TestResource("/", "/foo.js", null, null);
+            new TestAggResource("/", "/foo.js", null, null);
             Assert.fail();
         } catch (IllegalArgumentException iae) {
             // ok
@@ -29,15 +31,32 @@ public class AbstractAggregatedResourceTest {
     @Test
     public void testLastModified() {
 
-        TestResource r1 = new TestResource("/", "foo.js", new Resource[] {}, new Resource[] { makeResource("1", 1),
+        TestAggResource r1 = new TestAggResource("/", "foo.js", new Resource[] {}, new Resource[] {
+                makeResource("1", 1),
                 makeResource("2", 2) });
 
         Assert.assertEquals(2l, r1.getLastModified());
 
-        r1 = new TestResource("/", "foo.js", new Resource[] { makeResource("1", 1),
+        r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
                 makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
 
         Assert.assertEquals(4l, r1.getLastModified());
+
+    }
+
+    @Test
+    public void testBuildAggregate() {
+
+        TestAggResource r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
+                makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
+
+        Assert.assertEquals("12", new String(r1.getBytes()));
+        
+        Assert.assertEquals(1, r1.buildAggregateCount);
+
+        Assert.assertEquals("12", new String(r1.getBytes()));
+
+        Assert.assertEquals(1, r1.buildAggregateCount);
 
     }
 
@@ -71,7 +90,7 @@ public class AbstractAggregatedResourceTest {
 
             @Override
             public byte[] getBytes() {
-                return null;
+                return path.getBytes();
             }
 
             @Override
@@ -83,7 +102,7 @@ public class AbstractAggregatedResourceTest {
             public List<String> findRequiresTags() {
                 return null;
             }
-            
+
             @Override
             public String getBasePath() {
                 return null;
@@ -91,12 +110,13 @@ public class AbstractAggregatedResourceTest {
         };
     }
 
-    private class TestResource extends AbstractAggregatedResource {
+    private class TestAggResource extends AbstractAggregatedResource {
 
         private Resource[] aggregates;
         private Resource[] dependencies;
+        int buildAggregateCount = 0;
 
-        protected TestResource(String basePath, String path, Resource[] aggregates, Resource[] dependencies) {
+        protected TestAggResource(String basePath, String path, Resource[] aggregates, Resource[] dependencies) {
             super(basePath, path);
             this.aggregates = aggregates;
             this.dependencies = dependencies;
@@ -104,7 +124,16 @@ public class AbstractAggregatedResourceTest {
 
         @Override
         protected byte[] buildAggregate() {
-            return new byte[] { 1, 2, 3 };
+            buildAggregateCount++;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            for (Resource r : aggregates) {
+                try {
+                    baos.write(r.getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return baos.toByteArray();
         }
 
         @Override
@@ -121,7 +150,7 @@ public class AbstractAggregatedResourceTest {
         public List<String> findRequiresTags() {
             return null;
         }
-        
+
     }
 
 }
