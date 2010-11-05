@@ -12,18 +12,20 @@ public class DefaultBundleResourceCollection extends AbstractAggregatedResource 
     private Bundle bundle;
     private Resource[] aggregates;
     private Resource[] dependencies;
-    private byte[] css;
-    private volatile byte[] compressedJs;
-    private volatile byte[] compressedCss;
     private JsCompressor jsCompressor;
     private CssCompressor cssCompressor;
 
+    private byte[] css;
+    private volatile byte[] compressedJs;
+    private volatile byte[] compressedCss;
+
     public DefaultBundleResourceCollection(Bundle bundle, Resource[] aggregates, Resource[] dependencies) {
         super(bundle.getConfig().basePath(), IOUtils.md5("" + hash(aggregates)));
-        jsCompressor = new JsCompressor(bundle.getConfig().jsCompileArgs());
-        cssCompressor = new CssCompressor();
+        this.bundle = bundle;
         this.aggregates = aggregates == null ? EMPTY_RESOURCES : aggregates;
         this.dependencies = dependencies == null ? EMPTY_RESOURCES : dependencies;
+        jsCompressor = new JsCompressor(bundle.getConfig().jsCompileArgs());
+        cssCompressor = new CssCompressor();
     }
 
     private static int hash(Resource[] aggregates) {
@@ -106,6 +108,9 @@ public class DefaultBundleResourceCollection extends AbstractAggregatedResource 
 
     @Override
     public boolean checkModified() {
+        if (!bundle.getConfig().checkModified()) {
+            return false;
+        }
         boolean modified = super.checkModified();
         if (modified) {
             synchronized (this) {
