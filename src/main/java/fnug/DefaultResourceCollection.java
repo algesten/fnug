@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import fnug.util.IOUtils;
 
-public class DefaultBundleResourceCollection extends AbstractAggregatedResource
+public class DefaultResourceCollection extends AbstractAggregatedResource
         implements ResourceCollection, HasBundle {
 
     private static final Resource[] EMPTY_RESOURCES = new Resource[] {};
@@ -20,7 +20,7 @@ public class DefaultBundleResourceCollection extends AbstractAggregatedResource
     private volatile byte[] compressedJs;
     private volatile byte[] compressedCss;
 
-    public DefaultBundleResourceCollection(Bundle bundle, Resource[] aggregates, Resource[] dependencies) {
+    public DefaultResourceCollection(Bundle bundle, Resource[] aggregates, Resource[] dependencies) {
         super(bundle.getConfig().basePath(), IOUtils.md5("" + hash(aggregates)));
         this.bundle = bundle;
         this.aggregates = aggregates == null ? EMPTY_RESOURCES : aggregates;
@@ -30,7 +30,7 @@ public class DefaultBundleResourceCollection extends AbstractAggregatedResource
     }
 
     private static int hash(Resource[] aggregates) {
-        int i = DefaultBundleResourceCollection.class.getName().hashCode();
+        int i = DefaultResourceCollection.class.getName().hashCode();
         for (Resource r : aggregates) {
             i = 31 * i + r.getPath().hashCode();
             i = 31 * i + (new Long(r.getLastModified()).hashCode());

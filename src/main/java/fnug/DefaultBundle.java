@@ -45,7 +45,7 @@ public class DefaultBundle implements Bundle {
     }
 
     @Override
-    public ResourceCollection[] getResources() {
+    public ResourceCollection[] getResourceCollections() {
         if (resources == null) {
             synchronized (this) {
                 if (resources == null) {
@@ -98,7 +98,7 @@ public class DefaultBundle implements Bundle {
         for (Bundle b : bundleResources.keySet()) {
             List<Resource> lr = bundleResources.get(b);
             Resource[] alr = lr.toArray(new Resource[lr.size()]);
-            result[i++] = new DefaultBundleResourceCollection(b, alr, null);
+            result[i++] = new DefaultResourceCollection(b, alr, null);
         }
 
         return result;

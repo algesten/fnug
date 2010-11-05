@@ -10,6 +10,6 @@ public interface Bundle {
 
     Resource resolve(String path);
 
-    ResourceCollection[] getResources();
+    ResourceCollection[] getResourceCollections();
 
 }
