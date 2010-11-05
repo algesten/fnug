@@ -2,6 +2,8 @@ package fnug;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import fnug.util.IOUtils;
 
@@ -128,6 +130,27 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             }
         }
         return modified;
+    }
+
+    @Override
+    public List<Resource> getExistingJsAggregates() {
+        return getExisting(CONTENT_TYPE_TEXT_JAVASCRIPT);
+    }
+
+    @Override
+    public List<Resource> getExistingCssAggregates() {
+        return getExisting(CONTENT_TYPE_TEXT_CSS);
+    }
+
+    private List<Resource> getExisting(String contentType) {
+        LinkedList<Resource> res = new LinkedList<Resource>();
+        for (Resource r : getAggregates()) {
+            if (r.getContentType().equals(contentType) &&
+                    r.getLastModified() > 0) {
+                res.add(r);
+            }
+        }
+        return res;
     }
 
 }

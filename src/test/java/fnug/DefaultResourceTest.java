@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -152,6 +153,28 @@ public class DefaultResourceTest {
         r.checkModified();
 
         Assert.assertTrue(Math.abs(tmp.lastModified() - extractDir.lastModified()) < 1000);
+
+    }
+
+    @Test
+    public void testFindRequiresTags() throws Exception {
+        DefaultResource r = new DefaultResource("/", "nosuchresource.js");
+
+        List<String> reqs = r.findRequiresTags();
+
+        Assert.assertNotNull(reqs);
+        Assert.assertEquals(0, reqs.size());
+
+        r = new DefaultResource("/", "test/js-resource1.js");
+
+        reqs = r.findRequiresTags();
+
+        Assert.assertNotNull(reqs);
+        Assert.assertEquals(4, reqs.size());
+
+        Assert.assertEquals("[test/js-resource2.js, test/js-nonexistant.js, " +
+                        "test/css-resource1.css, test/css-nonexistant.css]",
+                reqs.toString());
 
     }
 

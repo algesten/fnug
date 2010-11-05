@@ -7,8 +7,8 @@ import javax.activation.MimetypesFileTypeMap;
 
 public abstract class AbstractResource implements Resource {
 
-    private static final String CONTENT_TYPE_TEXT_CSS = "text/css";
-    private static final String CONTENT_TYPE_TEXT_JAVASCRIPT = "text/javascript";
+    protected static final String CONTENT_TYPE_TEXT_CSS = "text/css";
+    protected static final String CONTENT_TYPE_TEXT_JAVASCRIPT = "text/javascript";
     private final static FileTypeMap TYPE_MAP = new MimetypesFileTypeMap(
             DefaultResource.class.getResourceAsStream("/mime.types"));
 
@@ -124,6 +124,11 @@ public abstract class AbstractResource implements Resource {
             this.bytes = bytes;
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return getPath();
     }
 
 }

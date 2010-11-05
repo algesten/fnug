@@ -197,7 +197,7 @@ public class DefaultResource extends AbstractResource {
 
     }
 
-    private final static Pattern REQUIRES_PAT = Pattern.compile("\\s*[*]\\s*@requires\\s+\\([^ \\t\\n\\x0B\\f\\r]+\\)");
+    private final static Pattern REQUIRES_PAT = Pattern.compile("\\s*[*]\\s*@requires\\s+([^ \\t\\n\\x0B\\f\\r]+)");
 
     @Override
     public List<String> findRequiresTags() {

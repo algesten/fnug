@@ -36,12 +36,16 @@ public class DefaultBundle implements Bundle {
             synchronized (this) {
                 res = cache.get(path);
                 if (res == null) {
-                    res = new DefaultBundleResource(this, path);
+                    res = makeResource(path);
                     cache.put(path, res);
                 }
             }
         }
         return res;
+    }
+
+    protected Resource makeResource(String path) {
+        return new DefaultBundleResource(this, path);
     }
 
     @Override
@@ -60,7 +64,7 @@ public class DefaultBundle implements Bundle {
 
         LinkedList<Resource> l = new LinkedList<Resource>();
         for (String file : config.files()) {
-            l.add(resolve(file));
+            l.add(ResourceResolver.getInstance().resolve(file));
         }
 
         Tarjan tarjan = new Tarjan(l);
@@ -75,8 +79,7 @@ public class DefaultBundle implements Bundle {
                 for (Resource r : cur) {
                     bld.append(r.getPath() + " -> ");
                 }
-                // remove last " -> "
-                bld.delete(bld.length() - 4, bld.length());
+                bld.append(cur.get(0));
                 throw new IllegalStateException("Found cyclic dependency: " + bld.toString());
             }
             Resource r = cur.get(0);
@@ -104,5 +107,4 @@ public class DefaultBundle implements Bundle {
         return result;
 
     }
-
 }

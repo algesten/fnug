@@ -1,5 +1,7 @@
 package fnug;
 
+import java.util.List;
+
 public interface ResourceCollection extends AggregatedResource {
 
     byte[] getJs();
@@ -9,5 +11,9 @@ public interface ResourceCollection extends AggregatedResource {
     byte[] getCompressedJs();
 
     byte[] getCompressedCss();
+
+    List<Resource> getExistingJsAggregates();
+
+    List<Resource> getExistingCssAggregates();
 
 }
