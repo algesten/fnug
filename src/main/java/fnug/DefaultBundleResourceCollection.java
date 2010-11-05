@@ -5,7 +5,8 @@ import java.io.IOException;
 
 import fnug.util.IOUtils;
 
-public class DefaultBundleResourceCollection extends AbstractAggregatedResource implements BundleResourceCollection {
+public class DefaultBundleResourceCollection extends AbstractAggregatedResource
+        implements ResourceCollection, HasBundle {
 
     private static final Resource[] EMPTY_RESOURCES = new Resource[] {};
 

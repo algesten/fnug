@@ -1,8 +1,6 @@
 package fnug;
 
-public interface BundleResourceCollection extends AggregatedResource {
-
-    Bundle getBundle();
+public interface ResourceCollection extends AggregatedResource {
 
     byte[] getJs();
 

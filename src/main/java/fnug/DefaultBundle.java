@@ -13,7 +13,7 @@ public class DefaultBundle implements Bundle {
 
     private volatile HashMap<String, Resource> cache = new HashMap<String, Resource>();
 
-    private volatile BundleResourceCollection[] resources;
+    private volatile ResourceCollection[] resources;
 
     public DefaultBundle(BundleConfig config) {
         this.config = config;
@@ -45,7 +45,7 @@ public class DefaultBundle implements Bundle {
     }
 
     @Override
-    public BundleResourceCollection[] getResources() {
+    public ResourceCollection[] getResources() {
         if (resources == null) {
             synchronized (this) {
                 if (resources == null) {
@@ -56,7 +56,7 @@ public class DefaultBundle implements Bundle {
         return resources;
     }
 
-    private BundleResourceCollection[] buildResources() {
+    private ResourceCollection[] buildResources() {
 
         LinkedList<Resource> l = new LinkedList<Resource>();
         for (String file : config.files()) {
@@ -80,10 +80,10 @@ public class DefaultBundle implements Bundle {
                 throw new IllegalStateException("Found cyclic dependency: " + bld.toString());
             }
             Resource r = cur.get(0);
-            if (!(r instanceof BundleResource)) {
-                throw new IllegalStateException("Can only resolve dependencies to BundleResource");
+            if (!(r instanceof HasBundle)) {
+                throw new IllegalStateException("Can only resolve dependencies resources implementing HasBundle");
             }
-            Bundle b = ((BundleResource) r).getBundle();
+            Bundle b = ((HasBundle) r).getBundle();
             List<Resource> lr = bundleResources.get(b);
             if (lr == null) {
                 lr = new LinkedList<Resource>();
@@ -92,7 +92,7 @@ public class DefaultBundle implements Bundle {
             lr.add(r);
         }
 
-        BundleResourceCollection[] result = new BundleResourceCollection[bundleResources.size()];
+        ResourceCollection[] result = new ResourceCollection[bundleResources.size()];
 
         int i = 0;
         for (Bundle b : bundleResources.keySet()) {

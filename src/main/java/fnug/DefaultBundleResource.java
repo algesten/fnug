@@ -1,6 +1,6 @@
 package fnug;
 
-public class DefaultBundleResource extends DefaultResource implements BundleResource {
+public class DefaultBundleResource extends DefaultResource implements HasBundle {
 
     private Bundle bundle;
 
