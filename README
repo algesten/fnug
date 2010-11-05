@@ -1,0 +1,11 @@
+Serlvet that does:
+
+        1. JavaScript/CSS resource dependency management using JSDoc
+           @requires tags.
+
+        2. On-the-fly compressed deploy/debug mode.
+        
+        3. JSLint of JavaScript.
+
+This servlet is aimed at projects doing hand written JavaScript
+specifically using tools like FireBug.
