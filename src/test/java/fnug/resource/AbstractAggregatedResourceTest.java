@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,6 +7,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import fnug.resource.AbstractAggregatedResource;
+import fnug.resource.Resource;
 
 public class AbstractAggregatedResourceTest {
 

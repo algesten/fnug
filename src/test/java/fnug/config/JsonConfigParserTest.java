@@ -3,8 +3,8 @@ package fnug.config;
 import org.junit.Assert;
 import org.junit.Test;
 
-import fnug.DefaultResource;
 import fnug.config.JsonConfigParser;
+import fnug.resource.DefaultResource;
 
 public class JsonConfigParserTest {
 

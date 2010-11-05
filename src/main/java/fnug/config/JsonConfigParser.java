@@ -14,7 +14,7 @@ import org.codehaus.jackson.JsonParser.Feature;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import fnug.Resource;
+import fnug.resource.Resource;
 
 public class JsonConfigParser implements ConfigParser {
 

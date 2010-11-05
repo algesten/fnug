@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import fnug.resource.DefaultResource;
 import fnug.util.IOUtils;
 
 public class DefaultResourceTest {

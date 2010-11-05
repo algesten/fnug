@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -9,6 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import fnug.config.BundleConfig;
+import fnug.resource.DefaultBundle;
+import fnug.resource.DefaultResourceCollection;
+import fnug.resource.Resource;
+import fnug.resource.ResourceCollection;
+import fnug.resource.ResourceResolver;
 
 public class DefaultBundleTest {
 

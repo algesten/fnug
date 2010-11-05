@@ -1,8 +1,11 @@
-package fnug;
+package fnug.resource;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import fnug.resource.JsCompilationFailedException;
+import fnug.resource.JsCompressor;
 
 public class JsCompressorTest {
 

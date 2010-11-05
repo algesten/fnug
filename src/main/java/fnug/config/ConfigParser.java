@@ -1,6 +1,6 @@
 package fnug.config;
 
-import fnug.Resource;
+import fnug.resource.Resource;
 
 
 public interface ConfigParser {

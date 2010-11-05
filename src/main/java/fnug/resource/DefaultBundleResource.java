@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 public class DefaultBundleResource extends DefaultResource implements HasBundle {
 

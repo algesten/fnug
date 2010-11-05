@@ -2,7 +2,7 @@ package fnug.config;
 
 import java.util.regex.Pattern;
 
-import fnug.Resource;
+import fnug.resource.Resource;
 
 public interface BundleConfig {
 

@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 @SuppressWarnings("serial")
 public class JsCompilationFailedException extends RuntimeException {

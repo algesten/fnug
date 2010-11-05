@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 import java.util.Arrays;
 import java.util.HashMap;

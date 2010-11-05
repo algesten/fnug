@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 import java.util.regex.Pattern;
 
@@ -7,6 +7,9 @@ import org.junit.Test;
 
 import fnug.config.BundleConfig;
 import fnug.config.Config;
+import fnug.resource.HasBundle;
+import fnug.resource.Resource;
+import fnug.resource.ResourceResolver;
 
 public class ResourceResolverTest {
 

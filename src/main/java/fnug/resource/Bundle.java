@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 import fnug.config.BundleConfig;
 

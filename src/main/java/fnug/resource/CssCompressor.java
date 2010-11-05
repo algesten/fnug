@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 import java.io.IOException;
 import java.io.StringReader;

@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 public interface HasBundle {
 

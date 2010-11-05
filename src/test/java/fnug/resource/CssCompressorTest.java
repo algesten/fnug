@@ -1,7 +1,9 @@
-package fnug;
+package fnug.resource;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import fnug.resource.CssCompressor;
 
 public class CssCompressorTest {
 

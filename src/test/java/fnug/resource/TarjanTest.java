@@ -1,4 +1,4 @@
-package fnug;
+package fnug.resource;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,6 +9,10 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import fnug.resource.Resource;
+import fnug.resource.ResourceResolver;
+import fnug.resource.Tarjan;
 
 public class TarjanTest {
 
