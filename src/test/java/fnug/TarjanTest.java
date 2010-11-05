@@ -54,7 +54,7 @@ public class TarjanTest {
 
             @Override
             @SuppressWarnings("unchecked")
-            public List<String> parseRequires() {
+            public List<String> findRequiresTags() {
                 String[] reqs = model.get(path);
                 return (List<String>) (reqs == null ? Collections.emptyList() : Arrays.asList(reqs));
             }

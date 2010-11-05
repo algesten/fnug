@@ -100,7 +100,7 @@ public class AbstractResourceTest {
         }
 
         @Override
-        public List<String> parseRequires() {
+        public List<String> findRequiresTags() {
             return null;
         }
     }

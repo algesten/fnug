@@ -80,7 +80,7 @@ public class AbstractAggregatedResourceTest {
             }
 
             @Override
-            public List<String> parseRequires() {
+            public List<String> findRequiresTags() {
                 return null;
             }
             
@@ -118,7 +118,7 @@ public class AbstractAggregatedResourceTest {
         }
 
         @Override
-        public List<String> parseRequires() {
+        public List<String> findRequiresTags() {
             return null;
         }
         

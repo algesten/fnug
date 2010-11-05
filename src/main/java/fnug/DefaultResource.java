@@ -22,6 +22,8 @@ import fnug.util.IOUtils;
 
 public class DefaultResource extends AbstractResource {
 
+    private static final String CONTENT_TYPE_TEXT = "text/";
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultResource.class);
 
     private static final byte[] EMPTY_BYTES = new byte[] {};
@@ -198,17 +200,24 @@ public class DefaultResource extends AbstractResource {
     private final static Pattern REQUIRES_PAT = Pattern.compile("\\s*[*]\\s*@requires\\s+\\([^ \\t\\n\\x0B\\f\\r]+\\)");
 
     @Override
-    public List<String> parseRequires() {
+    public List<String> findRequiresTags() {
         LinkedList<String> result = new LinkedList<String>();
-        try {
-            String s = new String(getBytes(), "utf-8");
-            Matcher m = REQUIRES_PAT.matcher(s);
-            while (m.find()) {
-                result.add(m.group(1));
+        if (isText()) {
+            try {
+                String s = new String(getBytes(), "utf-8");
+                Matcher m = REQUIRES_PAT.matcher(s);
+                while (m.find()) {
+                    result.add(m.group(1));
+                }
+            } catch (UnsupportedEncodingException e) {
+                // not happening.
             }
-        } catch (UnsupportedEncodingException e) {
-            // not happening.
         }
         return result;
     }
+
+    private boolean isText() {
+        return getContentType().startsWith(CONTENT_TYPE_TEXT);
+    }
+
 }

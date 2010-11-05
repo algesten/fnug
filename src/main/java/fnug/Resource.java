@@ -20,6 +20,6 @@ public interface Resource {
 
     boolean checkModified();
 
-    List<String> parseRequires();
+    List<String> findRequiresTags();
 
 }

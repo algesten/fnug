@@ -34,7 +34,7 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
     }
 
     @Override
-    public List<String> parseRequires() {
+    public List<String> findRequiresTags() {
         throw new UnsupportedOperationException("Not possible to parseRequires on aggregated resource");
     }
 
