@@ -145,6 +145,22 @@ public class DefaultBundleTest {
 
     }
 
+    @Test
+    public void testMaxCache() {
+
+        final DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" }));
+
+        try {
+            for (int i = 0; i < 100000; i++) {
+                b.resolve("some/file" + i + ".js");
+            }
+            Assert.fail();
+        } catch (IllegalStateException ise) {
+            // expected
+        }
+
+    }
+
     private BundleConfig makeBundleConfig(final String bundleName, final String[] files) {
         return new BundleConfig() {
             @Override

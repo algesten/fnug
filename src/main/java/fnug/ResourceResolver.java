@@ -1,5 +1,6 @@
 package fnug;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -44,6 +45,11 @@ public class ResourceResolver {
     protected ResourceResolver() {
     }
 
+    protected void setConfigs(Config... configs) {
+        this.configs = Arrays.asList(configs);
+        initBundles();
+    }
+
     public Resource resolve(String path) {
         if (configs.isEmpty()) {
             initConfigs();
@@ -52,10 +58,10 @@ public class ResourceResolver {
             throw new IllegalArgumentException("Can't resolve empty path");
         }
         if (path.startsWith(SEPARATOR)) {
-            path = path.substring(1);
+            throw new IllegalArgumentException("Path must not start with '" + SEPARATOR + "'");
         }
         if (path.endsWith(SEPARATOR)) {
-            path = path.substring(0, path.length() - 1);
+            throw new IllegalArgumentException("Path must not end with '" + SEPARATOR + "'");
         }
         for (Pattern pat : patterns.keySet()) {
             if (pat.matcher(path).matches()) {

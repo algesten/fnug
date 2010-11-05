@@ -9,6 +9,35 @@ import org.junit.Test;
 public class AbstractResourceTest {
 
     @Test
+    public void testConstructor() {
+        try {
+            new TestResource(null, "foo.js");
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            // yes
+        }
+        try {
+            new TestResource("/", null);
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            // yes
+        }
+        try {
+            new TestResource("", null);
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            // yes
+        }
+        try {
+            new TestResource("/", "/foo.js");
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            // yes
+        }
+        new TestResource("/", "foo.js");
+    }
+
+    @Test
     public void testReads() {
 
         TestResource res = new TestResource("/", "foo.js", "somedata", 123l);
@@ -80,6 +109,10 @@ public class AbstractResourceTest {
 
         long lastModified;
         String data;
+
+        protected TestResource(String basePath, String path) {
+            super(basePath, path);
+        }
 
         protected TestResource(String basePath, String path, String data, long lastModified) {
             super(basePath, path);

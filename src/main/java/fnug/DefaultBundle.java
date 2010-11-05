@@ -9,6 +9,13 @@ import fnug.config.BundleConfig;
 
 public class DefaultBundle implements Bundle {
 
+    /**
+     * Arbitrary max size for cached resources. We want to avoid filling the
+     * heap space with resources pointing to non-existing files. If we hit this
+     * limit, something is probably wrong.
+     */
+    private static final int MAX_CACHE = 10000;
+
     private BundleConfig config;
 
     private volatile HashMap<String, Resource> cache = new HashMap<String, Resource>();
@@ -36,6 +43,9 @@ public class DefaultBundle implements Bundle {
             synchronized (this) {
                 res = cache.get(path);
                 if (res == null) {
+                    if (cache.size() > MAX_CACHE) {
+                        throw new IllegalStateException("Cache is larger than " + MAX_CACHE);
+                    }
                     res = makeResource(path);
                     cache.put(path, res);
                 }

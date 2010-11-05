@@ -18,6 +18,12 @@ public abstract class AbstractResource implements Resource {
     private volatile Long lastModified; // null = not read, -1 = not exist
 
     protected AbstractResource(String basePath, String path) {
+        if (basePath == null) {
+            throw new IllegalArgumentException("basePath must no be null");
+        }
+        if (path == null) {
+            throw new IllegalArgumentException("path must no be null");
+        }
         if (!basePath.endsWith(File.separator)) {
             throw new IllegalArgumentException("basePath must end with " + File.separator);
         }
