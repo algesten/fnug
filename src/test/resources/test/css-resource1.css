@@ -1,0 +1,14 @@
+/**
+ * @requires test/css-resource2.css
+ * @requires test/js-requiredbycss.js
+ */
+
+body {
+	background: black;
+	color: white;
+	font-size: 14em;
+}
+
+p {
+	margin-top: 14px 14px 14px 14px;
+}

@@ -7,6 +7,8 @@ public interface Resource {
     String getBasePath();
     
     String getPath();
+    
+    String getFullPath();
 
     String getContentType();
 

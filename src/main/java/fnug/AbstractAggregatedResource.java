@@ -19,12 +19,16 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
     protected long readLastModified() {
         long lastModified = 0l;
         for (Resource res : getAggregates()) {
+            // trigger check of actual resource modified
+            res.checkModified();
             long l = res.getLastModified();
             if (l > lastModified) {
                 lastModified = l;
             }
         }
         for (Resource res : getDependencies()) {
+            // trigger check of actual resource modified
+            res.checkModified();
             long l = res.getLastModified();
             if (l > lastModified) {
                 lastModified = l;
@@ -35,7 +39,7 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
 
     @Override
     public List<String> findRequiresTags() {
-        throw new UnsupportedOperationException("Not possible to parseRequires on aggregated resource");
+        throw new UnsupportedOperationException("Not possible to find @requires on aggregated resource");
     }
 
 }

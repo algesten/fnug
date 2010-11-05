@@ -103,6 +103,11 @@ public class TarjanTest {
             public String toString() {
                 return path;
             }
+
+            @Override
+            public String getFullPath() {
+                return null;
+            }
         };
     }
 

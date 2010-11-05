@@ -1,0 +1,11 @@
+/**
+ * @requires test/js-requiredbycss.js
+ */
+
+a {
+	color: red;
+}
+
+broken {
+ xxx
+/* Deliberately no close */

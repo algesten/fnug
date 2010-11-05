@@ -8,6 +8,8 @@ import fnug.util.IOUtils;
 public class DefaultResourceCollection extends AbstractAggregatedResource
         implements ResourceCollection, HasBundle {
 
+    private static final String SUPER_NAME = "__CALCULATED__";
+
     private static final Resource[] EMPTY_RESOURCES = new Resource[] {};
 
     private Bundle bundle;
@@ -21,7 +23,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     private volatile byte[] compressedCss;
 
     public DefaultResourceCollection(Bundle bundle, Resource[] aggregates, Resource[] dependencies) {
-        super(bundle.getConfig().basePath(), IOUtils.md5("" + hash(aggregates)));
+        super(bundle.getConfig().basePath(), SUPER_NAME);
         this.bundle = bundle;
         this.aggregates = aggregates == null ? EMPTY_RESOURCES : aggregates;
         this.dependencies = dependencies == null ? EMPTY_RESOURCES : dependencies;
@@ -36,6 +38,11 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             i = 31 * i + (new Long(r.getLastModified()).hashCode());
         }
         return i;
+    }
+
+    @Override
+    public String getPath() {
+        return IOUtils.md5("" + hash(getAggregates()));
     }
 
     @Override

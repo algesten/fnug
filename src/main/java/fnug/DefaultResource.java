@@ -110,7 +110,7 @@ public class DefaultResource extends AbstractResource {
         }
         try {
             IOUtils.spool(fis, baos);
-            return new Entry(file.lastModified(), baos.toByteArray());
+            return new Entry(readLastModified(), baos.toByteArray());
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read file: " + file.getAbsolutePath(), e);
         }

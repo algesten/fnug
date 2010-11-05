@@ -5,9 +5,17 @@ import java.io.IOException;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class AbstractAggregatedResourceTest {
+
+    private int checkModifiedCount;
+
+    @Before
+    public void before() {
+        checkModifiedCount = 0;
+    }
 
     @Test
     public void testConstructor() {
@@ -40,7 +48,39 @@ public class AbstractAggregatedResourceTest {
         r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
                 makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
 
+        Assert.assertEquals(2, checkModifiedCount);
+
         Assert.assertEquals(4l, r1.getLastModified());
+        Assert.assertEquals(4l, r1.getLastModified());
+        Assert.assertEquals(4l, r1.getLastModified());
+
+        Assert.assertEquals(6, checkModifiedCount);
+
+    }
+
+    @Test
+    public void testCheckModified() {
+
+        TestAggResource r1 = new TestAggResource("/", "foo.js", new Resource[] {}, new Resource[] {
+                makeResource("1", 1),
+                makeResource("2", 2) });
+
+        Assert.assertEquals(2l, r1.getLastModified());
+
+        r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
+                makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
+
+        Assert.assertEquals(2, checkModifiedCount);
+
+        Assert.assertEquals(4l, r1.getLastModified());
+
+        Assert.assertEquals(6, checkModifiedCount);
+        
+        Assert.assertFalse(r1.checkModified());
+        Assert.assertFalse(r1.checkModified());
+        Assert.assertFalse(r1.checkModified());
+        
+        Assert.assertEquals(18, checkModifiedCount);
 
     }
 
@@ -51,7 +91,7 @@ public class AbstractAggregatedResourceTest {
                 makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
 
         Assert.assertEquals("12", new String(r1.getBytes()));
-        
+
         Assert.assertEquals(1, r1.buildAggregateCount);
 
         Assert.assertEquals("12", new String(r1.getBytes()));
@@ -95,6 +135,7 @@ public class AbstractAggregatedResourceTest {
 
             @Override
             public boolean checkModified() {
+                checkModifiedCount++;
                 return false;
             }
 
@@ -105,6 +146,11 @@ public class AbstractAggregatedResourceTest {
 
             @Override
             public String getBasePath() {
+                return null;
+            }
+
+            @Override
+            public String getFullPath() {
                 return null;
             }
         };
