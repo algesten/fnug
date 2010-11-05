@@ -75,6 +75,11 @@ public class TarjanTest {
             }
 
             @Override
+            public String getBasePath() {
+                return null;
+            }
+
+            @Override
             public long getLastModified() {
                 return 0;
             }

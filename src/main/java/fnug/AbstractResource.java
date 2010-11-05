@@ -29,6 +29,11 @@ public abstract class AbstractResource implements Resource {
     }
 
     @Override
+    public String getBasePath() {
+        return basePath;
+    }
+
+    @Override
     public String getPath() {
         return path;
     }

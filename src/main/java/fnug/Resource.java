@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface Resource {
 
+    String getBasePath();
+    
     String getPath();
 
     String getContentType();

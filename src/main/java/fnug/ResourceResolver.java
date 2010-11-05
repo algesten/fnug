@@ -74,8 +74,8 @@ public class ResourceResolver {
                 bundles.clear();
                 patterns.clear();
                 for (Resource configResource : configResources) {
-                    List<Config> parsedConfigs = configParser.parse(configResource);
-                    configs.addAll(parsedConfigs);
+                    Config parsedConfig = configParser.parse(configResource);
+                    configs.add(parsedConfig);
                     initBundles();
                 }
             }

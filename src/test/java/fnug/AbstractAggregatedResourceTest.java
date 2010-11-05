@@ -83,6 +83,11 @@ public class AbstractAggregatedResourceTest {
             public List<String> parseRequires() {
                 return null;
             }
+            
+            @Override
+            public String getBasePath() {
+                return null;
+            }
         };
     }
 
@@ -116,6 +121,7 @@ public class AbstractAggregatedResourceTest {
         public List<String> parseRequires() {
             return null;
         }
+        
     }
 
 }

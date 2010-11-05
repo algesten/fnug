@@ -1,9 +1,8 @@
 package fnug;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.codehaus.jackson.JsonFactory;
@@ -11,7 +10,9 @@ import org.codehaus.jackson.JsonLocation;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonParser.Feature;
 import org.codehaus.jackson.JsonToken;
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class JsonConfigParser implements ConfigParser {
 
@@ -21,12 +22,26 @@ public class JsonConfigParser implements ConfigParser {
     private static final String KEY_JS_COMPILER_ARGS = "jsCompilerArgs";
     private static final String KEY_FILES = "files";
     private static final String[] EMPTY_STRINGS = new String[] {};
-    private JsonFactory jsonFactory = new JsonFactory();
+    private ObjectMapper mapper;
+    private JsonFactory jsonFactory;
+
+    public JsonConfigParser() {
+        configureJsonParser();
+    }
+
+    private void configureJsonParser() {
+        mapper = new ObjectMapper();
+
+        // relax the default oh so anal json defaults.
+        mapper.configure(Feature.ALLOW_COMMENTS, true);
+        mapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
+        mapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+
+        jsonFactory = mapper.getJsonFactory();
+    }
 
     @Override
-    public List<Config> parse(Resource res) {
-
-        LinkedList<Config> result = new LinkedList<Config>();
+    public Config parse(Resource res) {
 
         JsonParser parser = null;
 
@@ -34,54 +49,45 @@ public class JsonConfigParser implements ConfigParser {
 
             parser = jsonFactory.createJsonParser(res.getBytes());
 
-            String basePath = extractBasePath(res);
-
             LinkedList<BundleConfig> bundleConfigs = new LinkedList<BundleConfig>();
 
-            while (parser.nextToken() != null) {
-                DefaultBundleConfig config = buildConfig(parser, res, basePath);
+            if (parser.nextToken() == null) {
+                throw new IllegalArgumentException("Empty config file '" + res.getPath() + "'");
+            }
+
+            if (parser.getCurrentToken() != JsonToken.START_OBJECT) {
+                throw new IllegalArgumentException("Config file is not a json object");
+            }
+
+            JsonNode root = parser.readValueAsTree();
+
+            Iterator<String> iter = root.getFieldNames();
+            while (iter.hasNext()) {
+                String name = iter.next();
+                DefaultBundleConfig config = buildConfig(root.get(name), name, parser.getCurrentLocation(),
+                        res);
                 bundleConfigs.add(config);
             }
 
             if (bundleConfigs.isEmpty()) {
-                throw new IllegalArgumentException("Failed to read at least one bundle config in: " + res.getPath());
+                throw new IllegalArgumentException("Failed to read at least " +
+                        "one bundle config in '" + res.getPath() + "'");
             }
 
-            result.add(new DefaultConfig(bundleConfigs));
+            return new DefaultConfig(bundleConfigs);
 
         } catch (Exception e) {
             if (parser != null) {
-                throw new JsonConfigParseException("Failed to parse", parser.getCurrentLocation(), e);
+                throw new JsonConfigParseException(parser.getCurrentLocation(), e);
             } else {
                 throw new ConfigParseException("Failed to parse", e);
             }
         }
 
-        return result;
-
     }
 
-    private String extractBasePath(Resource res) {
-
-        // may not point to a file in the file system, but handy to pick out
-        // path.
-        File f = new File(res.getPath());
-
-        return f.getParent();
-
-    }
-
-    private DefaultBundleConfig buildConfig(JsonParser parser, Resource configResource, String basePath)
+    private DefaultBundleConfig buildConfig(JsonNode node, String name, JsonLocation loc, Resource configResource)
             throws JsonParseException, IOException {
-
-        if (parser.getCurrentToken() != JsonToken.START_OBJECT) {
-            throw new JsonConfigParseException("Expected object", parser.getCurrentLocation());
-        }
-
-        String name = parser.getCurrentName();
-
-        JsonLocation loc = parser.getCurrentLocation();
-        JsonNode node = parser.readValueAsTree();
 
         Pattern[] matches = parsePatternArray(node, KEY_MATCHES, loc);
         boolean jsLint = parseBoolean(node, KEY_JS_LINT, loc, DefaultBundleConfig.DEFAULT_JS_LINT);
@@ -89,7 +95,8 @@ public class JsonConfigParser implements ConfigParser {
         String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
         String[] files = parseStringArray(node, KEY_FILES, loc, null);
 
-        return new DefaultBundleConfig(configResource, name, basePath, matches, jsLint, checkModified, jsCompileArgs,
+        return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), matches, jsLint,
+                checkModified, jsCompileArgs,
                 files);
     }
 

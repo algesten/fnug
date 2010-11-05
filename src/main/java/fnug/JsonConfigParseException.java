@@ -5,12 +5,16 @@ import org.codehaus.jackson.JsonLocation;
 @SuppressWarnings("serial")
 public class JsonConfigParseException extends ConfigParseException {
 
-    public JsonConfigParseException(String string, JsonLocation currentLocation) {
-        this(string, currentLocation, null);
+    private JsonConfigParseException(String msg, JsonLocation loc, Exception ex) {
+        super("At line " + loc.getLineNr() + " col " + loc.getColumnNr() + ": " + msg, ex);
     }
 
-    public JsonConfigParseException(String string, JsonLocation currentLocation, Exception ex) {
-        super("At line " + currentLocation.getLineNr() + " col " + currentLocation.getColumnNr() + ": " + string, ex);
+    public JsonConfigParseException(String msg, JsonLocation lock) {
+        this(msg, lock, null);
+    }
+
+    public JsonConfigParseException(JsonLocation loc, Exception ex) {
+        this(ex.getMessage(), loc, ex);
     }
 
 }
