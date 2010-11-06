@@ -97,8 +97,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         if (compressedJs == null) {
             synchronized (this) {
                 if (compressedJs == null) {
-                    byte[] bytes = jsCompressor.compress(getJs());
-                    compressedJs = new DefaultByteResource(getBundle(), getPath() + ".js", bytes, getLastModified());
+                    compressedJs = new DefaultCompressedResource(getBundle(), getPath() + ".js", getJs(),
+                            getLastModified(), jsCompressor);
                 }
             }
         }
@@ -110,8 +110,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         if (compressedCss == null) {
             synchronized (this) {
                 if (compressedCss == null) {
-                    byte[] bytes = cssCompressor.compress(getCss());
-                    compressedCss = new DefaultByteResource(getBundle(), getPath() + ".css", bytes, getLastModified());
+                    compressedCss = new DefaultCompressedResource(getBundle(), getPath() + ".css", getCss(),
+                            getLastModified(), cssCompressor);
                 }
             }
         }

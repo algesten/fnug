@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 import googccwrap.CompilationFailedException;
 import googccwrap.GoogleClosureCompilerWrapper;
 
-public class JsCompressor {
+public class JsCompressor implements Compressor {
 
     private GoogleClosureCompilerWrapper wrapper;
 

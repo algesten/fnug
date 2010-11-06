@@ -8,7 +8,7 @@ public abstract class AbstractResource implements Resource {
     protected static final String CONTENT_TYPE_TEXT_CSS = "text/css";
     protected static final String CONTENT_TYPE_TEXT_JAVASCRIPT = "text/javascript";
     private final static FileTypeMap TYPE_MAP = new MimetypesFileTypeMap(
-            DefaultResource.class.getResourceAsStream("/mime.types"));
+            DefaultResource.class.getResourceAsStream("/fnug/mime.types"));
 
     private String basePath;
     private String path;

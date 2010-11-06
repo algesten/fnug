@@ -2,9 +2,7 @@ package fnug;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -24,9 +22,32 @@ public class ResourceServlet extends HttpServlet {
 
     private ResourceResolver resolver;
 
+    private String bootstrapJs;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+
+        initResolver(config);
+
+        initBootstrapJs();
+
+    }
+
+    private void initBootstrapJs() {
+
+        Resource res = new DefaultResource("/fnug/", "bootstrap.js");
+
+        if (res.getLastModified() == -1) {
+            throw new IllegalStateException("Missing classpath resource: " + res.getFullPath());
+        }
+
+        // encoding not interesting since bootstrap.js contains no strange chars
+        bootstrapJs = new String(res.getBytes());
+
+    }
+
+    private void initResolver(ServletConfig config) throws ServletException {
 
         String configStr = config.getInitParameter("config");
         if (configStr == null) {
@@ -55,13 +76,13 @@ public class ResourceServlet extends HttpServlet {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         resolver.setThreadLocal();
 
         String path = req.getPathInfo();
-        reqEntry.set(new RequestEntry(path, req.getParameterMap()));
+
+        reqEntry.set(new RequestEntry(path));
 
         super.service(req, resp);
 
@@ -83,26 +104,16 @@ public class ResourceServlet extends HttpServlet {
     }
 
     private class RequestEntry {
-        private static final String BUNDLE_NAME_ALL = "all";
-        private static final String PARAM_DEBUG = "debug";
-        private static final String PARAM_DEBUG_PREFIX = "debug:";
-        private static final String PARAM_VAL_1 = "1";
-        private static final String PARAM_VAL_TRUE = "true";
-        private static final String DEBUG_TOKEN_DEFAULT = "___DEBUG_DEFAULT___";
-        private static final String DEBUG_TOKEN_ALL = "___DEBUG_ALL___";
 
         private String path;
         private String file;
         private String suffix;
-        private HashSet<String> debug = new HashSet<String>();
 
         private Object toServe;
 
-        public RequestEntry(String path, Map<String, String[]> params) {
+        public RequestEntry(String path) {
 
             initPathFileSuffix(path);
-
-            initDebug(params);
 
             initToServe();
 
@@ -117,38 +128,6 @@ public class ResourceServlet extends HttpServlet {
             } else {
                 file = path;
                 suffix = "";
-            }
-        }
-
-        private void initDebug(Map<String, String[]> params) {
-
-            for (String key : params.keySet()) {
-                if (key.equals(PARAM_DEBUG) && isParamTrue(params.get(key))) {
-                    debug.add(DEBUG_TOKEN_DEFAULT);
-                } else if (key.startsWith(PARAM_DEBUG_PREFIX)) {
-                    String bundle = key.split(":")[1];
-                    if (bundle.length() > 0) {
-                        if (bundle.equals(BUNDLE_NAME_ALL)) {
-                            if (isParamTrue(params.get(key))) {
-                                debug.add(DEBUG_TOKEN_ALL);
-                            }
-                        } else {
-                            if (isParamTrue(params.get(key))) {
-                                debug.add(bundle);
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-
-        private boolean isParamTrue(String[] vals) {
-            if (vals == null || vals.length == 0) {
-                return false;
-            } else {
-                String active = vals[vals.length - 1];
-                return active.toLowerCase().equals(PARAM_VAL_TRUE) || active.equals(PARAM_VAL_1);
             }
         }
 

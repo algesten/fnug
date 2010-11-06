@@ -115,11 +115,11 @@ public class DefaultBundleTest {
 
         Resource r = b.resolve("mybundle/" + coll.getPath() + ".js");
         Assert.assertNotNull(r);
-        Assert.assertEquals(DefaultByteResource.class, r.getClass());
+        Assert.assertEquals(DefaultCompressedResource.class, r.getClass());
 
         r = b.resolve("mybundle/" + coll.getPath() + ".css");
         Assert.assertNotNull(r);
-        Assert.assertEquals(DefaultByteResource.class, r.getClass());
+        Assert.assertEquals(DefaultCompressedResource.class, r.getClass());
 
     }
 

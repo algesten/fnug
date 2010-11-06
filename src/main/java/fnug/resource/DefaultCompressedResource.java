@@ -2,17 +2,20 @@ package fnug.resource;
 
 import java.util.List;
 
-public class DefaultByteResource extends AbstractResource implements HasBundle {
+public class DefaultCompressedResource extends AbstractResource implements HasBundle {
 
     private Bundle bundle;
     private byte[] bytes;
     private long lastModified;
+    private Compressor compressor;
 
-    public DefaultByteResource(Bundle bundle, String path, byte[] bytes, long lastModified) {
+    public DefaultCompressedResource(Bundle bundle, String path, byte[] bytes, long lastModified,
+            Compressor compressor) {
         super(bundle.getName() + "/", path);
         this.bundle = bundle;
         this.bytes = bytes;
         this.lastModified = lastModified;
+        this.compressor = compressor;
     }
 
     @Override
@@ -22,7 +25,7 @@ public class DefaultByteResource extends AbstractResource implements HasBundle {
 
     @Override
     protected Entry readEntry() {
-        return new Entry(readLastModified(), bytes);
+        return new Entry(readLastModified(), compressor.compress(bytes));
     }
 
     @Override

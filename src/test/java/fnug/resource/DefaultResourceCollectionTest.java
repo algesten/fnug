@@ -53,10 +53,10 @@ public class DefaultResourceCollectionTest {
         Resource compressedJs = c.getCompressedJs();
         Resource compressedCss = c.getCompressedCss();
 
-        Assert.assertEquals("var a=function(){alert(\"this is jozt a test\")},b=function(){a()},c=function(){b()};\n",
-                new String(compressedJs.getBytes()));
         Assert.assertEquals("testbundle/", compressedJs.getBasePath());
         Assert.assertEquals(c.getPath() + ".js", compressedJs.getPath());
+        Assert.assertEquals("var a=function(){alert(\"this is jozt a test\")},b=function(){a()},c=function(){b()};\n",
+                new String(compressedJs.getBytes()));
         Assert.assertEquals(c.getLastModified(), compressedJs.getLastModified());
         Assert.assertSame(compressedJs, c.getCompressedJs());
 

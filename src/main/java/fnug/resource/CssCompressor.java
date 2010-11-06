@@ -7,7 +7,7 @@ import java.io.UnsupportedEncodingException;
 
 import andyr.compressor.AndyRYUICssCompressor;
 
-public class CssCompressor {
+public class CssCompressor implements Compressor {
 
     public byte[] compress(byte[] input) {
 
