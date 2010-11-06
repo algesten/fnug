@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import fnug.config.BundleConfig;
 
@@ -22,8 +23,11 @@ public class DefaultBundle implements Bundle {
 
     private volatile ResourceCollection[] resources;
 
+    private Pattern bundlePattern;
+
     public DefaultBundle(BundleConfig config) {
         this.config = config;
+        bundlePattern = Pattern.compile(getName() + "/[a-f0-9]+\\.(js|css)");
     }
 
     @Override
@@ -38,6 +42,24 @@ public class DefaultBundle implements Bundle {
 
     @Override
     public Resource resolve(String path) {
+
+        if (bundlePattern.matcher(path).matches()) {
+
+            String collFile = path.substring(path.indexOf("/") + 1);
+            int indx = collFile.indexOf(".");
+            String collPath = collFile.substring(0, indx);
+            String suffix = collFile.substring(indx + 1);
+
+            ResourceCollection c = getResourceCollection(collPath);
+
+            if (c != null) {
+                return getCompressedBySuffix(c, suffix);
+            }
+
+            // do not return null here, but proceed to return "normal" resource.
+            
+        }
+
         Resource res = cache.get(path);
         if (res == null) {
             synchronized (this) {
@@ -52,6 +74,26 @@ public class DefaultBundle implements Bundle {
             }
         }
         return res;
+
+    }
+
+    private ResourceCollection getResourceCollection(String collPath) {
+        ResourceCollection[] colls = getResourceCollections();
+        for (ResourceCollection coll : colls) {
+            if (coll.getPath().equals(collPath)) {
+                return coll;
+            }
+        }
+        return null;
+    }
+
+    private Resource getCompressedBySuffix(ResourceCollection c, String suffix) {
+        if (suffix.equals("js")) {
+            return c.getCompressedJs();
+        } else if (suffix.equals("css")) {
+            return c.getCompressedCss();
+        }
+        return null;
     }
 
     protected Resource makeResource(String path) {

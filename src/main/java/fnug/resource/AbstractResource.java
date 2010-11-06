@@ -1,7 +1,5 @@
 package fnug.resource;
 
-import java.io.File;
-
 import javax.activation.FileTypeMap;
 import javax.activation.MimetypesFileTypeMap;
 
@@ -24,11 +22,11 @@ public abstract class AbstractResource implements Resource {
         if (path == null) {
             throw new IllegalArgumentException("path must no be null");
         }
-        if (!basePath.endsWith(File.separator)) {
-            throw new IllegalArgumentException("basePath must end with " + File.separator);
+        if (!basePath.endsWith("/")) {
+            throw new IllegalArgumentException("basePath must end with " + "/");
         }
-        if (path.startsWith(File.separator)) {
-            throw new IllegalArgumentException("path must not start with " + File.separator);
+        if (path.startsWith("/")) {
+            throw new IllegalArgumentException("path must not start with " + "/");
         }
         this.basePath = basePath;
         this.path = path;

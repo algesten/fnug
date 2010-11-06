@@ -8,9 +8,9 @@ public interface ResourceCollection extends AggregatedResource {
 
     byte[] getCss();
 
-    byte[] getCompressedJs();
+    Resource getCompressedJs();
 
-    byte[] getCompressedCss();
+    Resource getCompressedCss();
 
     List<Resource> getExistingJsAggregates();
 

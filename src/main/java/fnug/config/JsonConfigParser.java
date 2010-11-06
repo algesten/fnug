@@ -142,7 +142,7 @@ public class JsonConfigParser implements ConfigParser {
 
     private Pattern[] parsePatternArray(JsonNode node, String key, JsonLocation loc) {
 
-        String[] vals = parseStringArray(node, key, loc, null);
+        String[] vals = parseStringArray(node, key, loc, EMPTY_STRINGS);
 
         Pattern[] pats = new Pattern[vals.length];
 

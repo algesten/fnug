@@ -1,7 +1,6 @@
 package fnug.resource;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
@@ -9,11 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import fnug.config.BundleConfig;
-import fnug.resource.DefaultBundle;
-import fnug.resource.DefaultResourceCollection;
-import fnug.resource.Resource;
-import fnug.resource.ResourceCollection;
-import fnug.resource.ResourceResolver;
+import fnug.config.DefaultBundleConfig;
 
 public class DefaultBundleTest {
 
@@ -22,6 +17,31 @@ public class DefaultBundleTest {
     @Before
     public void before() {
         makeResourceCount = 0;
+    }
+
+    @Test
+    public void testBundleName() throws Exception {
+
+        new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" }));
+        new DefaultBundle(makeBundleConfig("my_bundle", new String[] { "test/js-resource1.js" }));
+        new DefaultBundle(makeBundleConfig("myBUNDLE", new String[] { "test/js-resource1.js" }));
+        new DefaultBundle(makeBundleConfig("myBUNDLE0123456789", new String[] { "test/js-resource1.js" }));
+        new DefaultBundle(makeBundleConfig("___myBUNDLE0123456789", new String[] { "test/js-resource1.js" }));
+
+        try {
+            new DefaultBundle(makeBundleConfig("my bundle", new String[] { "test/js-resource1.js" }));
+            Assert.fail();
+        } catch (IllegalArgumentException iae) {
+            // great
+        }
+
+        try {
+            new DefaultBundle(makeBundleConfig("my-bundle", new String[] { "test/js-resource1.js" }));
+            Assert.fail();
+        } catch (IllegalArgumentException iae) {
+            // great
+        }
+
     }
 
     @Test
@@ -92,6 +112,14 @@ public class DefaultBundleTest {
                 .getExistingJsAggregates().toString());
         Assert.assertEquals("[test/css-resource2.css, test/css-resource1.css]", coll.getExistingCssAggregates()
                 .toString());
+
+        Resource r = b.resolve("mybundle/" + coll.getPath() + ".js");
+        Assert.assertNotNull(r);
+        Assert.assertEquals(DefaultByteResource.class, r.getClass());
+
+        r = b.resolve("mybundle/" + coll.getPath() + ".css");
+        Assert.assertNotNull(r);
+        Assert.assertEquals(DefaultByteResource.class, r.getClass());
 
     }
 
@@ -167,47 +195,6 @@ public class DefaultBundleTest {
     }
 
     private BundleConfig makeBundleConfig(final String bundleName, final String[] files) {
-        return new BundleConfig() {
-            @Override
-            public String basePath() {
-                return "/";
-            }
-
-            @Override
-            public boolean checkModified() {
-                return true;
-            }
-
-            @Override
-            public Resource configResource() {
-                return null;
-            }
-
-            @Override
-            public String[] files() {
-                return files;
-            }
-
-            @Override
-            public String name() {
-                return bundleName;
-            }
-
-            @Override
-            public Pattern[] matches() {
-                return null;
-            }
-
-            @Override
-            public boolean jsLint() {
-                return true;
-            }
-
-            @Override
-            public String[] jsCompileArgs() {
-                return null;
-            }
-        };
+        return new DefaultBundleConfig(null, bundleName, "/", null, false, false, null, files);
     }
-
 }

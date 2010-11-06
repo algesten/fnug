@@ -17,7 +17,7 @@ public class ResourceResolverTest {
     public void testPatterns() {
 
         ResourceResolver rr = new ResourceResolver();
-        rr.setConfigs(makeConfig("cfg1", "cfg1/.*"), makeConfig("cfg2", "cfg2/.*"));
+        rr.setConfigs(makeConfig("bundlecfg1", "cfg1/.*"), makeConfig("bundlecfg2", "cfg2/.*"));
 
         Resource r1 = rr.resolve("cfg1/test.js");
         Resource r2 = rr.resolve("cfg2/test.js");
@@ -25,11 +25,11 @@ public class ResourceResolverTest {
         Assert.assertNotNull(r1);
         Assert.assertTrue(r1 instanceof HasBundle);
 
-        Assert.assertEquals("cfg1", ((HasBundle) r1).getBundle().getConfig().name());
-        Assert.assertEquals("cfg2", ((HasBundle) r2).getBundle().getConfig().name());
+        Assert.assertEquals("bundlecfg1", ((HasBundle) r1).getBundle().getConfig().name());
+        Assert.assertEquals("bundlecfg2", ((HasBundle) r2).getBundle().getConfig().name());
 
-        Assert.assertNotNull(rr.getBundle("cfg1"));
-        Assert.assertNotNull(rr.getBundle("cfg2"));
+        Assert.assertNotNull(rr.getBundle("bundlecfg1"));
+        Assert.assertNotNull(rr.getBundle("bundlecfg2"));
         Assert.assertNull(rr.getBundle("nosuchbundle"));
 
     }
@@ -37,7 +37,7 @@ public class ResourceResolverTest {
     public void testResolve() {
 
         ResourceResolver rr = new ResourceResolver();
-        rr.setConfigs(makeConfig("cfg1", "cfg1/.*"), makeConfig("cfg2", "cfg2/.*"));
+        rr.setConfigs(makeConfig("bundlecfg1", "cfg1/.*"), makeConfig("bundlecfg2", "cfg2/.*"));
 
         try {
             rr.resolve(null);
@@ -62,7 +62,10 @@ public class ResourceResolverTest {
 
         Assert.assertNull(rr.resolve("foo/bar/some.js"));
         Assert.assertNotNull(rr.resolve("cfg1/some/deep/path/some.js"));
-
+        Assert.assertNull(rr.resolve("bundlecfg1"));
+        Assert.assertNotNull(rr.resolve("bundlecfg1/file.js"));
+        Assert.assertNotNull(rr.resolve("bundlecfg2/some/deep/path/file.js"));
+        
     }
 
     private Config makeConfig(final String name, final String matches) {

@@ -63,6 +63,11 @@ public class ResourceResolver {
         if (path.endsWith(SEPARATOR)) {
             throw new IllegalArgumentException("Path must not end with '" + SEPARATOR + "'");
         }
+        for (Bundle bundle : bundles.values()) {
+            if (path.startsWith(bundle.getName() + "/")) {
+                return bundle.resolve(path);
+            }
+        }
         for (Pattern pat : patterns.keySet()) {
             if (pat.matcher(path).matches()) {
                 Bundle bundle = patterns.get(pat);

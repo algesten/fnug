@@ -50,17 +50,23 @@ public class DefaultResourceCollectionTest {
 
         byte[] js = c.getJs();
         byte[] css = c.getCss();
-        byte[] compressedJs = c.getCompressedJs();
-        byte[] compressedCss = c.getCompressedCss();
+        Resource compressedJs = c.getCompressedJs();
+        Resource compressedCss = c.getCompressedCss();
 
         Assert.assertEquals("var a=function(){alert(\"this is jozt a test\")},b=function(){a()},c=function(){b()};\n",
-                new String(compressedJs));
+                new String(compressedJs.getBytes()));
+        Assert.assertEquals("testbundle/", compressedJs.getBasePath());
+        Assert.assertEquals(c.getPath() + ".js", compressedJs.getPath());
+        Assert.assertEquals(c.getLastModified(), compressedJs.getLastModified());
         Assert.assertSame(compressedJs, c.getCompressedJs());
 
         Assert.assertEquals("\n" +
                 "a{color:red}\n" +
                 "p{margin-top:14px 14px 14px 14px}body{background:black;color:white;font-size:14em}",
-                new String(compressedCss));
+                new String(compressedCss.getBytes()));
+        Assert.assertEquals("testbundle/", compressedCss.getBasePath());
+        Assert.assertEquals(c.getPath() + ".css", compressedCss.getPath());
+        Assert.assertEquals(c.getLastModified(), compressedCss.getLastModified());
         Assert.assertSame(compressedCss, c.getCompressedCss());
 
         Assert.assertSame(js, c.getJs());
@@ -73,7 +79,7 @@ public class DefaultResourceCollectionTest {
         Assert.assertFalse(c.checkModified());
 
         Assert.assertEquals(fullPath, c.getFullPath());
-        
+
         Assert.assertEquals(1, readLastModifiedCount);
 
     }
@@ -98,11 +104,11 @@ public class DefaultResourceCollectionTest {
         };
 
         String fullPath = c.getFullPath();
-        
+
         byte[] js = c.getJs();
         byte[] css = c.getCss();
-        byte[] compressedJs = c.getCompressedJs();
-        byte[] compressedCss = c.getCompressedCss();
+        Resource compressedJs = c.getCompressedJs();
+        Resource compressedCss = c.getCompressedCss();
 
         Assert.assertEquals(1, readLastModifiedCount);
 
@@ -116,7 +122,7 @@ public class DefaultResourceCollectionTest {
         Assert.assertNotSame(css, c.getCss());
         Assert.assertNotSame(compressedJs, c.getCompressedJs());
         Assert.assertNotSame(compressedCss, c.getCompressedCss());
-        
+
         Assert.assertFalse(fullPath.equals(c.getFullPath()));
 
     }

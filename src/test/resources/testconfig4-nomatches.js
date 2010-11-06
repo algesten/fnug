@@ -1,6 +1,6 @@
 {
 	testbundle1: {
-//		matches: [ 'test/.*' ],
+//		matches: [ 'test/.*' ], // this is allowed since bundle name makes default namespace.
 		jsLint: false,
 		checkModified: false,
 		jsCompilerArgs: [ '--debug' ],

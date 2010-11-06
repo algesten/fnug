@@ -2,6 +2,7 @@ package fnug.config;
 
 import java.util.regex.Pattern;
 
+import fnug.resource.Bundle;
 import fnug.resource.Resource;
 
 public class DefaultBundleConfig implements BundleConfig {
@@ -19,6 +20,9 @@ public class DefaultBundleConfig implements BundleConfig {
             boolean jsLint, boolean checkModified,
             String[] jsCompileArgs, String[] files) {
         this.configResource = configResource;
+        if (!Bundle.BUNDLE_ALLOWED_CHARS.matcher(name).matches()) {
+            throw new IllegalArgumentException("Bundle name must match: " + Bundle.BUNDLE_ALLOWED_CHARS.toString());
+        }
         this.name = name;
         this.basePath = basePath;
         this.matches = matches;
@@ -32,7 +36,7 @@ public class DefaultBundleConfig implements BundleConfig {
     public Resource configResource() {
         return configResource;
     }
-    
+
     @Override
     public String name() {
         return name;

@@ -86,12 +86,7 @@ public class JsonConfigParserTest {
 
         JsonConfigParser parser = new JsonConfigParser();
 
-        try {
-            parser.parse(res);
-            Assert.fail("");
-        } catch (Exception e) {
-            Assert.assertEquals("At line 12 col 2: At line 12 col 2: Missing key 'matches'", e.getMessage());
-        }
+        parser.parse(res);
 
     }
 

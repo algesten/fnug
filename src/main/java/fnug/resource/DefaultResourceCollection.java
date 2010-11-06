@@ -21,8 +21,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     private CssCompressor cssCompressor;
 
     private byte[] css;
-    private volatile byte[] compressedJs;
-    private volatile byte[] compressedCss;
+    private volatile Resource compressedJs;
+    private volatile Resource compressedCss;
 
     public DefaultResourceCollection(Bundle bundle, Resource[] aggregates, Resource[] dependencies) {
         super(bundle.getConfig().basePath(), SUPER_NAME);
@@ -93,11 +93,12 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     }
 
     @Override
-    public byte[] getCompressedJs() {
+    public Resource getCompressedJs() {
         if (compressedJs == null) {
             synchronized (this) {
                 if (compressedJs == null) {
-                    compressedJs = jsCompressor.compress(getJs());
+                    byte[] bytes = jsCompressor.compress(getJs());
+                    compressedJs = new DefaultByteResource(getBundle(), getPath() + ".js", bytes, getLastModified());
                 }
             }
         }
@@ -105,11 +106,12 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     }
 
     @Override
-    public byte[] getCompressedCss() {
+    public Resource getCompressedCss() {
         if (compressedCss == null) {
             synchronized (this) {
                 if (compressedCss == null) {
-                    compressedCss = cssCompressor.compress(getCss());
+                    byte[] bytes = cssCompressor.compress(getCss());
+                    compressedCss = new DefaultByteResource(getBundle(), getPath() + ".css", bytes, getLastModified());
                 }
             }
         }
