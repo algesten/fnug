@@ -21,7 +21,7 @@ public class DefaultBundle implements Bundle {
 
     private volatile HashMap<String, Resource> cache = new HashMap<String, Resource>();
 
-    private volatile ResourceCollection[] resources;
+    private volatile ResourceCollection[] resourceCollections;
 
     private Pattern bundlePattern;
 
@@ -102,17 +102,17 @@ public class DefaultBundle implements Bundle {
 
     @Override
     public ResourceCollection[] getResourceCollections() {
-        if (resources == null) {
+        if (resourceCollections == null) {
             synchronized (this) {
-                if (resources == null) {
-                    resources = buildResources();
+                if (resourceCollections == null) {
+                    resourceCollections = buildResourceCollections();
                 }
             }
         }
-        return resources;
+        return resourceCollections;
     }
 
-    private ResourceCollection[] buildResources() {
+    private ResourceCollection[] buildResourceCollections() {
 
         LinkedList<Resource> l = new LinkedList<Resource>();
         for (String file : config.files()) {
@@ -153,7 +153,7 @@ public class DefaultBundle implements Bundle {
         for (Bundle b : bundleResources.keySet()) {
             List<Resource> lr = bundleResources.get(b);
             Resource[] alr = lr.toArray(new Resource[lr.size()]);
-            result[i++] = new DefaultResourceCollection(b, alr, null);
+            result[i++] = new DefaultResourceCollection(b, "/" + config.name() + "/", alr, null);
         }
 
         return result;

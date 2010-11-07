@@ -24,8 +24,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     private volatile Resource compressedJs;
     private volatile Resource compressedCss;
 
-    public DefaultResourceCollection(Bundle bundle, Resource[] aggregates, Resource[] dependencies) {
-        super(bundle.getConfig().basePath(), SUPER_NAME);
+    public DefaultResourceCollection(Bundle bundle, String baseName, Resource[] aggregates, Resource[] dependencies) {
+        super(baseName, SUPER_NAME);
         this.bundle = bundle;
         this.aggregates = aggregates == null ? EMPTY_RESOURCES : aggregates;
         this.dependencies = dependencies == null ? EMPTY_RESOURCES : dependencies;
@@ -97,8 +97,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         if (compressedJs == null) {
             synchronized (this) {
                 if (compressedJs == null) {
-                    compressedJs = new DefaultCompressedResource(getBundle(), getPath() + ".js", getJs(),
-                            getLastModified(), jsCompressor);
+                    compressedJs = new DefaultCompressedResource(getBundle(), getBasePath(), getPath() + ".js",
+                            getJs(), getLastModified(getExistingJsAggregates()), jsCompressor);
                 }
             }
         }
@@ -110,8 +110,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         if (compressedCss == null) {
             synchronized (this) {
                 if (compressedCss == null) {
-                    compressedCss = new DefaultCompressedResource(getBundle(), getPath() + ".css", getCss(),
-                            getLastModified(), cssCompressor);
+                    compressedCss = new DefaultCompressedResource(getBundle(), getBasePath(), getPath() + ".css",
+                            getCss(), getLastModified(getExistingCssAggregates()), cssCompressor);
                 }
             }
         }
@@ -132,6 +132,14 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             }
         }
         return modified;
+    }
+
+    private long getLastModified(List<Resource> resources) {
+        long mostRecent = -1;
+        for (Resource res : resources) {
+            mostRecent = Math.max(mostRecent, res.getLastModified());
+        }
+        return mostRecent;
     }
 
     @Override

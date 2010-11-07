@@ -102,7 +102,7 @@ public class JsonConfigParser implements ConfigParser {
         boolean jsLint = parseBoolean(node, KEY_JS_LINT, loc, DefaultBundleConfig.DEFAULT_JS_LINT);
         boolean checkModified = parseBoolean(node, KEY_CHECK_MODIFIED, loc, DefaultBundleConfig.DEFAULT_CHECK_MODIFIED);
         String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
-        String[] files = parseStringArray(node, KEY_FILES, loc, null);
+        String[] files = parseStringArray(node, KEY_FILES, loc, EMPTY_STRINGS);
 
         return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), matches, jsLint,
                 checkModified, jsCompileArgs,

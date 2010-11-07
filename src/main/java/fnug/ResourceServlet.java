@@ -143,6 +143,9 @@ public class ResourceServlet extends HttpServlet {
 
     private class RequestEntry {
 
+        private static final String CHAR_SLASH = "/";
+        private static final String CHAR_DOT = ".";
+
         private String servletPath;
 
         /**
@@ -165,7 +168,8 @@ public class ResourceServlet extends HttpServlet {
 
         public RequestEntry(String servletPath, String path, boolean gzip) {
 
-            this.servletPath = servletPath;
+            this.servletPath = servletPath.endsWith(CHAR_SLASH) ? servletPath.substring(0, servletPath.length() - 1)
+                    : servletPath;
             this.gzip = gzip;
 
             initPathFileSuffix(path);
@@ -180,9 +184,9 @@ public class ResourceServlet extends HttpServlet {
                 inpath = "";
             }
             inpath = normalizePath(inpath);
-            int lastDot = inpath.lastIndexOf(".");
+            int lastDot = inpath.lastIndexOf(CHAR_DOT);
             path = inpath;
-            if (lastDot > inpath.lastIndexOf("/")) {
+            if (lastDot > inpath.lastIndexOf(CHAR_SLASH)) {
                 file = inpath.substring(0, lastDot);
                 suffix = inpath.substring(lastDot + 1);
             } else {
@@ -193,11 +197,11 @@ public class ResourceServlet extends HttpServlet {
 
         private String normalizePath(String path) {
 
-            if (path.startsWith("/")) {
+            if (path.startsWith(CHAR_SLASH)) {
                 path = path.substring(1);
             }
 
-            if (path.endsWith("/")) {
+            if (path.endsWith(CHAR_SLASH)) {
                 path = path.substring(0, path.length() - 1);
             }
             return path;
@@ -223,7 +227,7 @@ public class ResourceServlet extends HttpServlet {
                 }
                 if (toServe == null) {
                     Resource r = resolver.resolve(path);
-                    toServe = r == null ? null : new ToServeResource(r);
+                    toServe = r == null || r.getLastModified() == -1 ? null : new ToServeResource(r);
                 }
 
             } catch (IllegalArgumentException iae) {
@@ -371,8 +375,8 @@ public class ResourceServlet extends HttpServlet {
 
     private class Bootstrap implements ToServe {
 
-        private static final String TOKEN_BUNDLE = "/\\*\\*\\*bundle\\*\\*\\*/";
         private static final String TOKEN_BASE_URL = "/\\*\\*\\*baseUrl\\*\\*\\*/";
+        private static final String TOKEN_BUNDLES = "\\[/\\*\\*\\*bundles\\*\\*\\*/\\]";
         byte[] bytes;
         long lastModified;
 
@@ -388,14 +392,14 @@ public class ResourceServlet extends HttpServlet {
             String jbs;
 
             try {
-                jbs = mapper.writeValueAsString(jb);
+                jbs = mapper.writeValueAsString(jb.colls);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to generate json", e);
             }
 
             String subst = bootstrapJs;
             subst = subst.replaceAll(TOKEN_BASE_URL, baseUrl);
-            subst = subst.replaceAll(TOKEN_BUNDLE, jbs);
+            subst = subst.replaceAll(TOKEN_BUNDLES, jbs);
 
             try {
                 bytes = subst.getBytes(UTF_8);
@@ -449,8 +453,12 @@ public class ResourceServlet extends HttpServlet {
 
         public JsonResourceCollection(ResourceCollection c) {
             name = c.getBundle().getName();
-            compJs = c.getCompressedJs().getFullPath();
-            compCss = c.getCompressedCss().getFullPath();
+            if (c.getCompressedJs().getLastModified() > 0) {
+                compJs = c.getCompressedJs().getFullPath();
+            }
+            if (c.getCompressedCss().getLastModified() > 0) {
+                compCss = c.getCompressedCss().getFullPath();
+            }
             for (Resource r : c.getAggregates()) {
                 files.add(r.getFullPath());
             }

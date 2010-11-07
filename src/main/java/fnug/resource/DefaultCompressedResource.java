@@ -9,9 +9,9 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
     private long lastModified;
     private Compressor compressor;
 
-    public DefaultCompressedResource(Bundle bundle, String path, byte[] bytes, long lastModified,
+    public DefaultCompressedResource(Bundle bundle, String basePath, String path, byte[] bytes, long lastModified,
             Compressor compressor) {
-        super(bundle.getName() + "/", path);
+        super(basePath, path);
         this.bundle = bundle;
         this.bytes = bytes;
         this.lastModified = lastModified;

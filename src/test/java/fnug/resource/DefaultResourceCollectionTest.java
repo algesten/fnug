@@ -27,12 +27,13 @@ public class DefaultResourceCollectionTest {
 
         Bundle bundle = makeBundle(false);
 
-        DefaultResourceCollection c = new DefaultResourceCollection(bundle, new Resource[] {
-                makeResource("test/js-resource2.js", false),
-                makeResource("test/js-resource1.js", false),
-                makeResource("nonexistant.js", false),
-                makeResource("test/css-resource1.css", false),
-                makeResource("test/css-resource2.css", false)
+        DefaultResourceCollection c = new DefaultResourceCollection(bundle, "/" + bundle.getConfig().name() + "/",
+                new Resource[] {
+                        makeResource("test/js-resource2.js", false),
+                        makeResource("test/js-resource1.js", false),
+                        makeResource("nonexistant.js", false),
+                        makeResource("test/css-resource1.css", false),
+                        makeResource("test/css-resource2.css", false)
         }, null) {
             @Override
             protected long readLastModified() {
@@ -46,14 +47,14 @@ public class DefaultResourceCollectionTest {
         Assert.assertEquals(-559262445, new String(c.getBytes()).hashCode());
         Assert.assertSame(c.getBytes(), c.getJs());
 
-        Assert.assertEquals(822055981, new String(c.getCss()).hashCode());
+        Assert.assertEquals(4593760, new String(c.getCss()).hashCode());
 
         byte[] js = c.getJs();
         byte[] css = c.getCss();
         Resource compressedJs = c.getCompressedJs();
         Resource compressedCss = c.getCompressedCss();
 
-        Assert.assertEquals("testbundle/", compressedJs.getBasePath());
+        Assert.assertEquals("/testbundle/", compressedJs.getBasePath());
         Assert.assertEquals(c.getPath() + ".js", compressedJs.getPath());
         Assert.assertEquals("var a=function(){alert(\"this is jozt a test\")},b=function(){a()},c=function(){b()};\n",
                 new String(compressedJs.getBytes()));
@@ -64,7 +65,7 @@ public class DefaultResourceCollectionTest {
                 "a{color:red}\n" +
                 "p{margin-top:14px 14px 14px 14px}body{background:black;color:white;font-size:14em}",
                 new String(compressedCss.getBytes()));
-        Assert.assertEquals("testbundle/", compressedCss.getBasePath());
+        Assert.assertEquals("/testbundle/", compressedCss.getBasePath());
         Assert.assertEquals(c.getPath() + ".css", compressedCss.getPath());
         Assert.assertEquals(c.getLastModified(), compressedCss.getLastModified());
         Assert.assertSame(compressedCss, c.getCompressedCss());
@@ -89,7 +90,7 @@ public class DefaultResourceCollectionTest {
 
         Bundle bundle = makeBundle(true);
 
-        DefaultResourceCollection c = new DefaultResourceCollection(bundle, new Resource[] {
+        DefaultResourceCollection c = new DefaultResourceCollection(bundle, "/" + bundle + "/", new Resource[] {
                 makeResource("test/js-resource2.js", true),
                 makeResource("test/js-resource1.js", false),
                 makeResource("nonexistant.js", false),
