@@ -1,7 +1,6 @@
 package fnug.resource;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +17,7 @@ public class ResourceResolver {
     private List<Resource> configResources;
     private volatile List<Config> configs = new LinkedList<Config>();
     private ConfigParser configParser = new JsonConfigParser();
-    private HashMap<String, Bundle> bundles = new HashMap<String, Bundle>();
+    private LinkedHashMap<String, Bundle> bundles = new LinkedHashMap<String, Bundle>();
     private LinkedHashMap<Pattern, Bundle> patterns = new LinkedHashMap<Pattern, Bundle>();
 
     private static ThreadLocal<ResourceResolver> instance = new ThreadLocal<ResourceResolver>();
@@ -108,6 +107,18 @@ public class ResourceResolver {
                 }
             }
         }
+    }
+
+    public List<Bundle> getBundles() {
+        return new LinkedList<Bundle>(bundles.values());
+    }
+
+    public long getLastModified() {
+        long mostRecent = -1;
+        for (Bundle b : getBundles()) {
+            mostRecent = Math.max(mostRecent, b.getLastModified());
+        }
+        return mostRecent;
     }
 
 }

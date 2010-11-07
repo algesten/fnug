@@ -57,7 +57,7 @@ public class DefaultBundle implements Bundle {
             }
 
             // do not return null here, but proceed to return "normal" resource.
-            
+
         }
 
         Resource res = cache.get(path);
@@ -159,4 +159,16 @@ public class DefaultBundle implements Bundle {
         return result;
 
     }
+
+    @Override
+    public long getLastModified() {
+        long mostRecent = -1;
+        for (ResourceCollection rc : getResourceCollections()) {
+            for (Resource r : rc.getAggregates()) {
+                mostRecent = Math.max(mostRecent, r.getLastModified());
+            }
+        }
+        return mostRecent;
+    }
+
 }

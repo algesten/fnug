@@ -16,4 +16,6 @@ public interface Bundle {
 
     ResourceCollection[] getResourceCollections();
 
+    long getLastModified();
+
 }

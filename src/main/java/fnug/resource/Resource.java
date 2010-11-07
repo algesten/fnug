@@ -2,7 +2,7 @@ package fnug.resource;
 
 import java.util.List;
 
-public interface Resource {
+public interface Resource extends HasLastModifiedBytes {
 
     String getBasePath();
     

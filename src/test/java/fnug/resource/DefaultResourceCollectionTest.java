@@ -200,6 +200,11 @@ public class DefaultResourceCollectionTest {
             public ResourceCollection[] getResourceCollections() {
                 return null;
             }
+
+            @Override
+            public long getLastModified() {
+                return -1;
+            }
         };
     }
 

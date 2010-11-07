@@ -18,7 +18,7 @@
 	};
 
 	var baseUrl = '/***baseUrl***/';
-	var resources = [/***resource***/];
+	var bundle = [/***bundle***/];
 
 	for (var i = 0; i < resources.length; i++) {
 		var cur = resources[i];
