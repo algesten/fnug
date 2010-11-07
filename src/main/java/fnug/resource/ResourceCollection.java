@@ -2,7 +2,7 @@ package fnug.resource;
 
 import java.util.List;
 
-public interface ResourceCollection extends AggregatedResource {
+public interface ResourceCollection extends AggregatedResource, HasBundle {
 
     byte[] getJs();
 

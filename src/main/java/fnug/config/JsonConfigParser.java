@@ -13,10 +13,14 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonParser.Feature;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fnug.resource.Resource;
 
 public class JsonConfigParser implements ConfigParser {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JsonConfigParser.class);
 
     private static final String KEY_MATCHES = "matches";
     private static final String KEY_JS_LINT = "jsLint";
@@ -68,6 +72,9 @@ public class JsonConfigParser implements ConfigParser {
                 String name = iter.next();
                 DefaultBundleConfig config = buildConfig(root.get(name), name, parser.getCurrentLocation(),
                         res);
+
+                LOG.info("Configured bundle: " + config.name());
+
                 bundleConfigs.add(config);
             }
 

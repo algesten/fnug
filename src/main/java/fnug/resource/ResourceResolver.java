@@ -6,12 +6,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fnug.config.BundleConfig;
 import fnug.config.Config;
 import fnug.config.ConfigParser;
 import fnug.config.JsonConfigParser;
 
 public class ResourceResolver {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceResolver.class);
 
     private static final String SEPARATOR = "/";
     private List<Resource> configResources;
@@ -39,6 +44,7 @@ public class ResourceResolver {
             throw new IllegalArgumentException("Need at least one config resource");
         }
         this.configResources = configResources;
+        initConfigs();
     }
 
     protected ResourceResolver() {
@@ -89,9 +95,18 @@ public class ResourceResolver {
                 bundles.clear();
                 patterns.clear();
                 for (Resource configResource : configResources) {
+
+                    if (configResource.getLastModified() == -1) {
+                        LOG.warn("Config file missing: " + configResource.getFullPath());
+                        continue;
+                    }
+
+                    LOG.info("Reading config: " + configResource.getFullPath());
+
                     Config parsedConfig = configParser.parse(configResource);
                     configs.add(parsedConfig);
                     initBundles();
+
                 }
             }
         }
