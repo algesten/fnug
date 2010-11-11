@@ -51,13 +51,13 @@ public class AbstractAggregatedResourceTest {
         r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
                 makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
 
-        Assert.assertEquals(2, checkModifiedCount);
+        Assert.assertEquals(0, checkModifiedCount);
 
         Assert.assertEquals(4l, r1.getLastModified());
         Assert.assertEquals(4l, r1.getLastModified());
         Assert.assertEquals(4l, r1.getLastModified());
 
-        Assert.assertEquals(6, checkModifiedCount);
+        Assert.assertEquals(0, checkModifiedCount);
 
     }
 
@@ -73,17 +73,18 @@ public class AbstractAggregatedResourceTest {
         r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
                 makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
 
-        Assert.assertEquals(2, checkModifiedCount);
+        Assert.assertEquals(0, checkModifiedCount);
 
         Assert.assertEquals(4l, r1.getLastModified());
 
-        Assert.assertEquals(6, checkModifiedCount);
+        Assert.assertEquals(0, checkModifiedCount);
         
         Assert.assertFalse(r1.checkModified());
         Assert.assertFalse(r1.checkModified());
         Assert.assertFalse(r1.checkModified());
         
-        Assert.assertEquals(18, checkModifiedCount);
+        // 4 resources x 3 checks
+        Assert.assertEquals(12, checkModifiedCount);
 
     }
 

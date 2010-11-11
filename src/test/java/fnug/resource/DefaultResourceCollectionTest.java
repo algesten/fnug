@@ -54,20 +54,22 @@ public class DefaultResourceCollectionTest {
         Resource compressedJs = c.getCompressedJs();
         Resource compressedCss = c.getCompressedCss();
 
-        Assert.assertEquals("/testbundle/", compressedJs.getBasePath());
+        Assert.assertEquals("/testbundleconfig/", compressedJs.getBasePath());
         Assert.assertEquals(c.getPath() + ".js", compressedJs.getPath());
         Assert.assertEquals("var a=function(){alert(\"this is jozt a test\")},b=function(){a()},c=function(){b()};\n",
                 new String(compressedJs.getBytes()));
-        Assert.assertEquals(c.getLastModified(), compressedJs.getLastModified());
+        Assert.assertTrue(c.getBundle().getConfig().configResource().getLastModified() <= compressedJs
+                .getLastModified());
         Assert.assertSame(compressedJs, c.getCompressedJs());
 
         Assert.assertEquals("\n" +
                 "a{color:red}\n" +
                 "p{margin-top:14px 14px 14px 14px}body{background:black;color:white;font-size:14em}",
                 new String(compressedCss.getBytes()));
-        Assert.assertEquals("/testbundle/", compressedCss.getBasePath());
+        Assert.assertEquals("/testbundleconfig/", compressedCss.getBasePath());
         Assert.assertEquals(c.getPath() + ".css", compressedCss.getPath());
-        Assert.assertEquals(c.getLastModified(), compressedCss.getLastModified());
+        Assert.assertTrue(c.getBundle().getConfig().configResource().getLastModified() <= compressedCss
+                .getLastModified());
         Assert.assertSame(compressedCss, c.getCompressedCss());
 
         Assert.assertSame(js, c.getJs());
@@ -81,7 +83,7 @@ public class DefaultResourceCollectionTest {
 
         Assert.assertEquals(fullPath, c.getFullPath());
 
-        Assert.assertEquals(1, readLastModifiedCount);
+        Assert.assertEquals(4, readLastModifiedCount);
 
     }
 
@@ -172,7 +174,7 @@ public class DefaultResourceCollectionTest {
 
                     @Override
                     public Resource configResource() {
-                        return null;
+                        return new DefaultResource("/", "testconfig1-simple.js");
                     }
 
                     @Override
@@ -205,6 +207,11 @@ public class DefaultResourceCollectionTest {
             @Override
             public long getLastModified() {
                 return -1;
+            }
+
+            @Override
+            public boolean checkModified() {
+                return false;
             }
         };
     }

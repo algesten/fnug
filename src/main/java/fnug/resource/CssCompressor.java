@@ -11,6 +11,10 @@ public class CssCompressor implements Compressor {
 
     public byte[] compress(byte[] input) {
 
+        if (input == null) {
+            return null;
+        }
+        
         StringReader reader = null;
         try {
             reader = new StringReader(new String(input, "utf-8"));

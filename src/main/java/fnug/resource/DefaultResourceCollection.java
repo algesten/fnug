@@ -120,13 +120,9 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
 
     @Override
     public boolean checkModified() {
-        if (!bundle.getConfig().checkModified()) {
-            return false;
-        }
         boolean modified = super.checkModified();
         if (modified) {
             synchronized (this) {
-                css = null;
                 compressedJs = null;
                 compressedCss = null;
             }
@@ -135,11 +131,17 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     }
 
     private long getLastModified(List<Resource> resources) {
-        long mostRecent = -1;
+        ensureReadEntry();
+        long mostRecent = bundle.getConfig().configResource().getLastModified();
+        boolean anyResource = false;
         for (Resource res : resources) {
-            mostRecent = Math.max(mostRecent, res.getLastModified());
+            long l = res.getLastModified();
+            if (l > 0) {
+                mostRecent = Math.max(mostRecent, l);
+                anyResource = true;
+            }
         }
-        return mostRecent;
+        return anyResource ? mostRecent : -1l;
     }
 
     @Override

@@ -19,22 +19,23 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
     protected long readLastModified() {
         long lastModified = 0l;
         for (Resource res : getAggregates()) {
-            // trigger check of actual resource modified
-            res.checkModified();
-            long l = res.getLastModified();
-            if (l > lastModified) {
-                lastModified = l;
-            }
+            lastModified = Math.max(lastModified, res.getLastModified());
         }
         for (Resource res : getDependencies()) {
-            // trigger check of actual resource modified
-            res.checkModified();
-            long l = res.getLastModified();
-            if (l > lastModified) {
-                lastModified = l;
-            }
+            lastModified = Math.max(lastModified, res.getLastModified());
         }
         return lastModified;
+    }
+
+    @Override
+    public boolean checkModified() {
+        for (Resource res : getAggregates()) {
+            res.checkModified();
+        }
+        for (Resource res : getDependencies()) {
+            res.checkModified();
+        }
+        return super.checkModified();
     }
 
     @Override

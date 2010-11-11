@@ -136,4 +136,18 @@ public class ResourceResolver {
         return mostRecent;
     }
 
+    public boolean checkModified() {
+        boolean changed = false;
+        for (Resource r : configResources) {
+            changed = r.checkModified() || changed;
+        }
+        if (changed) {
+            synchronized (this) {
+                // this also triggers a drop of all bundles.
+                configs.clear();
+            }
+        }
+        return changed;
+    }
+
 }

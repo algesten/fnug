@@ -102,6 +102,7 @@ public class ResourceServlet extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         resolver.setThreadLocal();
+        resolver.checkModified();
 
         String path = req.getPathInfo();
 
@@ -216,6 +217,7 @@ public class ResourceServlet extends HttpServlet {
                 } else if (Bundle.BUNDLE_ALLOWED_CHARS.matcher(file).matches()) {
                     Bundle bundle = resolver.getBundle(file);
                     if (bundle != null) {
+                        bundle.checkModified();
                         if (suffix.equals("")) {
                             toServe = new ToServeBundle(bundle);
                         } else if (suffix.equals("js")) {
@@ -227,6 +229,9 @@ public class ResourceServlet extends HttpServlet {
                 }
                 if (toServe == null) {
                     Resource r = resolver.resolve(path);
+                    if (r != null) {
+                        r.checkModified();
+                    }
                     toServe = r == null || r.getLastModified() == -1 ? null : new ToServeResource(r);
                 }
 

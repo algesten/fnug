@@ -10,6 +10,10 @@ import fnug.config.BundleConfig;
 
 public class DefaultBundle implements Bundle {
 
+    private static final String SUFFIX_CSS = "css";
+
+    private static final String SUFFIX_JS = "js";
+
     /**
      * Arbitrary max size for cached resources. We want to avoid filling the
      * heap space with resources pointing to non-existing files. If we hit this
@@ -88,9 +92,9 @@ public class DefaultBundle implements Bundle {
     }
 
     private Resource getCompressedBySuffix(ResourceCollection c, String suffix) {
-        if (suffix.equals("js")) {
+        if (suffix.equals(SUFFIX_JS)) {
             return c.getCompressedJs();
-        } else if (suffix.equals("css")) {
+        } else if (suffix.equals(SUFFIX_CSS)) {
             return c.getCompressedCss();
         }
         return null;
@@ -162,13 +166,23 @@ public class DefaultBundle implements Bundle {
 
     @Override
     public long getLastModified() {
-        long mostRecent = -1;
+        long mostRecent = config.configResource().getLastModified();
         for (ResourceCollection rc : getResourceCollections()) {
-            for (Resource r : rc.getAggregates()) {
-                mostRecent = Math.max(mostRecent, r.getLastModified());
-            }
+            mostRecent = Math.max(mostRecent, rc.getLastModified());
         }
         return mostRecent;
+    }
+
+    @Override
+    public boolean checkModified() {
+        boolean modified = false;
+        for (ResourceCollection rc : getResourceCollections()) {
+            modified = rc.checkModified() || modified;
+        }
+        if (modified) {
+
+        }
+        return modified;
     }
 
 }

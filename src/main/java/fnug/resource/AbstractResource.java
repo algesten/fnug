@@ -68,7 +68,7 @@ public abstract class AbstractResource implements Resource {
         return bytes;
     }
 
-    protected boolean ensureReadEntry() {
+    protected final boolean ensureReadEntry() {
         if (lastModified == null) {
             synchronized (this) {
                 if (lastModified == null) {
@@ -76,6 +76,8 @@ public abstract class AbstractResource implements Resource {
                 }
             }
             return true;
+        } else {
+            assert bytes != null : "Bytes null when lastModified isn't";
         }
         return false;
     }
@@ -109,6 +111,12 @@ public abstract class AbstractResource implements Resource {
         synchronized (this) {
             if (lastModified == null) {
                 Entry e = readEntry();
+                if (e.bytes == null) {
+                    throw new IllegalStateException("Null bytes not allowed: " + getFullPath());
+                }
+                if (e.lastModified == 0) {
+                    throw new IllegalStateException("0 lastModified not allowed " + getFullPath());
+                }
                 bytes = e.bytes;
                 lastModified = e.lastModified;
             }

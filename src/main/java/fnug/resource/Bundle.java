@@ -18,4 +18,6 @@ public interface Bundle {
 
     long getLastModified();
 
+    boolean checkModified();
+
 }

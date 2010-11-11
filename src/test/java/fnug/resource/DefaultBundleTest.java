@@ -195,6 +195,7 @@ public class DefaultBundleTest {
     }
 
     private BundleConfig makeBundleConfig(final String bundleName, final String[] files) {
-        return new DefaultBundleConfig(null, bundleName, "/", null, false, false, null, files);
+        return new DefaultBundleConfig(new DefaultResource("/", "testconfig1-simple.js"), bundleName, "/", null, false,
+                false, null, files);
     }
 }

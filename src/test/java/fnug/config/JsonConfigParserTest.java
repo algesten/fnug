@@ -90,20 +90,4 @@ public class JsonConfigParserTest {
 
     }
 
-    @Test
-    public void testNoFiles() throws Exception {
-
-        DefaultResource res = new DefaultResource("/", "testconfig5-nofiles.js");
-
-        JsonConfigParser parser = new JsonConfigParser();
-
-        try {
-            parser.parse(res);
-            Assert.fail("");
-        } catch (Exception e) {
-            Assert.assertEquals("At line 12 col 2: At line 12 col 2: Missing key 'files'", e.getMessage());
-        }
-
-    }
-
 }

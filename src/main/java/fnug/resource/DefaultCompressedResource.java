@@ -6,6 +6,7 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
 
     private Bundle bundle;
     private byte[] bytes;
+    private byte[] compressedBytes;
     private long lastModified;
     private Compressor compressor;
 
@@ -25,7 +26,22 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
 
     @Override
     protected Entry readEntry() {
-        return new Entry(readLastModified(), compressor.compress(bytes));
+        compressedBytes = null;
+        return new Entry(readLastModified(), bytes);
+    }
+
+    @Override
+    public byte[] getBytes() {
+        // delay compression until getBytes().
+        byte[] superBytes = super.getBytes();
+        if (compressedBytes == null) {
+            synchronized (this) {
+                if (compressedBytes == null) {
+                    compressedBytes = compressor.compress(superBytes);
+                }
+            }
+        }
+        return compressedBytes;
     }
 
     @Override
