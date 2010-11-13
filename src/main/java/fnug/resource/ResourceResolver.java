@@ -72,7 +72,11 @@ public class ResourceResolver {
      * @return the thread associated instance.
      */
     public static ResourceResolver getInstance() {
-        return instance.get();
+        ResourceResolver r = instance.get();
+        if (r == null) {
+            throw new IllegalStateException("No ResourceResolve set in thread locale. Someone forgot to set it.");
+        }
+        return r;
     }
 
     /**

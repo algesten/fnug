@@ -1,8 +1,7 @@
 {
-	mybundle: {
-		matches: [ 'test/.*' ],
+	test: {
 		jsLint: true,
-		checkModified: true,
+		checkModified: 1000,
 		jsCompilerArgs: [],
 		files: [
 		        'test/js-resource1.js',
@@ -10,8 +9,8 @@
 		]
 	},
 	
-	myotherbundle: {
-		matches: [ 'bundle2/.*' ]
+	bundle2: {
+		checkModified: 0
 	}
 
 }

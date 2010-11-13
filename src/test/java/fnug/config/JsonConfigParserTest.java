@@ -9,6 +9,28 @@ import fnug.resource.DefaultResource;
 public class JsonConfigParserTest {
 
     @Test
+    public void testNonExistantConfigFile() {
+
+        JsonConfigParser parser = new JsonConfigParser();
+
+        try {
+            parser.parse(null);
+        } catch (Exception e) {
+            Assert.assertEquals("Null resource not allowed", e.getMessage());
+        }
+
+        DefaultResource res = new DefaultResource("/", "does-not-exist.js");
+
+        try {
+            parser.parse(res);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertEquals("Resource not found: /does-not-exist.js", e.getMessage());
+        }
+
+    }
+
+    @Test
     public void testJsonConfig() throws Exception {
 
         DefaultResource res = new DefaultResource("/", "testconfig1-simple.js");
@@ -30,7 +52,7 @@ public class JsonConfigParserTest {
 
         Assert.assertEquals("testbundle1", bcfg.name());
         Assert.assertEquals("/", bcfg.basePath());
-        Assert.assertFalse(bcfg.checkModified());
+        Assert.assertEquals(42, bcfg.checkModifiedInterval());
         Assert.assertFalse(bcfg.jsLint());
         Assert.assertNotNull(bcfg.jsCompileArgs());
         Assert.assertEquals(1, bcfg.jsCompileArgs().length);
@@ -77,9 +99,26 @@ public class JsonConfigParserTest {
     }
 
     @Test
-    public void testNoMatches() throws Exception {
+    public void testBadCheckModified() throws Exception {
 
-        DefaultResource res = new DefaultResource("/", "testconfig4-nomatches.js");
+        DefaultResource res = new DefaultResource("/", "testconfig4-badcheckmodified.js");
+
+        JsonConfigParser parser = new JsonConfigParser();
+
+        try {
+            parser.parse(res);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertEquals("At line 11 col 2: At line 11 col 2: Key 'checkModified' is not an integer value",
+                    e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void testNoFiles() throws Exception {
+
+        DefaultResource res = new DefaultResource("/", "testconfig5-nofiles.js");
 
         JsonConfigParser parser = new JsonConfigParser();
 

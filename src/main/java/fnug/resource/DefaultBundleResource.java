@@ -31,6 +31,8 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle 
     /**
      * Constructs setting the necessary bundle and path. The
      * {@link BundleConfig#basePath()} will be used as {@link #getBasePath()}.
+     * The {@link BundleConfig#checkModifiedInterval()} will be used for check
+     * intervals of the resource.
      * 
      * @param bundle
      *            the bundle to construct from and which base path to use.
@@ -38,7 +40,7 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle 
      *            the local path. See {@link #getPath()}.
      */
     public DefaultBundleResource(Bundle bundle, String path) {
-        super(bundle.getConfig().basePath(), path);
+        super(bundle.getConfig().basePath(), path, bundle.getConfig().checkModifiedInterval());
         this.bundle = bundle;
     }
 

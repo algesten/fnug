@@ -91,8 +91,8 @@ public class ResourceResolverTest {
                     }
 
                     @Override
-                    public boolean checkModified() {
-                        return false;
+                    public int checkModifiedInterval() {
+                        return 0;
                     }
 
                     @Override

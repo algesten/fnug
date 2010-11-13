@@ -1,7 +1,7 @@
 {
 	testbundle1: {
 		jsLint: false,
-		checkModified: 42,
+		checkModified: 'abc',
 		jsCompilerArgs: [ '--debug' ],
 		files: [
 		        'test/file1.js',

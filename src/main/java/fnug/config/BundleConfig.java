@@ -29,7 +29,7 @@ import fnug.resource.Resource;
 public interface BundleConfig {
 
     /**
-     * Default value for {@link #checkModified()}. Set to {@value} .
+     * Default value for {@link #checkModifiedInterval()}. Set to {@value} .
      */
     static final boolean DEFAULT_CHECK_MODIFIED = true;
 
@@ -67,11 +67,12 @@ public interface BundleConfig {
     boolean jsLint();
 
     /**
-     * Tells if we are to check modified dates in this bundle.
+     * The interval in milliseconds that we are to check the modified dates of
+     * resources resolved by this bundle. A value of 0 disables modified checks.
      * 
-     * @return True if we are to check modified dates.
+     * @return number of milliseconds between checks.
      */
-    boolean checkModified();
+    int checkModifiedInterval();
 
     /**
      * Additional compilation arguments passed to {@link JsCompressor}.

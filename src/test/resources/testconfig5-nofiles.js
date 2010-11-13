@@ -1,8 +1,7 @@
 {
 	testbundle1: {
-		matches: [ 'test/.*' ],
 		jsLint: false,
-		checkModified: false,
+		checkModified: 0,
 		jsCompilerArgs: [ '--debug' ]
 //		files: [
 //		        'test/file1.js',

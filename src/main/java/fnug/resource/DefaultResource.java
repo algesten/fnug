@@ -48,15 +48,22 @@ import fnug.util.IOUtils;
  */
 public class DefaultResource extends AbstractResource {
 
-    private static final String CONTENT_TYPE_TEXT = "text/";
+    /**
+     * Default interval for checking the modified time. Set to {@value} .
+     */
+    public static final int DEFAULT_CHECK_MODIFIED_INTERVAL = 3000;
 
+    private static final String CONTENT_TYPE_TEXT = "text/";
     private static final Logger LOG = LoggerFactory.getLogger(DefaultResource.class);
+    private static final File TMP_EXTRACT_DIR;
 
     private static final byte[] EMPTY_BYTES = new byte[] {};
     private File jarFile;
     private File file;
 
-    private static final File TMP_EXTRACT_DIR;
+    private long lastModifiedCheck;
+    private int checkModifiedInterval;
+    private Long cachedLastModified;
 
     static {
         try {
@@ -80,7 +87,26 @@ public class DefaultResource extends AbstractResource {
     }
 
     /**
-     * Creates a new resource setting the base path and path.
+     * Constructs setting base path path and interval for checking.
+     * 
+     * @param basePath
+     *            The base path of the resource. See {@link #getBasePath()}.
+     * @param path
+     *            The path of the resource. See {@link #getPath()}.
+     * @param checkModifiedInterval
+     *            the interval in millisecond that we are to check the resource
+     *            last modified date. Any sooner checks will just returned the
+     *            previously read value. A value of 0 will disable modified
+     *            checks.
+     */
+    public DefaultResource(String basePath, String path, int checkModifiedInterval) {
+        super(basePath, path);
+        this.checkModifiedInterval = checkModifiedInterval;
+    }
+
+    /**
+     * Creates a new resource setting the base path and path. Assumed
+     * {@link #DEFAULT_CHECK_MODIFIED_INTERVAL} for checking modified times.
      * 
      * @param basePath
      *            The base path of the resource. See {@link #getBasePath()}.
@@ -88,7 +114,7 @@ public class DefaultResource extends AbstractResource {
      *            The path of the resource. See {@link #getPath()}.
      */
     public DefaultResource(String basePath, String path) {
-        super(basePath, path);
+        this(basePath, path, DEFAULT_CHECK_MODIFIED_INTERVAL);
     }
 
     /**
@@ -124,10 +150,27 @@ public class DefaultResource extends AbstractResource {
     @Override
     protected long readLastModified() {
         assert file != null : "Call to readLastModified() before readEntry()";
+        if (!readLastModifiedAllowed()) {
+            return cachedLastModified;
+        }
         if (jarFile != null) {
             checkJarFile();
         }
-        return file.lastModified();
+        cachedLastModified = file.lastModified();
+        lastModifiedCheck = System.currentTimeMillis();
+        return cachedLastModified;
+    }
+
+    /**
+     * Tells if we are allowed to check the last modified date. This looks at
+     * the check interval to assert whether checking is allowed.
+     * 
+     * @return whether a last modified date is allowed to be checked.
+     */
+    protected boolean readLastModifiedAllowed() {
+        return cachedLastModified == null ||
+                (checkModifiedInterval > 0 &&
+                        (System.currentTimeMillis() - lastModifiedCheck) > checkModifiedInterval);
     }
 
     private void checkJarFile() {

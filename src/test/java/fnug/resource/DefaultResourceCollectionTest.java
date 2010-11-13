@@ -18,7 +18,7 @@ public class DefaultResourceCollectionTest {
     @Test
     public void testDefaultResourceCollection() throws Exception {
 
-        Bundle bundle = makeBundle(false);
+        Bundle bundle = makeBundle(0);
 
         DefaultResourceCollection c = new DefaultResourceCollection(bundle, "/" + bundle.getConfig().name() + "/",
                 new Resource[] {
@@ -83,7 +83,7 @@ public class DefaultResourceCollectionTest {
     @Test
     public void testCheckModified() throws Exception {
 
-        Bundle bundle = makeBundle(true);
+        Bundle bundle = makeBundle(1);
 
         DefaultResourceCollection c = new DefaultResourceCollection(bundle, "/" + bundle + "/", new Resource[] {
                 makeResource("test/js-resource2.js", true),
@@ -133,7 +133,7 @@ public class DefaultResourceCollectionTest {
         };
     }
 
-    private Bundle makeBundle(final boolean checkModified) {
+    private Bundle makeBundle(final int checkModifiedInterval) {
         return new Bundle() {
 
             @Override
@@ -166,8 +166,8 @@ public class DefaultResourceCollectionTest {
                     }
 
                     @Override
-                    public boolean checkModified() {
-                        return checkModified;
+                    public int checkModifiedInterval() {
+                        return checkModifiedInterval;
                     }
 
                     @Override
@@ -201,6 +201,7 @@ public class DefaultResourceCollectionTest {
             public boolean checkModified() {
                 return false;
             }
+
         };
     }
 

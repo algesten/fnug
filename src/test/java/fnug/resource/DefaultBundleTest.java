@@ -17,6 +17,7 @@ public class DefaultBundleTest {
     @Before
     public void before() {
         makeResourceCount = 0;
+        ResourceResolver.setThreadLocal(null);
     }
 
     @Test
@@ -181,7 +182,7 @@ public class DefaultBundleTest {
     @Test
     public void testMaxCache() {
 
-        final DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" }));
+        DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" }));
 
         try {
             for (int i = 0; i < 100000; i++) {
@@ -194,8 +195,27 @@ public class DefaultBundleTest {
 
     }
 
+    @Test
+    public void testNonResolvedResource() {
+
+        DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" }));
+
+        ResourceResolver.setThreadLocal(new ResourceResolver() {
+            @Override
+            public Resource resolve(String path) {
+                return null;
+            }
+        });
+
+        ResourceCollection[] c = b.getResourceCollections();
+
+        Assert.assertNotNull(c);
+        Assert.assertEquals(0, c.length);
+
+    }
+
     private BundleConfig makeBundleConfig(final String bundleName, final String[] files) {
         return new DefaultBundleConfig(new DefaultResource("/", "testconfig1-simple.js"), bundleName, "/", false,
-                false, null, files);
+                1, null, files);
     }
 }

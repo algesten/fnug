@@ -81,7 +81,7 @@ public class DefaultResourceTest {
 
         Assert.assertEquals("Not hidden in jar...\n", s);
 
-        r = makeJarResource("dir/injar.js");
+        r = makeJarResource("dir/injar.js", 0);
 
         b = r.getBytes();
 
@@ -99,7 +99,7 @@ public class DefaultResourceTest {
 
         File tmp = makeTmpJar();
 
-        DefaultResource r = makeJarResource(tmp.getAbsolutePath(), "dir/injar.js");
+        DefaultResource r = makeJarResource(tmp.getAbsolutePath(), "dir/injar.js", 1);
 
         // this triggers file extraction.
         r.getBytes();
@@ -110,6 +110,7 @@ public class DefaultResourceTest {
         File f = (File) field.get(r);
         Assert.assertTrue(f.exists());
 
+        Thread.sleep(10);
         r.checkModified();
 
         f.delete();
@@ -121,6 +122,7 @@ public class DefaultResourceTest {
         Assert.assertFalse(f.exists());
 
         // this should trigger another extract...
+        Thread.sleep(10);
         r.checkModified();
 
         f = (File) field.get(r);
@@ -134,7 +136,7 @@ public class DefaultResourceTest {
 
         File tmp = makeTmpJar();
 
-        DefaultResource r = makeJarResource(tmp.getAbsolutePath(), "dir/injar.js");
+        DefaultResource r = makeJarResource(tmp.getAbsolutePath(), "dir/injar.js", 1);
 
         // trigger extraction.
         r.getLastModified();
@@ -151,6 +153,7 @@ public class DefaultResourceTest {
         Assert.assertTrue(Math.abs(tmp.lastModified() - extractDir.lastModified()) > 1000);
 
         // should trigger second extraction
+        Thread.sleep(10);
         r.checkModified();
 
         Assert.assertTrue(Math.abs(tmp.lastModified() - extractDir.lastModified()) < 1000);
@@ -159,6 +162,7 @@ public class DefaultResourceTest {
 
     @Test
     public void testFindRequiresTags() throws Exception {
+
         DefaultResource r = new DefaultResource("/", "nosuchresource.js");
 
         List<String> reqs = r.findRequiresTags();
@@ -179,6 +183,45 @@ public class DefaultResourceTest {
 
     }
 
+    @Test
+    public void testCheckModifiedInterval() throws Exception {
+
+        DefaultResource r = new DefaultResource("/", "notinjar.js", 0) {
+            @Override
+            protected long readLastModified() {
+                return System.currentTimeMillis();
+            }
+        };
+
+        long l = r.getLastModified();
+        Assert.assertTrue(l > 0);
+
+        Thread.sleep(10);
+
+        Assert.assertEquals(l, r.getLastModified());
+        r.checkModified();
+
+        Assert.assertEquals(l, r.getLastModified());
+
+        r = new DefaultResource("/", "notinjar.js", 500) {
+            @Override
+            protected long readLastModified() {
+                return System.currentTimeMillis();
+            }
+        };
+
+        l = r.getLastModified();
+        Assert.assertTrue(l > 0);
+
+        Thread.sleep(1100);
+
+        Assert.assertEquals(l, r.getLastModified());
+        r.checkModified();
+
+        Assert.assertTrue(r.getLastModified() > l);
+
+    }
+
     private File makeTmpJar() throws IOException {
 
         File tmp = File.createTempFile("tmp", ".jar");
@@ -193,14 +236,14 @@ public class DefaultResourceTest {
 
     }
 
-    private DefaultResource makeJarResource(String file) {
+    private DefaultResource makeJarResource(String file, int checkModifiedInterval) {
         URL url = getClass().getResource("/test.jar");
         String jarPath = url.toExternalForm().substring(5);
-        return makeJarResource(jarPath, file);
+        return makeJarResource(jarPath, file, checkModifiedInterval);
     }
 
-    private DefaultResource makeJarResource(String jarPath, String file) {
-        return new DefaultResource("jar:file:" + jarPath + "!/", file) {
+    private DefaultResource makeJarResource(String jarPath, String file, int checkModifiedInterval) {
+        return new DefaultResource("jar:file:" + jarPath + "!/", file, checkModifiedInterval) {
             protected URL getResourceURL() {
                 try {
                     return new URL(getFullPath());

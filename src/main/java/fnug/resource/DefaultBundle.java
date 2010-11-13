@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fnug.config.BundleConfig;
 
 /*
@@ -32,8 +35,9 @@ import fnug.config.BundleConfig;
  */
 public class DefaultBundle implements Bundle {
 
-    private static final String SUFFIX_CSS = "css";
+    private final static Logger LOG = LoggerFactory.getLogger(DefaultBundle.class);
 
+    private static final String SUFFIX_CSS = "css";
     private static final String SUFFIX_JS = "js";
 
     /**
@@ -169,7 +173,12 @@ public class DefaultBundle implements Bundle {
 
         LinkedList<Resource> l = new LinkedList<Resource>();
         for (String file : config.files()) {
-            l.add(ResourceResolver.getInstance().resolve(file));
+            Resource r = ResourceResolver.getInstance().resolve(file);
+            if (r == null) {
+                LOG.warn("No bundle configured to resolve '" + file + "'. Ignoring file.");
+                continue;
+            }
+            l.add(r);
         }
 
         Tarjan tarjan = new Tarjan(l);

@@ -15,6 +15,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fnug.resource.DefaultResource;
 import fnug.resource.Resource;
 
 /*
@@ -71,6 +72,13 @@ public class JsonConfigParser implements ConfigParser {
     @Override
     public Config parse(Resource res) {
 
+        if (res == null) {
+            throw new IllegalArgumentException("Null resource not allowed");
+        }
+        if (res.getLastModified() == -1) {
+            throw new IllegalArgumentException("Resource not found: " + res.getFullPath());
+        }
+
         JsonParser parser = null;
 
         try {
@@ -121,13 +129,29 @@ public class JsonConfigParser implements ConfigParser {
             throws JsonParseException, IOException {
 
         boolean jsLint = parseBoolean(node, KEY_JS_LINT, loc, DefaultBundleConfig.DEFAULT_JS_LINT);
-        boolean checkModified = parseBoolean(node, KEY_CHECK_MODIFIED, loc, DefaultBundleConfig.DEFAULT_CHECK_MODIFIED);
+        int checkModifiedInterval = parseInt(node, KEY_CHECK_MODIFIED, loc,
+                DefaultResource.DEFAULT_CHECK_MODIFIED_INTERVAL);
         String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
         String[] files = parseStringArray(node, KEY_FILES, loc, EMPTY_STRINGS);
 
         return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), jsLint,
-                checkModified, jsCompileArgs,
+                checkModifiedInterval, jsCompileArgs,
                 files);
+    }
+
+    private int parseInt(JsonNode node, String key, JsonLocation loc, int def) {
+
+        if (!node.has(key)) {
+            return def;
+        }
+
+        JsonNode m = node.get(key);
+        if (!m.isInt()) {
+            throw new JsonConfigParseException("Key '" + key + "' is not an integer value", loc);
+        }
+
+        return m.getIntValue();
+
     }
 
     private String[] parseStringArray(JsonNode node, String key, JsonLocation loc, String[] def) {
