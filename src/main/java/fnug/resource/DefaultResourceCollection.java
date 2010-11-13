@@ -5,8 +5,15 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import fnug.config.BundleConfig;
 import fnug.util.IOUtils;
 
+/**
+ * Default implementation of {@link ResourceCollection}.
+ * 
+ * @author Martin Algesten
+ * 
+ */
 public class DefaultResourceCollection extends AbstractAggregatedResource
         implements ResourceCollection, HasBundle {
 
@@ -24,6 +31,21 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     private volatile Resource compressedJs;
     private volatile Resource compressedCss;
 
+    /**
+     * Constructs setting all necessary bits.
+     * 
+     * @param bundle
+     *            The associated bundle.
+     * @param baseName
+     *            Base name of the resource collection, not necessarily the same
+     *            as associated {@link BundleConfig#basePath()}.
+     * @param aggregates
+     *            Resources that comprises the aggregates. This is a mix of
+     *            javascript, css and other dependent resources.
+     * @param dependencies
+     *            Resources that are just dependencies, not used for building
+     *            aggregated bytes, but for {@link #getLastModified()}.
+     */
     public DefaultResourceCollection(Bundle bundle, String baseName, Resource[] aggregates, Resource[] dependencies) {
         super(baseName, SUPER_NAME);
         this.bundle = bundle;
@@ -42,26 +64,43 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         return i;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getPath() {
         return IOUtils.md5("" + hash(getAggregates()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Resource[] getAggregates() {
         return aggregates;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Resource[] getDependencies() {
         return dependencies;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Bundle getBundle() {
         return bundle;
     }
 
+    /**
+     * Builds two sets of aggregated bytes. One which is {@link #getJs()} and
+     * the other {@link #getCss()}. Loops over all {@link #getAggregates()} and
+     * picks out {@link Resource#isJs()} and {@link Resource#isCss()}.
+     */
     @Override
     protected byte[] buildAggregate() {
         try {
@@ -81,17 +120,26 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public byte[] getJs() {
         return getBytes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public byte[] getCss() {
         ensureReadEntry();
         return css;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Resource getCompressedJs() {
         if (compressedJs == null) {
@@ -105,6 +153,9 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         return compressedJs;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Resource getCompressedCss() {
         if (compressedCss == null) {
@@ -118,6 +169,10 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         return compressedCss;
     }
 
+    /**
+     * {@inheritDoc} If any resource is changed, will dropped the compressed
+     * javascript and css.
+     */
     @Override
     public boolean checkModified() {
         boolean modified = super.checkModified();
@@ -144,11 +199,17 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         return anyResource ? mostRecent : -1l;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Resource> getExistingJsAggregates() {
         return getExisting(CONTENT_TYPE_TEXT_JAVASCRIPT);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Resource> getExistingCssAggregates() {
         return getExisting(CONTENT_TYPE_TEXT_CSS);

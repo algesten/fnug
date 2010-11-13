@@ -6,21 +6,56 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import fnug.config.BundleConfig;
+
+/**
+ * Implementation of Tarjan's strongly connected components algorithm. Used for
+ * finding load order the dependent resources, and to discover cyclic
+ * dependencies.
+ * 
+ * <p>
+ * <a href=
+ * "http://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm"
+ * >Tarjan's_strongly_connected_components_algorithm</a>
+ * 
+ * @author Martin Algesten
+ * 
+ */
 public class Tarjan {
 
     private HashMap<String, Node> nodes = new HashMap<String, Node>();
 
     private RootNode root;
 
+    /**
+     * Performs a tarjan's calculation of the given resources. These resources
+     * are exactly those configured in {@link BundleConfig#files()}, additional
+     * dependencies are discovered as part of this algorithm using
+     * {@link Resource#findRequiresTags()}.
+     * 
+     * @param resources
+     *            starting resources.
+     */
     public Tarjan(List<Resource> resources) {
         root = new RootNode(resources);
         tarjan(root);
     }
 
+    /**
+     * Same as {@link #Tarjan(List)}, but provided as array.
+     * 
+     * @param resources
+     *            resources to start from.
+     */
     public Tarjan(Resource... resources) {
         this(Arrays.asList(resources));
     }
 
+    /**
+     * Returns the result of the algorithm.
+     * 
+     * @return result of the algorithm.
+     */
     public List<List<Resource>> getResult() {
         List<List<Resource>> r = new LinkedList<List<Resource>>();
         for (List<Node> n : result) {

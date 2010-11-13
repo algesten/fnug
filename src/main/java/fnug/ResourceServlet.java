@@ -26,6 +26,12 @@ import fnug.resource.Resource;
 import fnug.resource.ResourceCollection;
 import fnug.resource.ResourceResolver;
 
+/**
+ * Servlet serving resources.
+ * 
+ * @author Martin Algesten
+ * 
+ */
 @SuppressWarnings("serial")
 public class ResourceServlet extends HttpServlet {
 

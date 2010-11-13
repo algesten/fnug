@@ -20,6 +20,15 @@ import org.slf4j.LoggerFactory;
 
 import fnug.util.IOUtils;
 
+/**
+ * Default file resource implementation. Relies on {@link Class#getResource(String)} to do its magic. 
+ * The class also handles the case where the class loader resolved resource is inside a jar-file. 
+ * That jar file is then unpacked into a temporary directory and the
+ * file last modified is read from there.
+ * 
+ * @author Martin Algesten
+ * 
+ */
 public class DefaultResource extends AbstractResource {
 
     private static final String CONTENT_TYPE_TEXT = "text/";
@@ -53,10 +62,23 @@ public class DefaultResource extends AbstractResource {
         }
     }
 
+    /**
+     * Creates a new resource setting the base path and path.
+     * 
+     * @param basePath
+     *            The base path of the resource. See {@link #getBasePath()}.
+     * @param path
+     *            The path of the resource. See {@link #getPath()}.
+     */
     public DefaultResource(String basePath, String path) {
         super(basePath, path);
     }
 
+    /**
+     * Reads the entry from the class loader using
+     * {@link Class#getResource(String)}. Also handles the case where that
+     * resource is in a jar file.
+     */
     @Override
     protected Entry readEntry() {
         URL url = getResourceURL();
@@ -68,10 +90,20 @@ public class DefaultResource extends AbstractResource {
         }
     }
 
+    /**
+     * Returns the URL of the resource.
+     * 
+     * @return the url of the resource or null if not found.
+     */
     protected URL getResourceURL() {
         return getClass().getResource(getFullPath());
     }
 
+    /**
+     * Returns the last modified date of the file. If the file was inside a
+     * jar-file, the jar file time stamp is also checked, and potentially
+     * extracted again.
+     */
     @Override
     protected long readLastModified() {
         assert file != null : "Call to readLastModified() before readEntry()";
@@ -199,6 +231,9 @@ public class DefaultResource extends AbstractResource {
 
     private final static Pattern REQUIRES_PAT = Pattern.compile("\\s*[*]\\s*@requires\\s+([^ \\t\\n\\x0B\\f\\r]+)");
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<String> findRequiresTags() {
         LinkedList<String> result = new LinkedList<String>();

@@ -18,6 +18,12 @@ import org.slf4j.LoggerFactory;
 
 import fnug.resource.Resource;
 
+/**
+ * Implementation of {@link ConfigParser} that reads json config files.
+ * 
+ * @author Martin Algesten
+ * 
+ */
 public class JsonConfigParser implements ConfigParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonConfigParser.class);
@@ -46,6 +52,9 @@ public class JsonConfigParser implements ConfigParser {
         jsonFactory = mapper.getJsonFactory();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Config parse(Resource res) {
 

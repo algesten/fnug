@@ -14,6 +14,13 @@ import fnug.config.Config;
 import fnug.config.ConfigParser;
 import fnug.config.JsonConfigParser;
 
+/**
+ * Entry point for resource resolving. Comprised of a number of {@link Bundle}
+ * that are created using {@link Config}.
+ * 
+ * @author Martin Algesten
+ * 
+ */
 public class ResourceResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResourceResolver.class);
@@ -27,18 +34,41 @@ public class ResourceResolver {
 
     private static ThreadLocal<ResourceResolver> instance = new ThreadLocal<ResourceResolver>();
 
+    /**
+     * Must be called before using the {@link ResourceResolver} to bind this
+     * instance of the resolver to the currently executing thread.
+     */
     public void setThreadLocal() {
         setThreadLocal(this);
     }
 
+    /**
+     * Sets the thread local instance to use. Used for test cases.
+     * 
+     * @param resolver
+     *            Resolver to use.
+     */
     protected static void setThreadLocal(ResourceResolver resolver) {
         instance.set(resolver);
     }
 
+    /**
+     * Returns the thread associated instance.
+     * 
+     * @return the thread associated instance.
+     */
     public static ResourceResolver getInstance() {
         return instance.get();
     }
 
+    /**
+     * Constructs a resolver from the given list of resources pointing out
+     * config files. These files will be parsed into {@link Config} by a
+     * {@link ConfigParser}.
+     * 
+     * @param configResources
+     *            resources to configure from.
+     */
     public ResourceResolver(List<Resource> configResources) {
         if (configResources == null || configResources.isEmpty()) {
             throw new IllegalArgumentException("Need at least one config resource");
@@ -47,14 +77,34 @@ public class ResourceResolver {
         initConfigs();
     }
 
+    /**
+     * Empty constructor for test cases.
+     */
     protected ResourceResolver() {
     }
 
+    /**
+     * Sets the configs to use. For test cases.
+     * 
+     * @param configs
+     *            configs to use.
+     */
     protected void setConfigs(Config... configs) {
         this.configs = Arrays.asList(configs);
         initBundles();
     }
 
+    /**
+     * Resolves the give path. This first attempts to resolve using just the
+     * bundle names themselves. I.e. a path such as
+     * <code>/mybundle/myresource.js</code> would be matched against a bundle
+     * named <code>mybundle</code>. Failing that, the bundle's pattern matching
+     * is used, see {@link BundleConfig#matches()}.
+     * 
+     * @param path
+     *            Path to match.
+     * @return The resolved resource, or null if no bundle will resolve.
+     */
     public Resource resolve(String path) {
         if (configs.isEmpty()) {
             initConfigs();
@@ -82,6 +132,13 @@ public class ResourceResolver {
         return null;
     }
 
+    /**
+     * Returns the bundle for the given bundle name.
+     * 
+     * @param name
+     *            name of the bundle
+     * @return the bundle or null if not found.
+     */
     public Bundle getBundle(String name) {
         if (configs.isEmpty()) {
             initConfigs();
@@ -124,10 +181,21 @@ public class ResourceResolver {
         }
     }
 
+    /**
+     * Returns a list of all configured bundles.
+     * 
+     * @return the bundle that are configured.
+     */
     public List<Bundle> getBundles() {
         return new LinkedList<Bundle>(bundles.values());
     }
 
+    /**
+     * Returns the last modified date of all the configured bundles, see
+     * {@link Bundle#getLastModified()}.
+     * 
+     * @return the last modified date.
+     */
     public long getLastModified() {
         long mostRecent = -1;
         for (Bundle b : getBundles()) {
@@ -136,6 +204,12 @@ public class ResourceResolver {
         return mostRecent;
     }
 
+    /**
+     * Checks if any of the config resources passed in the constructor is
+     * changed, in which case the resolver reinitialises all bundles.
+     * 
+     * @return true if any config was changed
+     */
     public boolean checkModified() {
         boolean changed = false;
         for (Resource r : configResources) {

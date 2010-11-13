@@ -8,8 +8,20 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Helper methods for i/o operations.
+ * 
+ * @author Martin Algesten
+ * 
+ */
 public class IOUtils {
 
+    /**
+     * Recursively remove the given file.
+     * 
+     * @param cur
+     *            file to remove recursively.
+     */
     public static void rm(File cur) {
         if (cur.isDirectory()) {
             for (File f : cur.listFiles()) {
@@ -19,6 +31,13 @@ public class IOUtils {
         cur.delete();
     }
 
+    /**
+     * Makes an md5 sum of the given string.
+     * 
+     * @param s
+     *            string to make sum of.
+     * @return the md5 as hexadecimals.
+     */
     public static String md5(String s) {
         MessageDigest md5;
         try {
@@ -30,6 +49,17 @@ public class IOUtils {
         }
     }
 
+    /**
+     * Copies all bytes of the input stream to the output stream. Will not close
+     * any streams.
+     * 
+     * @param is
+     *            Read from
+     * @param os
+     *            Write to.
+     * @throws IOException
+     *             if any stream throws exception.
+     */
     public static void spool(InputStream is, OutputStream os) throws IOException {
 
         byte[] buf = new byte[1024];

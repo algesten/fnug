@@ -5,6 +5,12 @@ import java.util.regex.Pattern;
 import fnug.resource.Bundle;
 import fnug.resource.Resource;
 
+/**
+ * Default implementation of {@link BundleConfig}
+ * 
+ * @author Martin Algesten
+ * 
+ */
 public class DefaultBundleConfig implements BundleConfig {
 
     private Resource configResource;
@@ -16,6 +22,26 @@ public class DefaultBundleConfig implements BundleConfig {
     private String[] jsCompileArgs;
     private String[] files;
 
+    /**
+     * Constructs setting all configurations.
+     * 
+     * @param configResource
+     *            Resource that built this instance.
+     * @param name
+     *            See {@link #name()}
+     * @param basePath
+     *            See {@link #basePath()}
+     * @param matches
+     *            See {@link #matches()}
+     * @param jsLint
+     *            See {@link #jsLint()}
+     * @param checkModified
+     *            See {@link #checkModified()}
+     * @param jsCompileArgs
+     *            See {@link #jsCompileArgs()}
+     * @param files
+     *            See {@link #files()}
+     */
     public DefaultBundleConfig(Resource configResource, String name, String basePath, Pattern[] matches,
             boolean jsLint, boolean checkModified,
             String[] jsCompileArgs, String[] files) {
@@ -32,41 +58,65 @@ public class DefaultBundleConfig implements BundleConfig {
         this.files = files;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Resource configResource() {
         return configResource;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String name() {
         return name;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String basePath() {
         return basePath;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Pattern[] matches() {
         return matches;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean jsLint() {
         return jsLint;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean checkModified() {
         return checkModified;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String[] jsCompileArgs() {
         return jsCompileArgs;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String[] files() {
         return files;

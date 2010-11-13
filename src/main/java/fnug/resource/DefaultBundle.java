@@ -8,6 +8,12 @@ import java.util.regex.Pattern;
 
 import fnug.config.BundleConfig;
 
+/**
+ * Default implementation of {@link Bundle}.
+ * 
+ * @author Martin Algesten
+ * 
+ */
 public class DefaultBundle implements Bundle {
 
     private static final String SUFFIX_CSS = "css";
@@ -29,21 +35,36 @@ public class DefaultBundle implements Bundle {
 
     private Pattern bundlePattern;
 
+    /**
+     * Constructs a bundle from the given config object.
+     * 
+     * @param config
+     *            config to construct from.
+     */
     public DefaultBundle(BundleConfig config) {
         this.config = config;
         bundlePattern = Pattern.compile(getName() + "/[a-f0-9]+\\.(js|css)");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BundleConfig getConfig() {
         return config;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return config.name();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Resource resolve(String path) {
 
@@ -100,10 +121,22 @@ public class DefaultBundle implements Bundle {
         return null;
     }
 
+    /**
+     * Can be overridden to provide other implementations of {@link Resource}
+     * than the {@link DefaultBundleResource}.
+     * 
+     * @param path
+     *            the path to construct a resource around.
+     * @return the constructed resource, which is an instance of
+     *         {@link DefaultBundleResource}.
+     */
     protected Resource makeResource(String path) {
         return new DefaultBundleResource(this, path);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ResourceCollection[] getResourceCollections() {
         if (resourceCollections == null) {
@@ -164,6 +197,9 @@ public class DefaultBundle implements Bundle {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getLastModified() {
         long mostRecent = config.configResource().getLastModified();
@@ -173,6 +209,9 @@ public class DefaultBundle implements Bundle {
         return mostRecent;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean checkModified() {
         boolean modified = false;
@@ -180,7 +219,9 @@ public class DefaultBundle implements Bundle {
             modified = rc.checkModified() || modified;
         }
         if (modified) {
-
+            synchronized (this) {
+                resourceCollections = null;
+            }
         }
         return modified;
     }
