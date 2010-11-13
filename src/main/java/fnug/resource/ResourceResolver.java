@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,6 @@ public class ResourceResolver {
     private volatile List<Config> configs = new LinkedList<Config>();
     private ConfigParser configParser = new JsonConfigParser();
     private LinkedHashMap<String, Bundle> bundles = new LinkedHashMap<String, Bundle>();
-    private LinkedHashMap<Pattern, Bundle> patterns = new LinkedHashMap<Pattern, Bundle>();
 
     private static ThreadLocal<ResourceResolver> instance = new ThreadLocal<ResourceResolver>();
 
@@ -114,8 +112,7 @@ public class ResourceResolver {
      * Resolves the give path. This first attempts to resolve using just the
      * bundle names themselves. I.e. a path such as
      * <code>/mybundle/myresource.js</code> would be matched against a bundle
-     * named <code>mybundle</code>. Failing that, the bundle's pattern matching
-     * is used, see {@link BundleConfig#matches()}.
+     * named <code>mybundle</code>.
      * 
      * @param path
      *            Path to match.
@@ -136,12 +133,6 @@ public class ResourceResolver {
         }
         for (Bundle bundle : bundles.values()) {
             if (path.startsWith(bundle.getName() + "/")) {
-                return bundle.resolve(path);
-            }
-        }
-        for (Pattern pat : patterns.keySet()) {
-            if (pat.matcher(path).matches()) {
-                Bundle bundle = patterns.get(pat);
                 return bundle.resolve(path);
             }
         }
@@ -166,7 +157,6 @@ public class ResourceResolver {
         synchronized (this) {
             if (configs.isEmpty()) {
                 bundles.clear();
-                patterns.clear();
                 for (Resource configResource : configResources) {
 
                     if (configResource.getLastModified() == -1) {
@@ -190,9 +180,6 @@ public class ResourceResolver {
             for (BundleConfig bcfg : cfg.getBundleConfigs()) {
                 Bundle bundle = new DefaultBundle(bcfg);
                 bundles.put(bundle.getName(), bundle);
-                for (Pattern pat : bcfg.matches()) {
-                    patterns.put(pat, bundle);
-                }
             }
         }
     }

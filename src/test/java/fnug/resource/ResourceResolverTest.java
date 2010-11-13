@@ -1,15 +1,10 @@
 package fnug.resource;
 
-import java.util.regex.Pattern;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import fnug.config.BundleConfig;
 import fnug.config.Config;
-import fnug.resource.HasBundle;
-import fnug.resource.Resource;
-import fnug.resource.ResourceResolver;
 
 public class ResourceResolverTest {
 
@@ -17,10 +12,10 @@ public class ResourceResolverTest {
     public void testPatterns() {
 
         ResourceResolver rr = new ResourceResolver();
-        rr.setConfigs(makeConfig("bundlecfg1", "cfg1/.*"), makeConfig("bundlecfg2", "cfg2/.*"));
+        rr.setConfigs(makeConfig("bundlecfg1"), makeConfig("bundlecfg2"));
 
-        Resource r1 = rr.resolve("cfg1/test.js");
-        Resource r2 = rr.resolve("cfg2/test.js");
+        Resource r1 = rr.resolve("bundlecfg1/test.js");
+        Resource r2 = rr.resolve("bundlecfg2/test.js");
 
         Assert.assertNotNull(r1);
         Assert.assertTrue(r1 instanceof HasBundle);
@@ -37,7 +32,7 @@ public class ResourceResolverTest {
     public void testResolve() {
 
         ResourceResolver rr = new ResourceResolver();
-        rr.setConfigs(makeConfig("bundlecfg1", "cfg1/.*"), makeConfig("bundlecfg2", "cfg2/.*"));
+        rr.setConfigs(makeConfig("bundlecfg1"), makeConfig("bundlecfg2"));
 
         try {
             rr.resolve(null);
@@ -68,7 +63,7 @@ public class ResourceResolverTest {
         
     }
 
-    private Config makeConfig(final String name, final String matches) {
+    private Config makeConfig(final String name) {
         return new Config() {
 
             @Override
@@ -88,11 +83,6 @@ public class ResourceResolverTest {
                     @Override
                     public String basePath() {
                         return "/";
-                    }
-
-                    @Override
-                    public Pattern[] matches() {
-                        return new Pattern[] { Pattern.compile(matches) };
                     }
 
                     @Override

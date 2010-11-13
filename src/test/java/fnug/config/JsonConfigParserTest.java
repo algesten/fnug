@@ -30,9 +30,6 @@ public class JsonConfigParserTest {
 
         Assert.assertEquals("testbundle1", bcfg.name());
         Assert.assertEquals("/", bcfg.basePath());
-        Assert.assertNotNull(bcfg.matches());
-        Assert.assertEquals(1, bcfg.matches().length);
-        Assert.assertEquals("test/.*", bcfg.matches()[0].toString());
         Assert.assertFalse(bcfg.checkModified());
         Assert.assertFalse(bcfg.jsLint());
         Assert.assertNotNull(bcfg.jsCompileArgs());

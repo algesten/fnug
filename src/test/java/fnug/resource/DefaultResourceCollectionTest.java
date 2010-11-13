@@ -1,17 +1,10 @@
 package fnug.resource;
 
-import java.util.regex.Pattern;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import fnug.config.BundleConfig;
-import fnug.resource.Bundle;
-import fnug.resource.DefaultResource;
-import fnug.resource.DefaultResourceCollection;
-import fnug.resource.Resource;
-import fnug.resource.ResourceCollection;
 
 public class DefaultResourceCollectionTest {
 
@@ -150,11 +143,6 @@ public class DefaultResourceCollectionTest {
                     @Override
                     public String name() {
                         return "testbundleconfig";
-                    }
-
-                    @Override
-                    public Pattern[] matches() {
-                        return null;
                     }
 
                     @Override

@@ -3,7 +3,6 @@ package fnug.config;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.regex.Pattern;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonLocation;
@@ -43,7 +42,6 @@ public class JsonConfigParser implements ConfigParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonConfigParser.class);
 
-    private static final String KEY_MATCHES = "matches";
     private static final String KEY_JS_LINT = "jsLint";
     private static final String KEY_CHECK_MODIFIED = "checkModified";
     private static final String KEY_JS_COMPILER_ARGS = "jsCompilerArgs";
@@ -122,13 +120,12 @@ public class JsonConfigParser implements ConfigParser {
     private DefaultBundleConfig buildConfig(JsonNode node, String name, JsonLocation loc, Resource configResource)
             throws JsonParseException, IOException {
 
-        Pattern[] matches = parsePatternArray(node, KEY_MATCHES, loc);
         boolean jsLint = parseBoolean(node, KEY_JS_LINT, loc, DefaultBundleConfig.DEFAULT_JS_LINT);
         boolean checkModified = parseBoolean(node, KEY_CHECK_MODIFIED, loc, DefaultBundleConfig.DEFAULT_CHECK_MODIFIED);
         String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
         String[] files = parseStringArray(node, KEY_FILES, loc, EMPTY_STRINGS);
 
-        return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), matches, jsLint,
+        return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), jsLint,
                 checkModified, jsCompileArgs,
                 files);
     }
@@ -171,18 +168,4 @@ public class JsonConfigParser implements ConfigParser {
 
     }
 
-    private Pattern[] parsePatternArray(JsonNode node, String key, JsonLocation loc) {
-
-        String[] vals = parseStringArray(node, key, loc, EMPTY_STRINGS);
-
-        Pattern[] pats = new Pattern[vals.length];
-
-        int i = 0;
-        for (String s : vals) {
-            pats[i++] = Pattern.compile(s);
-        }
-
-        return pats;
-
-    }
 }

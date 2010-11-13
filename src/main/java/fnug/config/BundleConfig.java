@@ -1,7 +1,5 @@
 package fnug.config;
 
-import java.util.regex.Pattern;
-
 import fnug.resource.Bundle;
 import fnug.resource.JsCompressor;
 import fnug.resource.Resource;
@@ -60,13 +58,6 @@ public interface BundleConfig {
      * @return bundle base path
      */
     String basePath();
-
-    /**
-     * Additional patterns to match for this bundle.
-     * 
-     * @return additional match patterns.
-     */
-    Pattern[] matches();
 
     /**
      * Tells if jslint is turned on for this bundle.
