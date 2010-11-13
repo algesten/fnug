@@ -1,6 +1,4 @@
-package fnug.resource;
 
-/*
  Copyright 2010 Martin Algesten
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +12,4 @@ package fnug.resource;
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
- */
 
-/**
- * Thrown when javascript compilation fails.
- * 
- * @author Martin Algesten
- * 
- */
-@SuppressWarnings("serial")
-public class JsCompilationFailedException extends RuntimeException {
-
-    /**
-     * Constructs setting args.
-     * 
-     * @param msg
-     *            The message.
-     * @param ex
-     *            Wrapped exception.
-     */
-    public JsCompilationFailedException(String msg, Exception ex) {
-        super(msg, ex);
-    }
-
-}
