@@ -33,4 +33,9 @@ public interface Compressor {
      */
     byte[] compress(byte[] input);
 
+    /**
+     * Returns what type of compressor this is. "javascript" or "css".
+     */
+    String name();
+
 }

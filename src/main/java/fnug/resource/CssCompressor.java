@@ -36,6 +36,14 @@ public class CssCompressor implements Compressor {
      * {@inheritDoc}
      */
     @Override
+    public String name() {
+        return "css";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public byte[] compress(byte[] input) {
 
         if (input == null) {

@@ -2,6 +2,9 @@ package fnug.resource;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /*
  Copyright 2010 Martin Algesten
 
@@ -29,6 +32,8 @@ import java.util.List;
  * 
  */
 public class DefaultCompressedResource extends AbstractResource implements HasBundle {
+
+    private final static Logger LOG = LoggerFactory.getLogger(DefaultCompressedResource.class);
 
     private Bundle bundle;
     private byte[] bytes;
@@ -95,6 +100,8 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
             synchronized (this) {
                 if (compressedBytes == null) {
                     byte[] superBytes = super.getBytes();
+                    LOG.info("Compiling " + compressor.name() + " of bundle '" + getBundle().getName()
+                            + "' for basePath: " + getBasePath());
                     compressedBytes = compressor.compress(superBytes);
                 }
             }

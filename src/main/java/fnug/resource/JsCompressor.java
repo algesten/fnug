@@ -33,6 +33,14 @@ public class JsCompressor implements Compressor {
     private GoogleClosureCompilerWrapper wrapper;
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String name() {
+        return "javascript";
+    }
+
+    /**
      * Constructs potentially sending configuration options to the wrapped
      * google closure compiler.
      * 
