@@ -4,6 +4,8 @@ import java.util.regex.Pattern;
 
 import javax.naming.spi.Resolver;
 
+import com.googlecode.jslint4java.JSLint;
+
 import fnug.config.BundleConfig;
 
 /*
@@ -101,5 +103,11 @@ public interface Bundle {
      * @return true if any resource has changed.
      */
     boolean checkModified();
+
+    /**
+     * Returns the configured JSLint instance for the bundle. Only returns a
+     * value if {@link BundleConfig#jsLintArgs()} is an non-empty array.
+     */
+    JSLint getJsLinter();
 
 }

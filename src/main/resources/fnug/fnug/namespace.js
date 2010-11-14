@@ -1,0 +1,1 @@
+var fnug = fnug || {};

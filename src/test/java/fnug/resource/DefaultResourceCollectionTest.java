@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.googlecode.jslint4java.JSLint;
+
 import fnug.config.BundleConfig;
 
 public class DefaultResourceCollectionTest {
@@ -108,8 +110,11 @@ public class DefaultResourceCollectionTest {
 
         Assert.assertEquals(1, readLastModifiedCount);
 
+        Thread.sleep(1100);
         Assert.assertTrue(c.checkModified());
+        Thread.sleep(10);
         Assert.assertTrue(c.checkModified());
+        Thread.sleep(10);
         Assert.assertTrue(c.checkModified());
 
         Assert.assertEquals(4, readLastModifiedCount);
@@ -124,7 +129,7 @@ public class DefaultResourceCollectionTest {
     }
 
     private Resource makeResource(String path, final boolean forceModified) {
-        return new DefaultResource("/", path) {
+        return new DefaultResource("/", path, forceModified ? 1 : 0) {
             @Override
             protected long readLastModified() {
                 return forceModified ? (long) (System.currentTimeMillis() + (Math.random() * 100000)) :
@@ -146,8 +151,8 @@ public class DefaultResourceCollectionTest {
                     }
 
                     @Override
-                    public boolean jsLint() {
-                        return false;
+                    public String[] jsLintArgs() {
+                        return null;
                     }
 
                     @Override
@@ -199,7 +204,12 @@ public class DefaultResourceCollectionTest {
 
             @Override
             public boolean checkModified() {
-                return false;
+                return checkModifiedInterval != 0;
+            }
+
+            @Override
+            public JSLint getJsLinter() {
+                return null;
             }
 
         };

@@ -1,5 +1,7 @@
 package fnug.config;
 
+import java.util.Arrays;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,7 +55,11 @@ public class JsonConfigParserTest {
         Assert.assertEquals("testbundle1", bcfg.name());
         Assert.assertEquals("/", bcfg.basePath());
         Assert.assertEquals(42, bcfg.checkModifiedInterval());
-        Assert.assertFalse(bcfg.jsLint());
+        Assert.assertNotNull(bcfg.jsLintArgs());
+        Assert.assertEquals(11, bcfg.jsLintArgs().length);
+        Assert.assertEquals("[white: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, " +
+                "bitwise: true, regexp: true, newcap: true, immed: true, maxlen: 80]", Arrays.asList(bcfg.jsLintArgs())
+                .toString());
         Assert.assertNotNull(bcfg.jsCompileArgs());
         Assert.assertEquals(1, bcfg.jsCompileArgs().length);
         Assert.assertEquals("--debug", bcfg.jsCompileArgs()[0].toString());

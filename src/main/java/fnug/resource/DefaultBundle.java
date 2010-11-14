@@ -1,5 +1,6 @@
 package fnug.resource;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -8,6 +9,10 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.googlecode.jslint4java.JSLint;
+import com.googlecode.jslint4java.JSLintBuilder;
+import com.googlecode.jslint4java.Option;
 
 import fnug.config.BundleConfig;
 
@@ -264,10 +269,60 @@ public class DefaultBundle implements Bundle {
                     for (ResourceCollection rc : resourceCollections) {
                         previousResourceCollections.put(rc.getPath(), rc);
                     }
+                    resourceCollections = null;
                 }
             }
         }
         return modified;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JSLint getJsLinter() {
+        // the JSLint instance cannot be kept between invocations since it uses
+        // a thread local (mozilla rhino) Context that is set up in the
+        // JSLintBuilder and used for the current executing thread.
+        // We make sure to cache the result instead.
+        if (config.jsLintArgs() != null && config.jsLintArgs().length > 0) {
+            return initJsLinter();
+        } else {
+            return null;
+        }
+    }
+
+    private JSLint initJsLinter() {
+
+        JSLint jsLinter;
+        try {
+            jsLinter = new JSLintBuilder().fromDefault();
+        } catch (IOException e1) {
+            throw new IllegalStateException("Failed to init JSLint", e1);
+        }
+
+        for (String arg : config.jsLintArgs()) {
+
+            String[] split = arg.split(":");
+
+            Option opt;
+            try {
+                opt = Option.valueOf(split[0].toUpperCase());
+            } catch (Exception e) {
+                LOG.warn("Ignoring unknown JSLint option: " + arg);
+                continue;
+            }
+
+            if (split.length == 1 || split[1].equalsIgnoreCase("true")) {
+                jsLinter.addOption(opt);
+            } else {
+                jsLinter.addOption(opt, split[1]);
+            }
+
+        }
+
+        return jsLinter;
+
     }
 
 }

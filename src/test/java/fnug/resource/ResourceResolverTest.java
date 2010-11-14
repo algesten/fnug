@@ -86,8 +86,8 @@ public class ResourceResolverTest {
                     }
 
                     @Override
-                    public boolean jsLint() {
-                        return false;
+                    public String[] jsLintArgs() {
+                        return null;
                     }
 
                     @Override

@@ -205,6 +205,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             synchronized (this) {
                 compressedJs = null;
                 compressedCss = null;
+                path = null;
             }
         }
         return modified;

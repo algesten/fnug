@@ -4,9 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletConfig;
@@ -15,18 +13,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import fnug.resource.Bundle;
-import fnug.resource.DefaultCompressedResource;
 import fnug.resource.DefaultResource;
-import fnug.resource.HasLastModifiedBytes;
-import fnug.resource.JsCompressor;
 import fnug.resource.Resource;
-import fnug.resource.ResourceCollection;
 import fnug.resource.ResourceResolver;
+import fnug.servlet.BadArg;
+import fnug.servlet.Bootstrap;
+import fnug.servlet.BundleNames;
+import fnug.servlet.ToServe;
+import fnug.servlet.ToServeBundle;
+import fnug.servlet.ToServeResource;
 
 /*
  Copyright 2010 Martin Algesten
@@ -53,10 +51,10 @@ import fnug.resource.ResourceResolver;
 @SuppressWarnings("serial")
 public class ResourceServlet extends HttpServlet {
 
-    private static final String UTF_8 = "utf-8";
+    public static final String UTF_8 = "utf-8";
 
-    private static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
-    private static final String CONTENT_TYPE_JS = "text/javascript; charset=utf8";
+    public static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
+    public static final String CONTENT_TYPE_JS = "text/javascript; charset=utf8";
 
     private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
     private static final String HEADER_CONTENT_ENCODING = "Content-Encoding";
@@ -72,7 +70,6 @@ public class ResourceServlet extends HttpServlet {
     private static ThreadLocal<RequestEntry> reqEntry = new ThreadLocal<RequestEntry>();
 
     private ResourceResolver resolver;
-    private String bootstrapJs;
     private ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -80,24 +77,6 @@ public class ResourceServlet extends HttpServlet {
         super.init(config);
 
         initResolver(config);
-
-        initBootstrapJs();
-
-    }
-
-    private void initBootstrapJs() {
-
-        Resource res = new DefaultResource("/fnug/", "bootstrap.js");
-
-        if (res.getLastModified() == -1) {
-            throw new IllegalStateException("Missing classpath resource: " + res.getFullPath());
-        }
-
-        JsCompressor jscomp = new JsCompressor();
-        byte[] compressed = jscomp.compress(res.getBytes());
-
-        // encoding not interesting since bootstrap.js contains no strange chars
-        bootstrapJs = new String(compressed);
 
     }
 
@@ -116,6 +95,10 @@ public class ResourceServlet extends HttpServlet {
             String[] configs = configStr.split("\\s*,\\s*");
 
             LinkedList<Resource> resources = new LinkedList<Resource>();
+
+            // add internal config resources first.
+            resources.add(new DefaultResource("/fnug/", "bundles.js"));
+
             for (String s : configs) {
                 String basePath = s.substring(0, s.lastIndexOf(File.separator) + 1);
                 String path = s.substring(s.lastIndexOf(File.separator) + 1);
@@ -244,15 +227,15 @@ public class ResourceServlet extends HttpServlet {
             try {
 
                 if (path.equals("")) {
-                    toServe = new BundleNames();
+                    toServe = new BundleNames(mapper);
                 } else if (Bundle.BUNDLE_ALLOWED_CHARS.matcher(file).matches()) {
                     Bundle bundle = resolver.getBundle(file);
                     if (bundle != null) {
                         bundle.checkModified();
                         if (suffix.equals("")) {
-                            toServe = new ToServeBundle(bundle);
+                            toServe = new ToServeBundle(mapper, bundle);
                         } else if (suffix.equals("js")) {
-                            toServe = new Bootstrap(servletPath, bundle);
+                            toServe = new Bootstrap(mapper, servletPath, bundle);
                         } else {
                             toServe = null;
                         }
@@ -297,7 +280,7 @@ public class ResourceServlet extends HttpServlet {
                 // affects headers
                 gzip = false;
             }
-            
+
             if (toServe == null) {
 
                 serve404(resp);
@@ -389,252 +372,6 @@ public class ResourceServlet extends HttpServlet {
             return -1;
 
         }
-    }
-
-    private class BundleNames implements ToServe {
-
-        byte[] bytes;
-        long lastModified;
-
-        public BundleNames() {
-
-            List<Bundle> bundles = resolver.getBundles();
-
-            lastModified = resolver.getLastModified();
-
-            JsonBundleNames jbns = new JsonBundleNames(bundles);
-
-            try {
-                bytes = mapper.writeValueAsBytes(jbns); // uses utf-8
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to generate json", e);
-            }
-
-        }
-
-        @Override
-        public long getLastModified() {
-            return lastModified;
-        }
-
-        @Override
-        public boolean futureExpires() {
-            return false;
-        }
-
-        @Override
-        public byte[] getBytes() {
-            return bytes;
-        }
-
-        @Override
-        public String getContentType() {
-            return CONTENT_TYPE_JSON;
-        }
-
-    }
-
-    private class JsonBundleNames {
-
-        @JsonProperty
-        private LinkedList<String> bundles = new LinkedList<String>();
-
-        public JsonBundleNames(List<Bundle> bs) {
-
-            for (Bundle b : bs) {
-                bundles.add(b.getName());
-            }
-
-        }
-
-    }
-
-    private class Bootstrap implements ToServe {
-
-        private static final String TOKEN_BASE_URL = "/\\*\\*\\*baseUrl\\*\\*\\*/";
-        private static final String TOKEN_BUNDLES = "\\[\"/\\*\\*\\*bundles\\*\\*\\*/\\\"]";
-        byte[] bytes;
-        long lastModified;
-
-        public Bootstrap(String baseUrl, Bundle bundle) {
-            initBytes(baseUrl, bundle);
-        }
-
-        private void initBytes(String baseUrl, Bundle bundle) {
-
-            this.lastModified = bundle.getLastModified();
-
-            JsonBundle jb = new JsonBundle(bundle);
-            String jbs;
-
-            try {
-                jbs = mapper.writeValueAsString(jb.colls);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to generate json", e);
-            }
-
-            String subst = bootstrapJs;
-            subst = subst.replaceAll(TOKEN_BASE_URL, baseUrl);
-            subst = subst.replaceAll(TOKEN_BUNDLES, jbs);
-
-            try {
-                bytes = subst.getBytes(UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                // nope
-            }
-
-        }
-
-        public byte[] getBytes() {
-            return bytes;
-        }
-
-        public long getLastModified() {
-            return lastModified;
-        }
-
-        @Override
-        public boolean futureExpires() {
-            return false;
-        }
-
-        @Override
-        public String getContentType() {
-            return CONTENT_TYPE_JS;
-        }
-
-    }
-
-    private class JsonBundle {
-
-        @JsonProperty
-        private LinkedList<JsonResourceCollection> colls = new LinkedList<JsonResourceCollection>();
-
-        public JsonBundle(Bundle bundle) {
-
-            ResourceCollection[] tmp = bundle.getResourceCollections();
-            for (ResourceCollection c : tmp) {
-                colls.add(new JsonResourceCollection(c));
-            }
-
-        }
-    }
-
-    @JsonPropertyOrder({ "name", "compJs", "compCss", "files" })
-    @SuppressWarnings("unused")
-    private class JsonResourceCollection {
-        @JsonProperty
-        String name;
-        @JsonProperty
-        String compJs;
-        @JsonProperty
-        String compCss;
-        @JsonProperty
-        LinkedList<String> files = new LinkedList<String>();
-
-        public JsonResourceCollection(ResourceCollection c) {
-            name = c.getBundle().getName();
-            if (c.getCompressedJs().getLastModified() > 0) {
-                compJs = c.getCompressedJs().getFullPath();
-            }
-            if (c.getCompressedCss().getLastModified() > 0) {
-                compCss = c.getCompressedCss().getFullPath();
-            }
-            for (Resource r : c.getAggregates()) {
-                files.add(r.getFullPath());
-            }
-        }
-    }
-
-    private class ToServeBundle implements ToServe {
-
-        byte[] bytes;
-        long lastModified;
-
-        public ToServeBundle(Bundle bundle) {
-
-            lastModified = bundle.getLastModified();
-
-            JsonBundle jb = new JsonBundle(bundle);
-
-            try {
-                bytes = mapper.writeValueAsBytes(jb);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to generate json", e);
-            }
-
-        }
-
-        @Override
-        public byte[] getBytes() {
-            return bytes;
-        }
-
-        @Override
-        public long getLastModified() {
-            return lastModified;
-        }
-
-        @Override
-        public boolean futureExpires() {
-            return false;
-        }
-
-        @Override
-        public String getContentType() {
-            return CONTENT_TYPE_JSON;
-        }
-    }
-
-    private class ToServeResource implements ToServe {
-
-        private Resource res;
-
-        public ToServeResource(Resource res) {
-            this.res = res;
-        }
-
-        @Override
-        public byte[] getBytes() {
-            return res.getBytes();
-        }
-
-        @Override
-        public long getLastModified() {
-            return res.getLastModified();
-        }
-
-        @Override
-        public boolean futureExpires() {
-            return res instanceof DefaultCompressedResource;
-        }
-
-        @Override
-        public String getContentType() {
-            return res.getContentType();
-        }
-
-    }
-
-    private class BadArg {
-
-        String message;
-
-        public BadArg(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
-
-    private interface ToServe extends HasLastModifiedBytes {
-
-        String getContentType();
-
-        boolean futureExpires();
-
     }
 
 }

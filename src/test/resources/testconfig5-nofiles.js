@@ -1,6 +1,6 @@
 {
 	testbundle1: {
-		jsLint: false,
+		jsLint: null,
 		checkModified: 0,
 		jsCompilerArgs: [ '--debug' ]
 //		files: [

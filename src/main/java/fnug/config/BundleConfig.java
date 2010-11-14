@@ -60,11 +60,13 @@ public interface BundleConfig {
     String basePath();
 
     /**
-     * Tells if jslint is turned on for this bundle.
+     * The arguments used for JSLint. No arguments indicates that jslint is
+     * turned off.
      * 
-     * @return True if jslint is turned on.
+     * @return The arguments used for JSLint. Example: ["white: true",
+     *         "onevar: true"].
      */
-    boolean jsLint();
+    String[] jsLintArgs();
 
     /**
      * The interval in milliseconds that we are to check the modified dates of

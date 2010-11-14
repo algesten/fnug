@@ -3,6 +3,8 @@ package fnug.config;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonLocation;
@@ -128,15 +130,50 @@ public class JsonConfigParser implements ConfigParser {
     private DefaultBundleConfig buildConfig(JsonNode node, String name, JsonLocation loc, Resource configResource)
             throws JsonParseException, IOException {
 
-        boolean jsLint = parseBoolean(node, KEY_JS_LINT, loc, DefaultBundleConfig.DEFAULT_JS_LINT);
+        String[] jsLintArgs = parseJsLintArgs(node, KEY_JS_LINT, loc);
         int checkModifiedInterval = parseInt(node, KEY_CHECK_MODIFIED, loc,
                 DefaultResource.DEFAULT_CHECK_MODIFIED_INTERVAL);
         String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
         String[] files = parseStringArray(node, KEY_FILES, loc, EMPTY_STRINGS);
 
-        return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), jsLint,
+        return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), jsLintArgs,
                 checkModifiedInterval, jsCompileArgs,
                 files);
+    }
+
+    private final static Pattern JSLINT_ARG_PAT = Pattern.compile("\\w+:\\s+\\w+");
+
+    private String[] parseJsLintArgs(JsonNode node, String key, JsonLocation loc) {
+
+        String s = parseString(node, key, loc, "");
+
+        Matcher m = JSLINT_ARG_PAT.matcher(s);
+
+        LinkedList<String> args = new LinkedList<String>();
+
+        while (m.find()) {
+            args.add(m.group());
+        }
+
+        return args.toArray(new String[args.size()]);
+    }
+
+    private String parseString(JsonNode node, String key, JsonLocation loc, String def) {
+
+        if (!node.has(key)) {
+            return def;
+        }
+
+        JsonNode m = node.get(key);
+        if (m.isNull()) {
+            return def;
+        }
+        if (!m.isTextual()) {
+            throw new JsonConfigParseException("Key '" + key + "' is not an string value", loc);
+        }
+
+        return m.getValueAsText();
+
     }
 
     private int parseInt(JsonNode node, String key, JsonLocation loc, int def) {
@@ -146,6 +183,9 @@ public class JsonConfigParser implements ConfigParser {
         }
 
         JsonNode m = node.get(key);
+        if (m.isNull()) {
+            return def;
+        }
         if (!m.isInt()) {
             throw new JsonConfigParseException("Key '" + key + "' is not an integer value", loc);
         }
@@ -165,6 +205,9 @@ public class JsonConfigParser implements ConfigParser {
         }
 
         JsonNode m = node.get(key);
+        if (m.isNull()) {
+            return def;
+        }
         if (!m.isArray()) {
             throw new JsonConfigParseException("Key '" + key + "' is not array", loc);
         }
@@ -174,21 +217,6 @@ public class JsonConfigParser implements ConfigParser {
             vals[i++] = j.getValueAsText();
         }
         return vals;
-
-    }
-
-    private boolean parseBoolean(JsonNode node, String key, JsonLocation loc, boolean def) {
-
-        if (!node.has(key)) {
-            return def;
-        }
-
-        JsonNode m = node.get(key);
-        if (!m.isBoolean()) {
-            throw new JsonConfigParseException("Key '" + key + "' is not a boolean value", loc);
-        }
-
-        return m.getBooleanValue();
 
     }
 

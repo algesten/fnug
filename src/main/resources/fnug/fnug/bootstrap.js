@@ -1,23 +1,9 @@
-(function () {
+/**
+ * @requires fnug/util.js
+ * @requires fnug/jslintresult.js
+ */
 
-	var head = document.getElementsByTagName('head')[0];
-
-	var baseUrl = '/***baseUrl***/';
-
-	var loadScript = function (url) {
-		var script = document.createElement('script');
-		script.type = 'text/javascript';
-		script.src = baseUrl + url;
-		head.appendChild(script);
-	};
-
-	var loadStyles = function (url) {
-		var css = document.createElement('link');
-		css.type = 'text/css';
-		css.rel = 'stylesheet';
-		css.href = baseUrl + url;
-		head.appendChild(css);
-	};
+fnug.populateDebug = function () {
 
 	var debugAll = false;
 	var debugDefault = false;
@@ -59,27 +45,50 @@
 	    }
 	}
 	
-	var bundles = ["/***bundles***/"];
+	fnug.isDebug = function(bundleName) {
+		return debugAll || 
+			debugDefault && fnug.bundles.length >= 1 && bundleName == fnug.bundles[0].name || 
+			debug[bundleName];
+	};
 
-	for (i = 0; i < bundles.length; i++) {
-		var cur = bundles[i];
-		if (debugAll || i === 0 && debugDefault || debug[cur.name]) {
+};
+	
+// keep double quotes since closure compiler changes ' to "
+fnug.bundles = "/***bundles***/"; 
+
+if (JSON && JSON.parse) {
+	fnug.bundles = JSON.parse(fnug.bundles);
+} else {
+	fnug.bundles = eval(fnug.bundles);
+}
+
+fnug.init = function() {
+
+	for (i = 0; i < fnug.bundles.length; i++) {
+		var cur = fnug.bundles[i];
+		if (fnug.isDebug(cur.name)) {
+			if (cur.jsLintResult) {
+				fnug.showJSLintPopupButton();
+			}
 			for (var j = 0; j < cur.files.length; j++) {
 				var file = cur.files[j];
 				if (file.lastIndexOf('.js') === file.length - 3) {
-					loadScript(file);
+					fnug.loadScript(file);
 				} else if (file.lastIndexOf('.css') === file.length - 4) {
-					loadStyles(file);
+					fnug.loadStyles(file);
 				}
 			}
 		} else {
 			if (cur.compCss) {
-				loadStyles(cur.compCss);
+				fnug.loadStyles(cur.compCss);
 			}
 			if (cur.compJs) {
-				loadScript(cur.compJs);
+				fnug.loadScript(cur.compJs);
 			}
 		}
 	}
 	
-}());
+};
+
+fnug.populateDebug();
+fnug.init();

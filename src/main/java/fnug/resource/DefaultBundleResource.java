@@ -1,5 +1,12 @@
 package fnug.resource;
 
+import java.io.UnsupportedEncodingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.googlecode.jslint4java.JSLintResult;
+
 import fnug.config.BundleConfig;
 
 /*
@@ -24,9 +31,15 @@ import fnug.config.BundleConfig;
  * @author Martin Algesten
  * 
  */
-public class DefaultBundleResource extends DefaultResource implements HasBundle {
+public class DefaultBundleResource extends DefaultResource implements HasBundle, HasJSLintResult {
+
+    private final static Logger LOG = LoggerFactory.getLogger(DefaultBundleResource.class);
+
+    private final static JSLintResult EMPTY_RESULT = (new JSLintResult.ResultBuilder("_empty_")).report("").build();
 
     private Bundle bundle;
+
+    private volatile JSLintResult jsLintResult;
 
     /**
      * Constructs setting the necessary bundle and path. The
@@ -50,6 +63,54 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle 
     @Override
     public Bundle getBundle() {
         return bundle;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JSLintResult getJSLintResult() {
+        // can't use bundle.getJsLinter() == null since that actually builds a
+        // linter, which takes ages.
+        if (!isJs() || isEmpty(bundle.getConfig().jsLintArgs()) || getLastModified() == -1) {
+            return null;
+        }
+        JSLintResult result = jsLintResult;
+        if (result == null) {
+            synchronized (this) {
+                if (jsLintResult == null) {
+                    try {
+                        LOG.debug("Running JSLint: " + getFullPath());
+                        jsLintResult = bundle.getJsLinter().lint(getFullPath(), new String(getBytes(), "UTF-8"));
+                        if (jsLintResult == null) {
+                            jsLintResult = EMPTY_RESULT;
+                        }
+                        result = jsLintResult;
+                    } catch (UnsupportedEncodingException e) {
+                        // as if.
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean isEmpty(String[] arr) {
+        return arr == null || arr.length == 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean checkModified() {
+        boolean modified = super.checkModified();
+        if (modified) {
+            synchronized (this) {
+                jsLintResult = null;
+            }
+        }
+        return modified;
     }
 
 }

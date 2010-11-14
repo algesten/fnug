@@ -30,7 +30,7 @@ public class DefaultBundleConfig implements BundleConfig {
     private Resource configResource;
     private String name;
     private String basePath;
-    private boolean jsLint;
+    private String[] jsLintArgs;
     private int checkModifiedInterval;
     private String[] jsCompileArgs;
     private String[] files;
@@ -44,7 +44,7 @@ public class DefaultBundleConfig implements BundleConfig {
      *            See {@link #name()}
      * @param basePath
      *            See {@link #basePath()}
-     * @param jsLint
+     * @param jsLintArgs
      *            See {@link #jsLint()}
      * @param checkModified
      *            See {@link #checkModifiedInterval()}
@@ -53,7 +53,7 @@ public class DefaultBundleConfig implements BundleConfig {
      * @param files
      *            See {@link #files()}
      */
-    public DefaultBundleConfig(Resource configResource, String name, String basePath, boolean jsLint,
+    public DefaultBundleConfig(Resource configResource, String name, String basePath, String[] jsLintArgs,
             int checkModifiedInterval, String[] jsCompileArgs, String[] files) {
         this.configResource = configResource;
         if (!Bundle.BUNDLE_ALLOWED_CHARS.matcher(name).matches()) {
@@ -61,7 +61,7 @@ public class DefaultBundleConfig implements BundleConfig {
         }
         this.name = name;
         this.basePath = basePath;
-        this.jsLint = jsLint;
+        this.jsLintArgs = jsLintArgs;
         this.checkModifiedInterval = checkModifiedInterval;
         this.jsCompileArgs = jsCompileArgs;
         this.files = files;
@@ -95,8 +95,8 @@ public class DefaultBundleConfig implements BundleConfig {
      * {@inheritDoc}
      */
     @Override
-    public boolean jsLint() {
-        return jsLint;
+    public String[] jsLintArgs() {
+        return jsLintArgs;
     }
 
     /**
