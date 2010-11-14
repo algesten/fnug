@@ -175,7 +175,7 @@ public class DefaultBundleTest {
         Assert.assertSame(b1, ((DefaultResourceCollection) colls[1]).getBundle());
 
         Assert.assertEquals("[bundle2/js-inbundle2.js]", Arrays.asList(colls[0].getAggregates()).toString());
-        Assert.assertEquals("[test/js-inbundle1.js]", Arrays.asList(colls[1].getAggregates()).toString());
+        Assert.assertEquals("[test/singlequote.js, test/js-inbundle1.js]", Arrays.asList(colls[1].getAggregates()).toString());
 
     }
 
