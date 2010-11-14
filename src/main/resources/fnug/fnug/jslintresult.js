@@ -32,7 +32,7 @@ fnug.openPopup = function() {
 	}
 	doc.write('</body></html>');
 	doc.close();
-	
+	popup.focus();
 };
 
 fnug.showJSLintPopupButton = function() {
