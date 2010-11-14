@@ -52,6 +52,7 @@ public class DefaultBundle implements Bundle {
     private volatile HashMap<String, Resource> cache = new HashMap<String, Resource>();
 
     private volatile ResourceCollection[] resourceCollections;
+    private HashMap<String, ResourceCollection> previousResourceCollections = new HashMap<String, ResourceCollection>();
 
     private Pattern bundlePattern;
 
@@ -215,8 +216,20 @@ public class DefaultBundle implements Bundle {
         for (Bundle b : bundleResources.keySet()) {
             List<Resource> lr = bundleResources.get(b);
             Resource[] alr = lr.toArray(new Resource[lr.size()]);
-            result[i++] = new DefaultResourceCollection(b, "/" + config.name() + "/", alr, null);
+
+            ResourceCollection newColl = new DefaultResourceCollection(b, "/" + config.name() + "/", alr, null);
+
+            // now we double check the newly built resource collection against
+            // ones that were built previously. if we find a previous, we prefer
+            // that one, since it may have already compiled javascript/css.
+            if (previousResourceCollections.containsKey(newColl.getPath())) {
+                newColl = previousResourceCollections.get(newColl.getPath());
+            }
+
+            result[i++] = newColl;
         }
+
+        previousResourceCollections.clear();
 
         return result;
 
@@ -245,7 +258,13 @@ public class DefaultBundle implements Bundle {
         }
         if (modified) {
             synchronized (this) {
-                resourceCollections = null;
+                if (resourceCollections != null) {
+                    // save resource collections to perhaps be reused when
+                    // rebuilding.
+                    for (ResourceCollection rc : resourceCollections) {
+                        previousResourceCollections.put(rc.getPath(), rc);
+                    }
+                }
             }
         }
         return modified;

@@ -38,6 +38,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     private static final Resource[] EMPTY_RESOURCES = new Resource[] {};
 
     private Bundle bundle;
+    private volatile String path;
     private Resource[] aggregates;
     private Resource[] dependencies;
     private JsCompressor jsCompressor;
@@ -81,11 +82,19 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     }
 
     /**
-     * {@inheritDoc}
+     * The path of a resource collection is an md5 hash sum as hexadecimal of
+     * all the aggregates file names and last modified dates.
      */
     @Override
     public String getPath() {
-        return IOUtils.md5("" + hash(getAggregates()));
+        if (path == null) {
+            synchronized (this) {
+                if (path == null) {
+                    path = IOUtils.md5("" + hash(getAggregates()));
+                }
+            }
+        }
+        return path;
     }
 
     /**
