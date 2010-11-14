@@ -4,9 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.googlecode.jslint4java.JSLint;
-
 import fnug.config.BundleConfig;
+import fnug.util.JSLintWrapper;
 
 public class DefaultResourceCollectionTest {
 
@@ -208,7 +207,7 @@ public class DefaultResourceCollectionTest {
             }
 
             @Override
-            public JSLint getJsLinter() {
+            public JSLintWrapper getJsLinter() {
                 return null;
             }
 

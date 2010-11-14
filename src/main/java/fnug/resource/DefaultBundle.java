@@ -1,6 +1,5 @@
 package fnug.resource;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -10,11 +9,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.googlecode.jslint4java.JSLint;
-import com.googlecode.jslint4java.JSLintBuilder;
-import com.googlecode.jslint4java.Option;
-
 import fnug.config.BundleConfig;
+import fnug.util.JSLintWrapper;
 
 /*
  Copyright 2010 Martin Algesten
@@ -52,6 +48,7 @@ public class DefaultBundle implements Bundle {
      */
     private static final int MAX_CACHE = 10000;
 
+
     private BundleConfig config;
 
     private volatile HashMap<String, Resource> cache = new HashMap<String, Resource>();
@@ -60,6 +57,8 @@ public class DefaultBundle implements Bundle {
     private HashMap<String, ResourceCollection> previousResourceCollections = new HashMap<String, ResourceCollection>();
 
     private Pattern bundlePattern;
+
+    private volatile JSLintWrapper jsLintWrapper;
 
     /**
      * Constructs a bundle from the given config object.
@@ -280,49 +279,18 @@ public class DefaultBundle implements Bundle {
      * {@inheritDoc}
      */
     @Override
-    public JSLint getJsLinter() {
-        // the JSLint instance cannot be kept between invocations since it uses
-        // a thread local (mozilla rhino) Context that is set up in the
-        // JSLintBuilder and used for the current executing thread.
-        // We make sure to cache the result instead.
-        if (config.jsLintArgs() != null && config.jsLintArgs().length > 0) {
-            return initJsLinter();
-        } else {
+    public JSLintWrapper getJsLinter() {
+        if (getConfig().jsLintArgs() == null || getConfig().jsLintArgs().length == 0) {
             return null;
         }
-    }
-
-    private JSLint initJsLinter() {
-
-        JSLint jsLinter;
-        try {
-            jsLinter = new JSLintBuilder().fromDefault();
-        } catch (IOException e1) {
-            throw new IllegalStateException("Failed to init JSLint", e1);
-        }
-
-        for (String arg : config.jsLintArgs()) {
-
-            String[] split = arg.split(":");
-
-            Option opt;
-            try {
-                opt = Option.valueOf(split[0].toUpperCase());
-            } catch (Exception e) {
-                LOG.warn("Ignoring unknown JSLint option: " + arg);
-                continue;
+        if (jsLintWrapper == null) {
+            synchronized (this) {
+                if (jsLintWrapper == null) {
+                    jsLintWrapper = new JSLintWrapper(getConfig().jsLintArgs());
+                }
             }
-
-            if (split.length == 1 || split[1].equalsIgnoreCase("true")) {
-                jsLinter.addOption(opt);
-            } else {
-                jsLinter.addOption(opt, split[1]);
-            }
-
         }
-
-        return jsLinter;
-
+        return jsLintWrapper;
     }
 
 }
