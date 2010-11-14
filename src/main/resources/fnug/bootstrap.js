@@ -19,8 +19,6 @@
 		head.appendChild(css);
 	};
 
-	var bundles = [/***bundles***/];
-
 	var debugAll = false;
 	var debugDefault = false;
 	var debug = {};
@@ -61,6 +59,8 @@
 	    }
 	}
 	
+	var bundles = ["/***bundles***/"];
+
 	for (i = 0; i < bundles.length; i++) {
 		var cur = bundles[i];
 		if (debugAll || i === 0 && debugDefault || debug[cur.name]) {

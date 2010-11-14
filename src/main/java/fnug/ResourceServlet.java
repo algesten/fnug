@@ -20,8 +20,10 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import fnug.resource.Bundle;
+import fnug.resource.DefaultCompressedResource;
 import fnug.resource.DefaultResource;
 import fnug.resource.HasLastModifiedBytes;
+import fnug.resource.JsCompressor;
 import fnug.resource.Resource;
 import fnug.resource.ResourceCollection;
 import fnug.resource.ResourceResolver;
@@ -54,14 +56,18 @@ public class ResourceServlet extends HttpServlet {
     private static final String UTF_8 = "utf-8";
 
     private static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
-
     private static final String CONTENT_TYPE_JS = "text/javascript; charset=utf8";
 
     private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
-
     private static final String HEADER_CONTENT_ENCODING = "Content-Encoding";
+    private static final String HEADER_LAST_MODIFIED = "Last-Modified";
+    private static final String HEADER_EXPIRES = "Expires";
+    private static final String HEADER_DATE = "Date";
+    private static final String HEADER_CACHE_CONTROL = "Cache-Control";
 
     private static final String VALUE_GZIP = "gzip";
+
+    private static final long ONE_YEAR = 365l * 24l * 60l * 60l * 1000l;
 
     private static ThreadLocal<RequestEntry> reqEntry = new ThreadLocal<RequestEntry>();
 
@@ -87,8 +93,11 @@ public class ResourceServlet extends HttpServlet {
             throw new IllegalStateException("Missing classpath resource: " + res.getFullPath());
         }
 
+        JsCompressor jscomp = new JsCompressor();
+        byte[] compressed = jscomp.compress(res.getBytes());
+
         // encoding not interesting since bootstrap.js contains no strange chars
-        bootstrapJs = new String(res.getBytes());
+        bootstrapJs = new String(compressed);
 
     }
 
@@ -128,7 +137,8 @@ public class ResourceServlet extends HttpServlet {
 
         String path = req.getPathInfo();
 
-        boolean gzip = req.getHeader(HEADER_ACCEPT_ENCODING).indexOf(VALUE_GZIP) >= 0;
+        String gzipHeader = req.getHeader(HEADER_ACCEPT_ENCODING);
+        boolean gzip = gzipHeader != null && gzipHeader.indexOf(VALUE_GZIP) >= 0;
 
         RequestEntry entry = new RequestEntry(req.getServletPath(), path, gzip);
         reqEntry.set(entry);
@@ -144,7 +154,7 @@ public class ResourceServlet extends HttpServlet {
         // according to the HTTP spec, t's okay to set any meta header about the
         // content as long as they are true for the original resource.
         if (resp.getContentType() == null) {
-            entry.setContentTypeAndLength(resp);
+            entry.setHeaders(resp);
         }
 
     }
@@ -168,7 +178,6 @@ public class ResourceServlet extends HttpServlet {
 
         private static final String CHAR_SLASH = "/";
         private static final String CHAR_DOT = ".";
-
         private String servletPath;
 
         /**
@@ -284,6 +293,11 @@ public class ResourceServlet extends HttpServlet {
 
         public void serve(HttpServletResponse resp, boolean head) throws IOException {
 
+            if (head) {
+                // affects headers
+                gzip = false;
+            }
+            
             if (toServe == null) {
 
                 serve404(resp);
@@ -314,8 +328,7 @@ public class ResourceServlet extends HttpServlet {
 
         private void serveDefault(HttpServletResponse resp, boolean head, ToServe toServe) throws IOException {
 
-            setContentTypeAndLength(resp);
-            resp.setDateHeader("Last-Modified", toServe.getLastModified());
+            setHeaders(resp);
             if (gzip) {
                 resp.setHeader(HEADER_CONTENT_ENCODING, VALUE_GZIP);
             }
@@ -326,12 +339,43 @@ public class ResourceServlet extends HttpServlet {
 
         }
 
-        public void setContentTypeAndLength(HttpServletResponse resp) {
+        public void setHeaders(HttpServletResponse resp) {
 
             if (toServe != null && toServe instanceof ToServe) {
+
                 ToServe t = (ToServe) toServe;
+
+                resp.setDateHeader(HEADER_DATE, System.currentTimeMillis());
                 resp.setContentType(t.getContentType());
                 resp.setContentLength(toServeBytes.length);
+                resp.setDateHeader(HEADER_LAST_MODIFIED, t.getLastModified());
+
+                // some web caches are buggy and can't handle compressed
+                // resources, in which
+                // case we must avoid polluting that cache.
+                String cacheControl = gzip ? "private" : "";
+
+                if (t.futureExpires()) {
+
+                    resp.setDateHeader(HEADER_EXPIRES, System.currentTimeMillis() + ONE_YEAR);
+                    cacheControl += ", max-age=" + (ONE_YEAR / 1000);
+
+                } else {
+
+                    // by setting an expiration in the past, we make extra sure
+                    // all caches and browsers are treating this object as not
+                    // cacheable. This will however not interfere with
+                    // Last-Modified magic.
+                    resp.setDateHeader(HEADER_EXPIRES, t.getLastModified());
+                    cacheControl += ", max-age=0";
+
+                }
+
+                if (cacheControl.startsWith(", ")) {
+                    cacheControl = cacheControl.substring(2);
+                }
+                resp.setHeader(HEADER_CACHE_CONTROL, cacheControl);
+
             }
 
         }
@@ -374,6 +418,11 @@ public class ResourceServlet extends HttpServlet {
         }
 
         @Override
+        public boolean futureExpires() {
+            return false;
+        }
+
+        @Override
         public byte[] getBytes() {
             return bytes;
         }
@@ -403,7 +452,7 @@ public class ResourceServlet extends HttpServlet {
     private class Bootstrap implements ToServe {
 
         private static final String TOKEN_BASE_URL = "/\\*\\*\\*baseUrl\\*\\*\\*/";
-        private static final String TOKEN_BUNDLES = "\\[/\\*\\*\\*bundles\\*\\*\\*/\\]";
+        private static final String TOKEN_BUNDLES = "\\[\"/\\*\\*\\*bundles\\*\\*\\*/\\\"]";
         byte[] bytes;
         long lastModified;
 
@@ -442,6 +491,11 @@ public class ResourceServlet extends HttpServlet {
 
         public long getLastModified() {
             return lastModified;
+        }
+
+        @Override
+        public boolean futureExpires() {
+            return false;
         }
 
         @Override
@@ -522,6 +576,11 @@ public class ResourceServlet extends HttpServlet {
         }
 
         @Override
+        public boolean futureExpires() {
+            return false;
+        }
+
+        @Override
         public String getContentType() {
             return CONTENT_TYPE_JSON;
         }
@@ -543,6 +602,11 @@ public class ResourceServlet extends HttpServlet {
         @Override
         public long getLastModified() {
             return res.getLastModified();
+        }
+
+        @Override
+        public boolean futureExpires() {
+            return res instanceof DefaultCompressedResource;
         }
 
         @Override
@@ -568,6 +632,8 @@ public class ResourceServlet extends HttpServlet {
     private interface ToServe extends HasLastModifiedBytes {
 
         String getContentType();
+
+        boolean futureExpires();
 
     }
 

@@ -123,6 +123,21 @@ public class DefaultBundle implements Bundle {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ResourceCollection[] getResourceCollections() {
+        if (resourceCollections == null) {
+            synchronized (this) {
+                if (resourceCollections == null) {
+                    resourceCollections = buildResourceCollections();
+                }
+            }
+        }
+        return resourceCollections;
+    }
+
     private ResourceCollection getResourceCollection(String collPath) {
         ResourceCollection[] colls = getResourceCollections();
         for (ResourceCollection coll : colls) {
@@ -153,21 +168,6 @@ public class DefaultBundle implements Bundle {
      */
     protected Resource makeResource(String path) {
         return new DefaultBundleResource(this, path);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ResourceCollection[] getResourceCollections() {
-        if (resourceCollections == null) {
-            synchronized (this) {
-                if (resourceCollections == null) {
-                    resourceCollections = buildResourceCollections();
-                }
-            }
-        }
-        return resourceCollections;
     }
 
     private ResourceCollection[] buildResourceCollections() {
