@@ -167,7 +167,9 @@ public class ResourceResolver {
     private void initConfigs() {
         synchronized (this) {
             if (configs.isEmpty()) {
+                
                 bundles.clear();
+
                 for (Resource configResource : configResources) {
 
                     if (configResource.getLastModified() == -1) {
@@ -179,9 +181,11 @@ public class ResourceResolver {
 
                     Config parsedConfig = configParser.parse(configResource);
                     configs.add(parsedConfig);
-                    initBundles();
 
                 }
+
+                initBundles();
+
             }
         }
     }
