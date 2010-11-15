@@ -1,3 +1,1 @@
-/*global fnug*/
-
 var fnug = {};

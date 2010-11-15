@@ -1,5 +1,6 @@
+/*global fnug window*/
 
-fnug.openJSLintResultPopup = function(evt) {
+fnug.openJSLintResultPopup = function (evt) {
 	if (evt) {
 		if (evt.stopPropagation) {
 			evt.stopPropagation();
@@ -13,7 +14,7 @@ fnug.openJSLintResultPopup = function(evt) {
 	popup.focus();
 };
 
-fnug.showJSLintPopupButton = function() {
+fnug.showJSLintPopupButton = function () {
 	var b = document.getElementById('fnugJSLintButton');
 	if (!b) {
 		fnug.loadStyles('/fnug/jslintresult-button.css');
@@ -25,16 +26,16 @@ fnug.showJSLintPopupButton = function() {
 	}
 };
 
-fnug.populateJSLintResultPopup = function(popup) {
+fnug.populateJSLintResultPopup = function (popup) {
 	var doc = popup.document;
 	doc.open();
-	doc.write('<html><head><title>JSLint Errors</title>')
+	doc.write('<html><head><title>JSLint Errors</title>');
 	doc.write('<link type="text/css" rel="stylesheet" href="');
 	doc.write(fnug.resourceUrl('/fnug/jslintresult.css'));
 	doc.write('"/>');
 	doc.write('<body>');
 	var tmpDiv = document.createElement('div');
-	for (i = 0; i < fnug.bundles.length; i++) {
+	for (var i = 0; i < fnug.bundles.length; i++) {
 		var cur = fnug.bundles[i];
 		if (fnug.isDebug(cur.name)) {
 			for (var j = 0; j < cur.files.length; j++) {
@@ -48,7 +49,7 @@ fnug.populateJSLintResultPopup = function(popup) {
 					tmpDiv.innerHTML = file.jsLintResult;
 					doc.write(tmpDiv.innerHTML);
 					doc.write('</div>');
-			}
+				}
 			}
 		}
 	}

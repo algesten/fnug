@@ -89,6 +89,14 @@ class JsonResourceCollectionFile {
             return null;
         }
         html = html.replace("<br>", "");
+
+        // functions are warnings, not errors, we can't afford to keep that in
+        // the bootstrap json
+        int functions = html.indexOf("<div id=functions>");
+        if (functions >= 0) {
+            html = html.substring(0, functions);
+        }
+
         html = html.trim();
         if (html.isEmpty()) {
             return null;
