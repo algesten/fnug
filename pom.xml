@@ -78,4 +78,12 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+
+  <repositories>
+    <repository>
+      <id>algesten-github-repo</id>
+      <url>http://algesten.github.com/maven2/releases</url>
+    </repository>
+  </repositories>
+
 </project>
