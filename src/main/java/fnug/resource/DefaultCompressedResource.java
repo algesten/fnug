@@ -96,17 +96,20 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
     @Override
     public byte[] getBytes() {
         // delay compression until getBytes().
-        if (compressedBytes == null) {
+        byte[] result = compressedBytes;
+        if (result == null) {
             synchronized (this) {
-                if (compressedBytes == null) {
+                result = compressedBytes;
+                if (result == null) {
                     byte[] superBytes = super.getBytes();
                     LOG.info("Compiling " + compressor.name() + " of bundle '" + getBundle().getName()
                             + "' for basePath: " + getBasePath());
                     compressedBytes = compressor.compress(superBytes);
+                    result = compressedBytes;
                 }
             }
         }
-        return compressedBytes;
+        return result;
     }
 
     /**

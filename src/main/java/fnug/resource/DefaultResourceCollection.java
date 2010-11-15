@@ -87,14 +87,17 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
      */
     @Override
     public String getPath() {
-        if (path == null) {
+        String result = path;
+        if (result == null) {
             synchronized (this) {
-                if (path == null) {
+                result = path;
+                if (result == null) {
                     path = IOUtils.md5("" + hash(getAggregates()));
+                    result = path;
                 }
             }
         }
-        return path;
+        return result;
     }
 
     /**
@@ -167,15 +170,18 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
      */
     @Override
     public Resource getCompressedJs() {
-        if (compressedJs == null) {
+        Resource result = compressedJs;
+        if (result == null) {
             synchronized (this) {
-                if (compressedJs == null) {
+                result = compressedJs;
+                if (result == null) {
                     compressedJs = new DefaultCompressedResource(getBundle(), getBasePath(), getPath() + ".js",
                             getJs(), getLastModified(getExistingJsAggregates()), jsCompressor);
+                    result = compressedJs;
                 }
             }
         }
-        return compressedJs;
+        return result;
     }
 
     /**
@@ -183,15 +189,18 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
      */
     @Override
     public Resource getCompressedCss() {
-        if (compressedCss == null) {
+        Resource result = compressedCss;
+        if (result == null) {
             synchronized (this) {
+                result = compressedCss;
                 if (compressedCss == null) {
                     compressedCss = new DefaultCompressedResource(getBundle(), getBasePath(), getPath() + ".css",
                             getCss(), getLastModified(getExistingCssAggregates()), cssCompressor);
+                    result = compressedCss;
                 }
             }
         }
-        return compressedCss;
+        return result;
     }
 
     /**

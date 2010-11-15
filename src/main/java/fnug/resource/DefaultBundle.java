@@ -124,7 +124,6 @@ public class DefaultBundle implements Bundle {
             }
         }
         return res;
-
     }
 
     /**
@@ -132,14 +131,17 @@ public class DefaultBundle implements Bundle {
      */
     @Override
     public ResourceCollection[] getResourceCollections() {
-        if (resourceCollections == null) {
+        ResourceCollection[] result = resourceCollections;
+        if (result == null) {
             synchronized (this) {
-                if (resourceCollections == null) {
+                result = resourceCollections;
+                if (result == null) {
                     resourceCollections = buildResourceCollections();
+                    result = resourceCollections;
                 }
             }
         }
-        return resourceCollections;
+        return result;
     }
 
     private ResourceCollection getResourceCollection(String collPath) {
@@ -283,14 +285,17 @@ public class DefaultBundle implements Bundle {
         if (getConfig().jsLintArgs() == null || getConfig().jsLintArgs().length == 0) {
             return null;
         }
-        if (jsLintWrapper == null) {
+        JSLintWrapper result = jsLintWrapper;
+        if (result == null) {
             synchronized (this) {
-                if (jsLintWrapper == null) {
+                result = jsLintWrapper;
+                if (result == null) {
                     jsLintWrapper = new JSLintWrapper(getConfig().jsLintArgs());
+                    result = jsLintWrapper;
                 }
             }
         }
-        return jsLintWrapper;
+        return result;
     }
 
 }

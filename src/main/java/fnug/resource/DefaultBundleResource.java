@@ -78,7 +78,8 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle,
         JSLintResult result = jsLintResult;
         if (result == null) {
             synchronized (this) {
-                if (jsLintResult == null) {
+                result = jsLintResult;
+                if (result == null) {
                     try {
                         LOG.debug("Running JSLint: " + getFullPath());
                         jsLintResult = bundle.getJsLinter().lint(getFullPath(), new String(getBytes(), "UTF-8"));
