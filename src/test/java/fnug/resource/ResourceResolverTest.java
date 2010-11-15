@@ -81,6 +81,34 @@ public class ResourceResolverTest {
 
     }
 
+    @Test
+    public void testReservedWordBundles() {
+
+        ResourceResolver rr = new ResourceResolver();
+
+        try {
+            rr.setConfigs(makeConfig("ALL"));
+            Assert.fail();
+        } catch (IllegalStateException ise) {
+            Assert.assertEquals("Bundle name 'ALL' is a reserved word.", ise.getMessage());
+        }
+
+        try {
+            rr.setConfigs(makeConfig("1"));
+            Assert.fail();
+        } catch (IllegalStateException ise) {
+            Assert.assertEquals("Bundle name '1' is a reserved word.", ise.getMessage());
+        }
+
+        try {
+            rr.setConfigs(makeConfig("tRuE"));
+            Assert.fail();
+        } catch (IllegalStateException ise) {
+            Assert.assertEquals("Bundle name 'tRuE' is a reserved word.", ise.getMessage());
+        }
+
+    }
+
     private int i = 0;
 
     private Config makeConfig(final String name) {

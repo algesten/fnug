@@ -1,6 +1,7 @@
 package fnug.resource;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +42,12 @@ public class ResourceResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceResolver.class);
 
     private static final String SEPARATOR = "/";
+    private final static HashSet<String> BUNDLE_RESERVED_WORDS = new HashSet<String>(Arrays.asList(new String[] {
+            "all",
+            "1",
+            "true"
+    }));
+
     private List<Resource> configResources;
     private volatile List<Config> configs = new LinkedList<Config>();
     private ConfigParser configParser = new JsonConfigParser();
@@ -182,6 +189,9 @@ public class ResourceResolver {
     private void initBundles() {
         for (Config cfg : configs) {
             for (BundleConfig bcfg : cfg.getBundleConfigs()) {
+                if (BUNDLE_RESERVED_WORDS.contains(bcfg.name().toLowerCase())) {
+                    throw new IllegalStateException("Bundle name '" + bcfg.name() + "' is a reserved word.");
+                }
                 if (bundles.containsKey(bcfg.name())) {
                     throw new IllegalStateException("Duplicate definitions of bundle name '" + bcfg.name() + "' " +
                             "in '" + bundles.get(bcfg.name()).getConfig().configResource().getFullPath() + "' and '" +
