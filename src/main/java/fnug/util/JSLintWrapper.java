@@ -31,7 +31,7 @@ import com.googlecode.jslint4java.Option;
 
 /**
  * Wrapper around JSLint4Java since that package doesn't manage the rhino
- * Context thread local approprietly.
+ * Context thread local appropriately.
  */
 public class JSLintWrapper {
 
