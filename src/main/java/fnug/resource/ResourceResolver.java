@@ -182,6 +182,11 @@ public class ResourceResolver {
     private void initBundles() {
         for (Config cfg : configs) {
             for (BundleConfig bcfg : cfg.getBundleConfigs()) {
+                if (bundles.containsKey(bcfg.name())) {
+                    throw new IllegalStateException("Duplicate definitions of bundle name '" + bcfg.name() + "' " +
+                            "in '" + bundles.get(bcfg.name()).getConfig().configResource().getFullPath() + "' and '" +
+                            bcfg.configResource().getFullPath() + "'");
+                }
                 Bundle bundle = new DefaultBundle(bcfg);
                 bundles.put(bundle.getName(), bundle);
             }

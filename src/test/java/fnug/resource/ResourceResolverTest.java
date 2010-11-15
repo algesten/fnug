@@ -1,5 +1,7 @@
 package fnug.resource;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,6 +31,7 @@ public class ResourceResolverTest {
 
     }
 
+    @Test
     public void testResolve() {
 
         ResourceResolver rr = new ResourceResolver();
@@ -56,12 +59,29 @@ public class ResourceResolverTest {
         }
 
         Assert.assertNull(rr.resolve("foo/bar/some.js"));
-        Assert.assertNotNull(rr.resolve("cfg1/some/deep/path/some.js"));
+        Assert.assertNotNull(rr.resolve("bundlecfg1/some/deep/path/some.js"));
         Assert.assertNull(rr.resolve("bundlecfg1"));
         Assert.assertNotNull(rr.resolve("bundlecfg1/file.js"));
         Assert.assertNotNull(rr.resolve("bundlecfg2/some/deep/path/file.js"));
-        
+
     }
+
+    @Test
+    public void testDuplicateBundles() {
+
+        ResourceResolver rr = new ResourceResolver();
+
+        try {
+            rr.setConfigs(makeConfig("dupe"), makeConfig("dupe"));
+            Assert.fail();
+        } catch (IllegalStateException ise) {
+            Assert.assertEquals("Duplicate definitions of bundle name 'dupe' in '0/path/to/dupe' and '1/path/to/dupe'",
+                    ise.getMessage());
+        }
+
+    }
+
+    private int i = 0;
 
     private Config makeConfig(final String name) {
         return new Config() {
@@ -72,7 +92,59 @@ public class ResourceResolverTest {
 
                     @Override
                     public Resource configResource() {
-                        return null;
+                        return new Resource() {
+
+                            @Override
+                            public String getBasePath() {
+                                return null;
+                            }
+
+                            @Override
+                            public String getPath() {
+                                return null;
+                            }
+
+                            @Override
+                            public String getFullPath() {
+                                return (i++) + "/path/to/" + name;
+                            }
+
+                            @Override
+                            public String getContentType() {
+                                return null;
+                            }
+
+                            @Override
+                            public boolean isJs() {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean isCss() {
+                                return false;
+                            }
+
+                            @Override
+                            public byte[] getBytes() {
+                                return null;
+                            }
+
+                            @Override
+                            public long getLastModified() {
+                                return 0;
+                            }
+
+                            @Override
+                            public boolean checkModified() {
+                                return false;
+                            }
+
+                            @Override
+                            public List<String> findRequiresTags() {
+                                return null;
+                            }
+
+                        };
                     }
 
                     @Override
