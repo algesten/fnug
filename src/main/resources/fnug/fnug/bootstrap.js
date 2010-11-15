@@ -1,3 +1,5 @@
+/*global fnug*/
+
 /**
  * @requires fnug/util.js
  * @requires fnug/jslintresult.js
@@ -47,7 +49,7 @@ fnug.populateDebug = function () {
 	
 	fnug.isDebug = function(bundleName) {
 		return debugAll || 
-			debugDefault && fnug.bundles.length >= 1 && bundleName == fnug.bundles[0].name || 
+			debugDefault && fnug.bundle == bundleName ||
 			debug[bundleName];
 	};
 
@@ -66,16 +68,20 @@ fnug.init = function() {
 
 	for (i = 0; i < fnug.bundles.length; i++) {
 		var cur = fnug.bundles[i];
+		if (cur.bundle) {
+			fnug.bundle = cur.name;
+		}
 		if (fnug.isDebug(cur.name)) {
-			if (cur.jsLintResult) {
-				fnug.showJSLintPopupButton();
-			}
 			for (var j = 0; j < cur.files.length; j++) {
 				var file = cur.files[j];
-				if (file.lastIndexOf('.js') === file.length - 3) {
-					fnug.loadScript(file);
-				} else if (file.lastIndexOf('.css') === file.length - 4) {
-					fnug.loadStyles(file);
+				if (file.jsLintResult) {
+					fnug.showJSLintPopupButton();
+				}
+				var fullPath = file.fullPath;
+				if (fullPath.lastIndexOf('.js') === fullPath.length - 3) {
+					fnug.loadScript(fullPath);
+				} else if (fullPath.lastIndexOf('.css') === fullPath.length - 4) {
+					fnug.loadStyles(fullPath);
 				}
 			}
 		} else {

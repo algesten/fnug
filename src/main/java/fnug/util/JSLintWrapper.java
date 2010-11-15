@@ -94,7 +94,7 @@ public class JSLintWrapper {
 
         for (String arg : args) {
 
-            String[] split = arg.split(":");
+            String[] split = arg.split("\\s*:\\s*");
 
             Option opt;
             try {

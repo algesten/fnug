@@ -1,0 +1,13 @@
+#fnugJSLintButton {
+	font-family: Verdana;
+	font-size: 8px;
+	color: #ffffff;
+	background: #ff5500;
+	border: 1px solid #ffffff;
+	cursor: pointer;
+	padding: 0px 3px;
+	position: fixed;
+	z-index: 9999;
+	bottom: 1px;
+	left: 1px;
+}

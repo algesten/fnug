@@ -4,6 +4,8 @@ import java.util.LinkedList;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import com.googlecode.jslint4java.JSLintResult;
 
@@ -28,7 +30,10 @@ import fnug.resource.ResourceCollection;
  */
 
 @JsonPropertyOrder({ "name", "compJs", "compCss", "files" })
+@JsonSerialize(include = Inclusion.NON_NULL)
 public class JsonResourceCollection {
+    @JsonProperty
+    Boolean bundle;
     @JsonProperty
     String name;
     @JsonProperty
@@ -36,11 +41,14 @@ public class JsonResourceCollection {
     @JsonProperty
     String compCss;
     @JsonProperty
-    JsonJSLintResult[] jsLintResult;
-    @JsonProperty
-    LinkedList<String> files = new LinkedList<String>();
+    LinkedList<JsonResourceCollectionFile> files = new LinkedList<JsonResourceCollectionFile>();
 
-    public JsonResourceCollection(ResourceCollection c) {
+    public JsonResourceCollection(ResourceCollection c, boolean bundle) {
+
+        if (bundle) {
+            this.bundle = bundle;
+        }
+
         name = c.getBundle().getName();
         if (c.getCompressedJs().getLastModified() > 0) {
             compJs = c.getCompressedJs().getFullPath();
@@ -49,17 +57,44 @@ public class JsonResourceCollection {
             compCss = c.getCompressedCss().getFullPath();
         }
 
-        LinkedList<JsonJSLintResult> jsLintResult = new LinkedList<JsonJSLintResult>();
-
         for (Resource r : c.getAggregates()) {
-            if (r instanceof HasJSLintResult) {
-                JSLintResult partResult = ((HasJSLintResult) r).getJSLintResult();
-                if (partResult != null && !partResult.getReport().isEmpty()) {
-                    jsLintResult.add(new JsonJSLintResult(r.getFullPath(), partResult.getReport()));
-                }
-            }
-            files.add(r.getFullPath());
+            files.add(new JsonResourceCollectionFile(r));
         }
-        this.jsLintResult = jsLintResult.toArray(new JsonJSLintResult[jsLintResult.size()]);
+        if (files.isEmpty()) {
+            files = null;
+        }
     }
+}
+
+@JsonSerialize(include = Inclusion.NON_NULL)
+@SuppressWarnings("unused")
+class JsonResourceCollectionFile {
+    @JsonProperty
+    private String fullPath;
+    @JsonProperty
+    private String jsLintResult;
+
+    public JsonResourceCollectionFile(Resource r) {
+        fullPath = r.getFullPath();
+        if (r instanceof HasJSLintResult) {
+            JSLintResult partResult = ((HasJSLintResult) r).getJSLintResult();
+            if (partResult != null && !partResult.getReport().isEmpty()) {
+                jsLintResult = filter(partResult.getReport());
+            }
+        }
+    }
+
+    private String filter(String html) {
+        if (html == null) {
+            return null;
+        }
+        html = html.replace("<br>", "");
+        html = html.trim();
+        if (html.isEmpty()) {
+            return null;
+        } else {
+            return html;
+        }
+    }
+
 }
