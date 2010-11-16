@@ -86,4 +86,15 @@
     </repository>
   </repositories>
 
+  <distributionManagement>
+    <repository>
+      <id>algesten-github-repo</id>
+      <url>file://${basedir}/maven2/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>algesten-github-repo</id>
+      <url>file://${basedir}/maven2/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
 </project>
