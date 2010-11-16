@@ -58,8 +58,23 @@ public class ResourceResolverTest {
             // yay
         }
 
+        try {
+            rr.resolve("../foo");
+            Assert.fail();
+        } catch (IllegalArgumentException iae) {
+            Assert.assertEquals("Relative path resolves outside bundle: ../foo", iae.getMessage());
+        }
+
+        try {
+            rr.resolve("foo/..");
+            Assert.fail();
+        } catch (IllegalArgumentException iae) {
+            Assert.assertEquals("Relative path resolves empty: foo/..", iae.getMessage());
+        }
+
         Assert.assertNull(rr.resolve("foo/bar/some.js"));
         Assert.assertNotNull(rr.resolve("bundlecfg1/some/deep/path/some.js"));
+        Assert.assertNotNull(rr.resolve("bundlecfg1/some/../path/../with/../relatives.js"));
         Assert.assertNull(rr.resolve("bundlecfg1"));
         Assert.assertNotNull(rr.resolve("bundlecfg1/file.js"));
         Assert.assertNotNull(rr.resolve("bundlecfg2/some/deep/path/file.js"));

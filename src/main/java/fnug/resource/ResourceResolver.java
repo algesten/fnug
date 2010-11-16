@@ -1,5 +1,7 @@
 package fnug.resource;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -139,6 +141,22 @@ public class ResourceResolver {
         if (path.startsWith(SEPARATOR)) {
             throw new IllegalArgumentException("Path must not start with '" + SEPARATOR + "'");
         }
+        try {
+            URI uri = new URI("http", "fake", "/" + path, "", "");
+            uri = uri.normalize();
+            String normalised = uri.getPath();
+            if (normalised.equals("/")) {
+                throw new IllegalArgumentException("Relative path resolves empty: " + path);
+            } else if (normalised.startsWith("/..")) {
+                throw new IllegalArgumentException("Relative path resolves outside bundle: " + path);
+            }
+            if (normalised.startsWith("/")) {
+                normalised = normalised.substring(1);
+            }
+            path = normalised;
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
         if (path.endsWith(SEPARATOR)) {
             throw new IllegalArgumentException("Path must not end with '" + SEPARATOR + "'");
         }
@@ -167,7 +185,7 @@ public class ResourceResolver {
     private void initConfigs() {
         synchronized (this) {
             if (configs.isEmpty()) {
-                
+
                 bundles.clear();
 
                 for (Resource configResource : configResources) {
