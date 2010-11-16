@@ -2,8 +2,6 @@ package fnug;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import com.googlecode.jslint4java.JSLint;

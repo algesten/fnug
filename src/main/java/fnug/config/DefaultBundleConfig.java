@@ -45,8 +45,8 @@ public class DefaultBundleConfig implements BundleConfig {
      * @param basePath
      *            See {@link #basePath()}
      * @param jsLintArgs
-     *            See {@link #jsLint()}
-     * @param checkModified
+     *            See {@link #jsLintArgs()}
+     * @param checkModifiedInterval
      *            See {@link #checkModifiedInterval()}
      * @param jsCompileArgs
      *            See {@link #jsCompileArgs()}

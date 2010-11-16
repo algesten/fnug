@@ -34,11 +34,6 @@ public interface BundleConfig {
     static final boolean DEFAULT_CHECK_MODIFIED = true;
 
     /**
-     * Default value for {@link #jsLint()}. Set to {@value}
-     */
-    static final boolean DEFAULT_JS_LINT = true;
-
-    /**
      * Returns the resource responsible for this configuration.
      * 
      * @return associated resource.
