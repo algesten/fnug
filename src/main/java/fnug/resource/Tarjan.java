@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fnug.config.BundleConfig;
 
 /*
@@ -39,6 +42,8 @@ import fnug.config.BundleConfig;
  */
 public class Tarjan {
 
+    private final static Logger LOG = LoggerFactory.getLogger(Tarjan.class);
+    
     private HashMap<String, Node> nodes = new HashMap<String, Node>();
 
     private RootNode root;
@@ -188,7 +193,11 @@ public class Tarjan {
                 List<String> deps = resource.findRequiresTags();
                 for (String dep : deps) {
                     Resource res = ResourceResolver.getInstance().resolve(dep);
-                    if (res != null && !(res instanceof AggregatedResource)) {
+                    if (res == null) {
+                        LOG.warn("No bundle configured to resolve dependency: " + dep);
+                    } else if (res instanceof AggregatedResource) {
+                        LOG.warn("Ignoring dependent aggregated resource: " + dep);
+                    } else {
                         adjacent.add(getNodeForResource(res));
                     }
                 }
