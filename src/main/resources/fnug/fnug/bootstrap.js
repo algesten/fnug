@@ -72,14 +72,14 @@ fnug.init = function () {
 		if (fnug.isDebug(cur.name)) {
 			for (var j = 0; j < cur.files.length; j++) {
 				var file = cur.files[j];
-				if (file.jsLintResult) {
+				if (file.lint) {
 					fnug.showJSLintPopupButton();
 				}
-				var fullPath = file.fullPath;
-				if (fullPath.lastIndexOf('.js') === fullPath.length - 3) {
-					fnug.loadScript(fullPath);
-				} else if (fullPath.lastIndexOf('.css') === fullPath.length - 4) {
-					fnug.loadStyles(fullPath);
+				var path = file.path;
+				if (path.lastIndexOf('.js') === path.length - 3) {
+					fnug.loadScript(path);
+				} else if (path.lastIndexOf('.css') === path.length - 4) {
+					fnug.loadStyles(path);
 				}
 			}
 		} else {

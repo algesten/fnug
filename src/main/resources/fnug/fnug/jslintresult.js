@@ -40,13 +40,13 @@ fnug.populateJSLintResultPopup = function (popup) {
 		if (fnug.isDebug(cur.name)) {
 			for (var j = 0; j < cur.files.length; j++) {
 				var file = cur.files[j];
-				if (file.jsLintResult) {
+				if (file.lint) {
 					doc.write('<div class="part">');
 					doc.write('<h1>');
-					doc.write(file.fullPath);
+					doc.write(file.path);
 					doc.write('</h1>');
 					// escape html via innerHTML
-					tmpDiv.innerHTML = file.jsLintResult;
+					tmpDiv.innerHTML = file.lint;
 					doc.write(tmpDiv.innerHTML);
 					doc.write('</div>');
 				}

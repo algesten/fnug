@@ -70,16 +70,16 @@ public class JsonResourceCollection {
 @SuppressWarnings("unused")
 class JsonResourceCollectionFile {
     @JsonProperty
-    private String fullPath;
+    private String path;
     @JsonProperty
-    private String jsLintResult;
+    private String lint;
 
     public JsonResourceCollectionFile(Resource r) {
-        fullPath = r.getFullPath();
+        path = r.getPath();
         if (r instanceof HasJSLintResult) {
             JSLintResult partResult = ((HasJSLintResult) r).getJSLintResult();
             if (partResult != null && !partResult.getReport().isEmpty()) {
-                jsLintResult = filter(partResult.getReport());
+                lint = filter(partResult.getReport());
             }
         }
     }
