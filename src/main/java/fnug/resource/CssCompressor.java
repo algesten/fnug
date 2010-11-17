@@ -5,7 +5,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
-import andyr.compressor.AndyRYUICssCompressor;
+import fnug.util.YUICssCompressor;
+
 
 /*
  Copyright 2010 Martin Algesten
@@ -60,7 +61,7 @@ public class CssCompressor implements Compressor {
         StringWriter writer = new StringWriter();
 
         try {
-            AndyRYUICssCompressor cmp = new AndyRYUICssCompressor(reader);
+            YUICssCompressor cmp = new YUICssCompressor(reader);
             cmp.compress(writer, 0);
         } catch (IOException e) {
             throw new RuntimeException(e);
