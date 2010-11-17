@@ -8,8 +8,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import fnug.config.BundleConfig;
 import fnug.resource.AbstractAggregatedResource;
 import fnug.resource.Resource;
+import fnug.util.JSLintWrapper;
 
 public class AbstractAggregatedResourceTest {
 
@@ -24,14 +26,7 @@ public class AbstractAggregatedResourceTest {
     public void testConstructor() {
 
         try {
-            new TestAggResource("", "foo.js", null, null);
-            Assert.fail();
-        } catch (IllegalArgumentException iae) {
-            // ok
-        }
-
-        try {
-            new TestAggResource("/", "/foo.js", null, null);
+            new TestAggResource("/foo.js", null, null);
             Assert.fail();
         } catch (IllegalArgumentException iae) {
             // ok
@@ -40,15 +35,26 @@ public class AbstractAggregatedResourceTest {
     }
 
     @Test
+    public void testPath() {
+        
+        TestAggResource r = new TestAggResource("foo.js", new Resource[] {}, new Resource[] {});
+
+        Assert.assertEquals("dabundle/", r.getBasePath());
+        Assert.assertEquals("foo.js", r.getPath());
+        Assert.assertEquals("dabundle/foo.js", r.getFullPath());
+        
+    }
+
+    @Test
     public void testLastModified() {
 
-        TestAggResource r1 = new TestAggResource("/", "foo.js", new Resource[] {}, new Resource[] {
+        TestAggResource r1 = new TestAggResource("foo.js", new Resource[] {}, new Resource[] {
                 makeResource("1", 1),
                 makeResource("2", 2) });
 
         Assert.assertEquals(2l, r1.getLastModified());
 
-        r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
+        r1 = new TestAggResource("foo.js", new Resource[] { makeResource("1", 1),
                 makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
 
         Assert.assertEquals(0, checkModifiedCount);
@@ -64,13 +70,13 @@ public class AbstractAggregatedResourceTest {
     @Test
     public void testCheckModified() {
 
-        TestAggResource r1 = new TestAggResource("/", "foo.js", new Resource[] {}, new Resource[] {
+        TestAggResource r1 = new TestAggResource("foo.js", new Resource[] {}, new Resource[] {
                 makeResource("1", 1),
                 makeResource("2", 2) });
 
         Assert.assertEquals(2l, r1.getLastModified());
 
-        r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
+        r1 = new TestAggResource("foo.js", new Resource[] { makeResource("1", 1),
                 makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
 
         Assert.assertEquals(0, checkModifiedCount);
@@ -91,7 +97,7 @@ public class AbstractAggregatedResourceTest {
     @Test
     public void testBuildAggregate() {
 
-        TestAggResource r1 = new TestAggResource("/", "foo.js", new Resource[] { makeResource("1", 1),
+        TestAggResource r1 = new TestAggResource("foo.js", new Resource[] { makeResource("1", 1),
                 makeResource("2", 2) }, new Resource[] { makeResource("3", 3), makeResource("4", 4) });
 
         Assert.assertEquals("12", new String(r1.getBytes()));
@@ -166,8 +172,8 @@ public class AbstractAggregatedResourceTest {
         private Resource[] dependencies;
         int buildAggregateCount = 0;
 
-        protected TestAggResource(String basePath, String path, Resource[] aggregates, Resource[] dependencies) {
-            super(basePath, path);
+        protected TestAggResource(String path, Resource[] aggregates, Resource[] dependencies) {
+            super(makeBundle(), path);
             this.aggregates = aggregates;
             this.dependencies = dependencies;
         }
@@ -201,6 +207,46 @@ public class AbstractAggregatedResourceTest {
             return null;
         }
 
+    }
+    
+    private Bundle makeBundle() {
+        return new Bundle() {
+
+            @Override
+            public BundleConfig getConfig() {
+                return null;
+            }
+
+            @Override
+            public String getName() {
+                return "dabundle";
+            }
+
+            @Override
+            public Resource resolve(String path) {
+                return null;
+            }
+
+            @Override
+            public ResourceCollection[] getResourceCollections() {
+                return null;
+            }
+
+            @Override
+            public long getLastModified() {
+                return 0;
+            }
+
+            @Override
+            public boolean checkModified() {
+                return false;
+            }
+
+            @Override
+            public JSLintWrapper getJsLinter() {
+                return null;
+            }
+        };
     }
 
 }

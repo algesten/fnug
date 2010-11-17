@@ -34,8 +34,8 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
      * @param path
      *            The path of the resource. See {@link #getPath()}.
      */
-    protected AbstractAggregatedResource(String basePath, String path) {
-        super(basePath, path);
+    protected AbstractAggregatedResource(Bundle owner, String path) {
+        super(owner.getName() + "/", path);
     }
 
     /**
@@ -63,7 +63,7 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
      */
     @Override
     protected long readLastModified() {
-        long lastModified = 0l;
+        long lastModified = -1l;
         for (Resource res : getAggregates()) {
             lastModified = Math.max(lastModified, res.getLastModified());
         }

@@ -53,7 +53,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
      * 
      * @param bundle
      *            The associated bundle.
-     * @param baseName
+     * @param basePath
      *            Base name of the resource collection, not necessarily the same
      *            as associated {@link BundleConfig#basePath()}.
      * @param aggregates
@@ -63,8 +63,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
      *            Resources that are just dependencies, not used for building
      *            aggregated bytes, but for {@link #getLastModified()}.
      */
-    public DefaultResourceCollection(Bundle bundle, String baseName, Resource[] aggregates, Resource[] dependencies) {
-        super(baseName, SUPER_NAME);
+    public DefaultResourceCollection(Bundle bundle, Bundle owner, Resource[] aggregates, Resource[] dependencies) {
+        super(owner, SUPER_NAME);
         this.bundle = bundle;
         this.aggregates = aggregates == null ? EMPTY_RESOURCES : aggregates;
         this.dependencies = dependencies == null ? EMPTY_RESOURCES : dependencies;
@@ -83,7 +83,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
 
     /**
      * The path of a resource collection is an md5 hash sum as hexadecimal of
-     * all the aggregates file names and last modified dates.
+     * all the aggregates file names and last modified dates prepended with the bundle name.
+     * I.e. "bundle/ab39283bcd09237576"
      */
     @Override
     public String getPath() {

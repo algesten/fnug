@@ -21,7 +21,7 @@ public class DefaultResourceCollectionTest {
 
         Bundle bundle = makeBundle(0);
 
-        DefaultResourceCollection c = new DefaultResourceCollection(bundle, "/" + bundle.getConfig().name() + "/",
+        DefaultResourceCollection c = new DefaultResourceCollection(bundle, bundle,
                 new Resource[] {
                         makeResource("test/js-resource2.js", false),
                         makeResource("test/js-resource1.js", false),
@@ -36,7 +36,12 @@ public class DefaultResourceCollectionTest {
             }
         };
 
+        Assert.assertEquals("testbundle/", c.getBasePath());
+        Assert.assertFalse(c.getPath().startsWith("testbundle/"));
+        
         String fullPath = c.getFullPath();
+        
+        Assert.assertTrue(fullPath.startsWith("testbundle/"));
 
         Assert.assertEquals(-559262445, new String(c.getBytes()).hashCode());
         Assert.assertSame(c.getBytes(), c.getJs());
@@ -48,19 +53,19 @@ public class DefaultResourceCollectionTest {
         Resource compressedJs = c.getCompressedJs();
         Resource compressedCss = c.getCompressedCss();
 
-        Assert.assertEquals("/testbundleconfig/", compressedJs.getBasePath());
+        Assert.assertEquals("testbundle/", compressedJs.getBasePath());
         Assert.assertEquals(c.getPath() + ".js", compressedJs.getPath());
         Assert.assertEquals("var a=function(){alert(\"this is jozt a test\")},b=function(){a()},c=function(){b()};\n",
                 new String(compressedJs.getBytes()));
         Assert.assertTrue(c.getBundle().getConfig().configResource().getLastModified() <= compressedJs
                 .getLastModified());
         Assert.assertSame(compressedJs, c.getCompressedJs());
-
+        
         Assert.assertEquals("\n" +
                 "a{color:red}\n" +
                 "p{margin-top:14px 14px 14px 14px}body{background:black;color:white;font-size:14em}",
                 new String(compressedCss.getBytes()));
-        Assert.assertEquals("/testbundleconfig/", compressedCss.getBasePath());
+        Assert.assertEquals("testbundle/", compressedCss.getBasePath());
         Assert.assertEquals(c.getPath() + ".css", compressedCss.getPath());
         Assert.assertTrue(c.getBundle().getConfig().configResource().getLastModified() <= compressedCss
                 .getLastModified());
@@ -86,7 +91,7 @@ public class DefaultResourceCollectionTest {
 
         Bundle bundle = makeBundle(1);
 
-        DefaultResourceCollection c = new DefaultResourceCollection(bundle, "/" + bundle + "/", new Resource[] {
+        DefaultResourceCollection c = new DefaultResourceCollection(bundle, bundle, new Resource[] {
                 makeResource("test/js-resource2.js", true),
                 makeResource("test/js-resource1.js", false),
                 makeResource("nonexistant.js", false),
@@ -111,9 +116,9 @@ public class DefaultResourceCollectionTest {
 
         Thread.sleep(1100);
         Assert.assertTrue(c.checkModified());
-        Thread.sleep(10);
+        Thread.sleep(1100);
         Assert.assertTrue(c.checkModified());
-        Thread.sleep(10);
+        Thread.sleep(1100);
         Assert.assertTrue(c.checkModified());
 
         Assert.assertEquals(4, readLastModifiedCount);
@@ -127,6 +132,35 @@ public class DefaultResourceCollectionTest {
 
     }
 
+    @Test
+    public void testResourceInOtherBundle() throws Exception {
+        
+        Bundle aggbundle = makeBundle("aggbundle", 1);
+        Bundle ownerbundle = makeBundle("ownerbundle", 1);
+
+        DefaultResourceCollection c = new DefaultResourceCollection(aggbundle, ownerbundle, new Resource[] {
+                makeResource("some/resource.js", true),
+        }, null) {
+
+               @Override
+            public String getPath() {
+                   return "fake";
+            }
+            
+        };
+
+        Assert.assertEquals("fake", c.getPath());
+        Assert.assertEquals("ownerbundle/", c.getBasePath());
+        Assert.assertEquals("ownerbundle/fake", c.getFullPath());
+        Assert.assertEquals("fake.js", c.getCompressedJs().getPath());
+        Assert.assertEquals("ownerbundle/", c.getCompressedJs().getBasePath());
+        Assert.assertEquals("ownerbundle/fake.js", c.getCompressedJs().getFullPath());
+        Assert.assertEquals("fake.css", c.getCompressedCss().getPath());
+        Assert.assertEquals("ownerbundle/", c.getCompressedCss().getBasePath());
+        Assert.assertEquals("ownerbundle/fake.css", c.getCompressedCss().getFullPath());
+        
+    }
+
     private Resource makeResource(String path, final boolean forceModified) {
         return new DefaultResource("/", path, forceModified ? 1 : 0) {
             @Override
@@ -138,6 +172,10 @@ public class DefaultResourceCollectionTest {
     }
 
     private Bundle makeBundle(final int checkModifiedInterval) {
+        return makeBundle("testbundle", checkModifiedInterval);
+    }
+
+    private Bundle makeBundle(final String bundleName, final int checkModifiedInterval) {
         return new Bundle() {
 
             @Override
@@ -146,7 +184,7 @@ public class DefaultResourceCollectionTest {
 
                     @Override
                     public String name() {
-                        return "testbundleconfig";
+                        return bundleName + "config";
                     }
 
                     @Override
@@ -176,14 +214,14 @@ public class DefaultResourceCollectionTest {
 
                     @Override
                     public String basePath() {
-                        return "/";
+                        return "/basepath/";
                     }
                 };
             }
 
             @Override
             public String getName() {
-                return "testbundle";
+                return bundleName;
             }
 
             @Override

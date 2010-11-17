@@ -40,6 +40,10 @@ public class Bootstrap implements ToServe {
 
     private void initBytes(String baseUrl, Bundle bundle) {
 
+        if (baseUrl.endsWith("/")) {
+            baseUrl = baseUrl.substring(0, baseUrl.length() -1);
+        }
+        
         Bundle fnug = ResourceResolver.getInstance().getBundle("fnug");
 
         // when developing bootstrap, turn on checkModified in /fnug/bundles.js.
@@ -76,18 +80,22 @@ public class Bootstrap implements ToServe {
 
     }
 
+
     public byte[] getBytes() {
         return bytes;
     }
+
 
     public long getLastModified() {
         return lastModified;
     }
 
+
     @Override
     public boolean futureExpires() {
         return false;
     }
+
 
     @Override
     public String getContentType() {

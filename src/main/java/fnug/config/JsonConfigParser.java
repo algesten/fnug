@@ -53,9 +53,11 @@ public class JsonConfigParser implements ConfigParser {
     private ObjectMapper mapper;
     private JsonFactory jsonFactory;
 
+
     public JsonConfigParser() {
         configureJsonParser();
     }
+
 
     private void configureJsonParser() {
         mapper = new ObjectMapper();
@@ -67,6 +69,7 @@ public class JsonConfigParser implements ConfigParser {
 
         jsonFactory = mapper.getJsonFactory();
     }
+
 
     /**
      * {@inheritDoc}
@@ -127,6 +130,7 @@ public class JsonConfigParser implements ConfigParser {
 
     }
 
+
     private DefaultBundleConfig buildConfig(JsonNode node, String name, JsonLocation loc, Resource configResource)
             throws JsonParseException, IOException {
 
@@ -136,12 +140,20 @@ public class JsonConfigParser implements ConfigParser {
         String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
         String[] files = parseStringArray(node, KEY_FILES, loc, EMPTY_STRINGS);
 
+        for (String file : files) {
+            if (file.startsWith("/")) {
+                throw new JsonConfigParseException("Path must not start with '/':" + file, loc);
+            }
+        }
+
         return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), jsLintArgs,
                 checkModifiedInterval, jsCompileArgs,
                 files);
     }
 
+
     private final static Pattern JSLINT_ARG_PAT = Pattern.compile("\\w+:\\s+\\w+");
+
 
     private String[] parseJsLintArgs(JsonNode node, String key, JsonLocation loc) {
 
@@ -157,6 +169,7 @@ public class JsonConfigParser implements ConfigParser {
 
         return args.toArray(new String[args.size()]);
     }
+
 
     private String parseString(JsonNode node, String key, JsonLocation loc, String def) {
 
@@ -176,6 +189,7 @@ public class JsonConfigParser implements ConfigParser {
 
     }
 
+
     private int parseInt(JsonNode node, String key, JsonLocation loc, int def) {
 
         if (!node.has(key)) {
@@ -193,6 +207,7 @@ public class JsonConfigParser implements ConfigParser {
         return m.getIntValue();
 
     }
+
 
     private String[] parseStringArray(JsonNode node, String key, JsonLocation loc, String[] def) {
 

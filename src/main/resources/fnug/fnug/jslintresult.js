@@ -17,7 +17,7 @@ fnug.openJSLintResultPopup = function (evt) {
 fnug.showJSLintPopupButton = function () {
 	var b = document.getElementById('fnugJSLintButton');
 	if (!b) {
-		fnug.loadStyles('/fnug/jslintresult-button.css');
+		fnug.loadStyles('fnug/jslintresult-button.css');
 		b = document.createElement('div');
 		b.id = 'fnugJSLintButton';
 		b.innerHTML = 'JSLint Errors';
@@ -31,7 +31,7 @@ fnug.populateJSLintResultPopup = function (popup) {
 	doc.open();
 	doc.write('<html><head><title>JSLint Errors</title>');
 	doc.write('<link type="text/css" rel="stylesheet" href="');
-	doc.write(fnug.resourceUrl('/fnug/jslintresult.css'));
+	doc.write(fnug.resourceUrl('fnug/jslintresult.css'));
 	doc.write('"/>');
 	doc.write('<body>');
 	var tmpDiv = document.createElement('div');

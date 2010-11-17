@@ -48,7 +48,7 @@ public class DefaultBundleTest {
     @Test
     public void testDefaultBundle() {
 
-        final DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" })) {
+        final DefaultBundle b = new DefaultBundle(makeBundleConfig("test", new String[] { "test/js-resource1.js" })) {
 
             @Override
             protected Resource makeResource(String path) {
@@ -64,7 +64,7 @@ public class DefaultBundleTest {
             }
         });
 
-        Assert.assertEquals("mybundle", b.getName());
+        Assert.assertEquals("test", b.getName());
         Assert.assertEquals(0, makeResourceCount);
 
         Resource res = b.resolve("test/notthere.js");
@@ -88,7 +88,7 @@ public class DefaultBundleTest {
     @Test
     public void testResourceCollections() {
 
-        final DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" }));
+        final DefaultBundle b = new DefaultBundle(makeBundleConfig("test", new String[] { "test/js-resource1.js" }));
 
         ResourceResolver.setThreadLocal(new ResourceResolver() {
             @Override
@@ -114,11 +114,11 @@ public class DefaultBundleTest {
         Assert.assertEquals("[test/css-resource2.css, test/css-resource1.css]", coll.getExistingCssAggregates()
                 .toString());
 
-        Resource r = b.resolve("mybundle/" + coll.getPath() + ".js");
+        Resource r = b.resolve(coll.getFullPath() + ".js");
         Assert.assertNotNull(r);
         Assert.assertEquals(DefaultCompressedResource.class, r.getClass());
 
-        r = b.resolve("mybundle/" + coll.getPath() + ".css");
+        r = b.resolve(coll.getFullPath() + ".css");
         Assert.assertNotNull(r);
         Assert.assertEquals(DefaultCompressedResource.class, r.getClass());
 
@@ -127,7 +127,7 @@ public class DefaultBundleTest {
     @Test
     public void testCyclic() {
 
-        final DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-cyclic1.js" }));
+        final DefaultBundle b = new DefaultBundle(makeBundleConfig("test", new String[] { "test/js-cyclic1.js" }));
 
         ResourceResolver.setThreadLocal(new ResourceResolver() {
             @Override
@@ -182,7 +182,7 @@ public class DefaultBundleTest {
     @Test
     public void testMaxCache() {
 
-        DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" }));
+        DefaultBundle b = new DefaultBundle(makeBundleConfig("test", new String[] { "test/js-resource1.js" }));
 
         try {
             for (int i = 0; i < 100000; i++) {
@@ -198,7 +198,7 @@ public class DefaultBundleTest {
     @Test
     public void testNonResolvedResource() {
 
-        DefaultBundle b = new DefaultBundle(makeBundleConfig("mybundle", new String[] { "test/js-resource1.js" }));
+        DefaultBundle b = new DefaultBundle(makeBundleConfig("test", new String[] { "test/js-resource1.js" }));
 
         ResourceResolver.setThreadLocal(new ResourceResolver() {
             @Override

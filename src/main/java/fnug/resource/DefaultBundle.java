@@ -95,7 +95,7 @@ public class DefaultBundle implements Bundle {
 
         if (bundlePattern.matcher(path).matches()) {
 
-            String collFile = path.substring(path.indexOf("/") + 1);
+            String collFile = path;
             int indx = collFile.indexOf(".");
             String collPath = collFile.substring(0, indx);
             String suffix = collFile.substring(indx + 1);
@@ -147,7 +147,7 @@ public class DefaultBundle implements Bundle {
     private ResourceCollection getResourceCollection(String collPath) {
         ResourceCollection[] colls = getResourceCollections();
         for (ResourceCollection coll : colls) {
-            if (coll.getPath().equals(collPath)) {
+            if (coll.getFullPath().equals(collPath)) {
                 return coll;
             }
         }
@@ -223,7 +223,7 @@ public class DefaultBundle implements Bundle {
             List<Resource> lr = bundleResources.get(b);
             Resource[] alr = lr.toArray(new Resource[lr.size()]);
 
-            ResourceCollection newColl = new DefaultResourceCollection(b, "/" + config.name() + "/", alr, null);
+            ResourceCollection newColl = new DefaultResourceCollection(b, this, alr, null);
 
             // now we double check the newly built resource collection against
             // ones that were built previously. if we find a previous, we prefer
