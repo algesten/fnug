@@ -15,7 +15,7 @@ public class CssCompressorTest {
         CssCompressor comp = new CssCompressor();
         String c = new String(comp.compress(css.getBytes()));
 
-        Assert.assertEquals("body{background:black;color:white;margin:14px}", c);
+        Assert.assertEquals("body{background:black;color:white;margin:14px 14px 14px 14px}", c);
 
     }
 
@@ -27,7 +27,7 @@ public class CssCompressorTest {
         CssCompressor comp = new CssCompressor();
         String c = new String(comp.compress(css.getBytes()));
 
-        Assert.assertEquals("", c);
+        Assert.assertEquals("body{background:", c);
 
         css = "body { background: }";
 

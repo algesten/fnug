@@ -178,7 +178,7 @@ public class DefaultBundleTest {
         Assert.assertEquals("[test/singlequote.js, test/js-inbundle1.js]", Arrays.asList(colls[1].getAggregates()).toString());
 
     }
-
+    
     @Test
     public void testMaxCache() {
 
@@ -212,6 +212,47 @@ public class DefaultBundleTest {
         Assert.assertNotNull(c);
         Assert.assertEquals(0, c.length);
 
+    }
+
+    @Test
+    public void testBundleIncludes() {
+        
+        final DefaultBundle b1 = new DefaultBundle(makeBundleConfig("bundle1",
+                new String[] { "bundle1/js-inbundle1.js", "bundle1/js-inbundle1_2.js" }));
+
+        final DefaultBundle b2 = new DefaultBundle(makeBundleConfig("bundle2",
+                new String[] { "bundle2/js-inbundle2.js", "bundle1/direct.js",
+                "bundle: bundle1", "bundle2/js-inbundle2_2" }));
+    
+        ResourceResolver.setThreadLocal(new ResourceResolver() {
+            @Override
+            public Resource resolve(String path) {
+                if (path.startsWith("bundle1")) {
+                    return b1.resolve(path);
+                } else if (path.startsWith("bundle2")) {
+                    return b2.resolve(path);
+                }
+                throw new RuntimeException();
+            }
+            @Override
+            public Bundle getBundle(String name) {
+                if (name.equals("bundle1")) {
+                    return b1;
+                } else if (name.equals("bundle2")) {
+                    return b2;
+                }
+                return null;
+            }
+        });
+        
+        ResourceCollection[] colls = b2.getResourceCollections();
+    
+        Assert.assertNotNull(colls);
+        Assert.assertEquals(2, colls.length);
+
+        Assert.assertEquals("[bundle2/js-inbundle2.js, bundle2/js-inbundle2_2]", Arrays.asList(colls[0].getAggregates()).toString());
+        Assert.assertEquals("[bundle1/direct.js, bundle1/js-inbundle1.js, bundle1/js-inbundle1_2.js]", Arrays.asList(colls[1].getAggregates()).toString());
+        
     }
 
     private BundleConfig makeBundleConfig(final String bundleName, final String[] files) {

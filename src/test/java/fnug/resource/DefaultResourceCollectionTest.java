@@ -61,9 +61,9 @@ public class DefaultResourceCollectionTest {
                 .getLastModified());
         Assert.assertSame(compressedJs, c.getCompressedJs());
         
-        Assert.assertEquals("\n" +
-                "a{color:red}\n" +
-                "p{margin-top:14px 14px 14px 14px}body{background:black;color:white;font-size:14em}",
+        Assert.assertEquals("body{background:black;color:white;font-size:14em}\n" + 
+        		"p{margin-top:14px 14px 14px 14px}\n" + 
+        		"a{color:red}",
                 new String(compressedCss.getBytes()));
         Assert.assertEquals("testbundle/", compressedCss.getBasePath());
         Assert.assertEquals(c.getPath() + ".css", compressedCss.getPath());

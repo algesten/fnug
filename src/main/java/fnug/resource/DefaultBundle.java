@@ -49,6 +49,8 @@ public class DefaultBundle implements Bundle {
     private static final int MAX_CACHE = 10000;
 
 
+    private static final String PREFIX_BUNDLE = "bundle:";
+
     private BundleConfig config;
 
     private volatile HashMap<String, Resource> cache = new HashMap<String, Resource>();
@@ -127,6 +129,19 @@ public class DefaultBundle implements Bundle {
     }
 
     /**
+     * Can be overridden to provide other implementations of {@link Resource}
+     * than the {@link DefaultBundleResource}.
+     * 
+     * @param path
+     *            the path to construct a resource around.
+     * @return the constructed resource, which is an instance of
+     *         {@link DefaultBundleResource}.
+     */
+    protected Resource makeResource(String path) {
+        return new DefaultBundleResource(this, path);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -163,30 +178,9 @@ public class DefaultBundle implements Bundle {
         return null;
     }
 
-    /**
-     * Can be overridden to provide other implementations of {@link Resource}
-     * than the {@link DefaultBundleResource}.
-     * 
-     * @param path
-     *            the path to construct a resource around.
-     * @return the constructed resource, which is an instance of
-     *         {@link DefaultBundleResource}.
-     */
-    protected Resource makeResource(String path) {
-        return new DefaultBundleResource(this, path);
-    }
-
     private ResourceCollection[] buildResourceCollections() {
 
-        LinkedList<Resource> l = new LinkedList<Resource>();
-        for (String file : config.files()) {
-            Resource r = ResourceResolver.getInstance().resolve(file);
-            if (r == null) {
-                LOG.warn("No bundle configured to resolve '" + file + "'. Ignoring file.");
-                continue;
-            }
-            l.add(r);
-        }
+        List<Resource> l = collectFilesToBuildFrom(config);
 
         Tarjan tarjan = new Tarjan(l);
 
@@ -195,6 +189,7 @@ public class DefaultBundle implements Bundle {
         LinkedHashMap<Bundle, List<Resource>> bundleResources = new LinkedHashMap<Bundle, List<Resource>>();
 
         for (List<Resource> cur : order) {
+
             if (cur.size() > 1) {
                 StringBuilder bld = new StringBuilder();
                 for (Resource r : cur) {
@@ -203,10 +198,13 @@ public class DefaultBundle implements Bundle {
                 bld.append(cur.get(0));
                 throw new IllegalStateException("Found cyclic dependency: " + bld.toString());
             }
+
             Resource r = cur.get(0);
+            
             if (!(r instanceof HasBundle)) {
                 throw new IllegalStateException("Can only resolve dependencies resources implementing HasBundle");
             }
+
             Bundle b = ((HasBundle) r).getBundle();
             List<Resource> lr = bundleResources.get(b);
             if (lr == null) {
@@ -214,6 +212,7 @@ public class DefaultBundle implements Bundle {
                 bundleResources.put(b, lr);
             }
             lr.add(r);
+
         }
 
         ResourceCollection[] result = new ResourceCollection[bundleResources.size()];
@@ -239,6 +238,41 @@ public class DefaultBundle implements Bundle {
 
         return result;
 
+    }
+
+    private LinkedList<Resource> collectFilesToBuildFrom(BundleConfig config) {
+        LinkedList<Resource> l = new LinkedList<Resource>();
+
+        for (String file : config.files()) {
+
+            if (file.startsWith(PREFIX_BUNDLE)) {
+                
+                String bundleName = file.substring(PREFIX_BUNDLE.length()).trim();
+
+                Bundle bundle = ResourceResolver.getInstance().getBundle(bundleName);
+                
+                if (bundle == null) {
+                    LOG.warn("No bundle configured for name '"+bundleName+"'. Ignoring resource");
+                }
+                
+                l.addAll(collectFilesToBuildFrom(bundle.getConfig()));
+                
+            } else {
+
+                Resource r = ResourceResolver.getInstance().resolve(file);
+    
+                if (r == null) {
+                    LOG.warn("No bundle configured to resolve '" + file + "'. Ignoring file.");
+                    continue;
+                }
+                
+                l.add(r);
+            
+            }
+
+        }
+
+        return l;
     }
 
     /**
