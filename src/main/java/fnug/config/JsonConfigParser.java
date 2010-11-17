@@ -1,6 +1,7 @@
 package fnug.config;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
@@ -49,7 +50,10 @@ public class JsonConfigParser implements ConfigParser {
     private static final String KEY_CHECK_MODIFIED = "checkModified";
     private static final String KEY_JS_COMPILER_ARGS = "jsCompilerArgs";
     private static final String KEY_FILES = "files";
+    private static final String KEY_BASE_PATH = "basePath";
+    
     private static final String[] EMPTY_STRINGS = new String[] {};
+
     private ObjectMapper mapper;
     private JsonFactory jsonFactory;
 
@@ -139,14 +143,24 @@ public class JsonConfigParser implements ConfigParser {
                 DefaultResource.DEFAULT_CHECK_MODIFIED_INTERVAL);
         String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
         String[] files = parseStringArray(node, KEY_FILES, loc, EMPTY_STRINGS);
+        String basePath = parseString(node, KEY_BASE_PATH, loc, configResource.getBasePath());
 
+        if (!basePath.endsWith("/")) {
+            throw new JsonConfigParseException("'basePath' must end with slash: " + basePath, loc);
+        } else {
+            URL url = getClass().getResource(basePath);
+            if (url == null) {
+                throw new JsonConfigParseException("No directory found for 'basePath': "+basePath, loc);
+            }
+        }
+        
         for (String file : files) {
             if (file.startsWith("/")) {
-                throw new JsonConfigParseException("Path must not start with '/':" + file, loc);
+                throw new JsonConfigParseException("File path must not start with slash: " + file, loc);
             }
         }
 
-        return new DefaultBundleConfig(configResource, name, configResource.getBasePath(), jsLintArgs,
+        return new DefaultBundleConfig(configResource, name, basePath, jsLintArgs,
                 checkModifiedInterval, jsCompileArgs,
                 files);
     }

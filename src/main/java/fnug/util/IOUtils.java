@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -85,4 +87,19 @@ public class IOUtils {
         }
 
     }
+
+    /**
+     * Helper method to normalize <code>../foo/../bar/../</code> style paths.
+     * @param path to normalize
+     * @return the normalized path.
+     */
+    public static String normalize(String path) {
+        try {
+            URI uri = new URI("http", "fake", "/" + path, "", "");
+            return uri.normalize().getPath();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
 }

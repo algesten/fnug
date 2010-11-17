@@ -5,7 +5,6 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import fnug.config.JsonConfigParser;
 import fnug.resource.DefaultResource;
 
 public class JsonConfigParserTest {
@@ -132,4 +131,54 @@ public class JsonConfigParserTest {
 
     }
 
+    @Test
+    public void testBasePath() throws Exception {
+
+        DefaultResource res = new DefaultResource("/", "testconfig7-basePath.js");
+
+        JsonConfigParser parser = new JsonConfigParser();
+
+        Config config = parser.parse(res);
+
+        Assert.assertNotNull(config);
+        Assert.assertNotNull(config.getBundleConfigs());
+        Assert.assertEquals(2, config.getBundleConfigs().length);
+        Assert.assertEquals("/test/", config.getBundleConfigs()[0].basePath());
+        Assert.assertEquals("/bundle2/deep/", config.getBundleConfigs()[1].basePath());
+
+    }
+
+    @Test
+    public void testBasePathNoTrailing() throws Exception {
+
+        DefaultResource res = new DefaultResource("/", "testconfig8-basePathNoTrailing.js");
+
+        JsonConfigParser parser = new JsonConfigParser();
+
+        try {
+            parser.parse(res);
+            Assert.fail();
+        } catch (JsonConfigParseException jcpe) {
+            Assert.assertEquals("At line 5 col 2: At line 5 col 2: 'basePath' must end with slash: /test", jcpe.getMessage());
+        }
+
+    }
+
+    @Test
+    public void testBaseNotExisting() throws Exception {
+
+        DefaultResource res = new DefaultResource("/", "testconfig9-basePathNotExist.js");
+
+        JsonConfigParser parser = new JsonConfigParser();
+
+        try {
+            parser.parse(res);
+            Assert.fail();
+        } catch (JsonConfigParseException jcpe) {
+            Assert.assertEquals("At line 5 col 2: At line 5 col 2: No directory found for 'basePath': /does/not/exist/", jcpe.getMessage());
+        }
+        
+    }
+
+    
 }
