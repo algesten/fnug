@@ -22,7 +22,16 @@ fnug.showJSLintPopupButton = function () {
 		b.id = 'fnugJSLintButton';
 		b.innerHTML = 'JSLint Errors';
 		b.addEventListener('click', fnug.openJSLintResultPopup, false);
-		document.body.appendChild(b);
+		if (document.body) {
+	        document.body.appendChild(b);
+		} else {
+		    var intId = setInterval(function() {
+		        if (document.body) {
+		            document.body.appendChild(b);
+		            clearInterval(intId);
+		        }
+		    }, 10);
+		}
 	}
 };
 
