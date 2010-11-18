@@ -25,7 +25,7 @@ fnug.showJSLintPopupButton = function () {
 		if (document.body) {
 	        document.body.appendChild(b);
 		} else {
-		    var intId = setInterval(function() {
+		    var intId = setInterval(function () {
 		        if (document.body) {
 		            document.body.appendChild(b);
 		            clearInterval(intId);
