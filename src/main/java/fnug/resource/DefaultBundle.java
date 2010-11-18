@@ -70,7 +70,8 @@ public class DefaultBundle implements Bundle {
      */
     public DefaultBundle(BundleConfig config) {
         this.config = config;
-        bundlePattern = Pattern.compile(getName() + "/[a-f0-9]+\\.(js|css)");
+        bundlePattern = Pattern.compile(getName() + "/" + 
+                Bundle.BUNDLE_ALLOWED_CHARS.pattern() + "-[a-f0-9]+\\.(js|css)");
     }
 
     /**
@@ -222,7 +223,7 @@ public class DefaultBundle implements Bundle {
             List<Resource> lr = bundleResources.get(b);
             Resource[] alr = lr.toArray(new Resource[lr.size()]);
 
-            ResourceCollection newColl = new DefaultResourceCollection(b, this, alr, null);
+            ResourceCollection newColl = new DefaultResourceCollection(this, b, alr, null);
 
             // now we double check the newly built resource collection against
             // ones that were built previously. if we find a previous, we prefer

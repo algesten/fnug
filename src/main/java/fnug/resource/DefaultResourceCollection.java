@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import fnug.config.BundleConfig;
 import fnug.util.IOUtils;
 
 /*
@@ -50,12 +49,10 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
 
     /**
      * Constructs setting all necessary bits.
-     * 
+     * @param owner
+     *            The bundle that generated this collection.
      * @param bundle
-     *            The associated bundle.
-     * @param basePath
-     *            Base name of the resource collection, not necessarily the same
-     *            as associated {@link BundleConfig#basePath()}.
+     *            The bundle to which the resources in this collection belongs.
      * @param aggregates
      *            Resources that comprises the aggregates. This is a mix of
      *            javascript, css and other dependent resources.
@@ -63,7 +60,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
      *            Resources that are just dependencies, not used for building
      *            aggregated bytes, but for {@link #getLastModified()}.
      */
-    public DefaultResourceCollection(Bundle bundle, Bundle owner, Resource[] aggregates, Resource[] dependencies) {
+    public DefaultResourceCollection(Bundle owner, Bundle bundle, Resource[] aggregates, Resource[] dependencies) {
         super(owner, SUPER_NAME);
         this.bundle = bundle;
         this.aggregates = aggregates == null ? EMPTY_RESOURCES : aggregates;
@@ -84,7 +81,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     /**
      * The path of a resource collection is an md5 hash sum as hexadecimal of
      * all the aggregates file names and last modified dates prepended with the bundle name.
-     * I.e. "bundle/ab39283bcd09237576"
+     * I.e. "bundle-ab39283bcd09237576"
      */
     @Override
     public String getPath() {
@@ -93,7 +90,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             synchronized (this) {
                 result = path;
                 if (result == null) {
-                    path = IOUtils.md5("" + hash(getAggregates()));
+                    path = bundle.getName() + "-" + IOUtils.md5("" + hash(getAggregates()));
                     result = path;
                 }
             }

@@ -37,7 +37,7 @@ public class DefaultResourceCollectionTest {
         };
 
         Assert.assertEquals("testbundle/", c.getBasePath());
-        Assert.assertFalse(c.getPath().startsWith("testbundle/"));
+        Assert.assertTrue(c.getPath().startsWith("testbundle-"));
         
         String fullPath = c.getFullPath();
         
@@ -138,7 +138,7 @@ public class DefaultResourceCollectionTest {
         Bundle aggbundle = makeBundle("aggbundle", 1);
         Bundle ownerbundle = makeBundle("ownerbundle", 1);
 
-        DefaultResourceCollection c = new DefaultResourceCollection(aggbundle, ownerbundle, new Resource[] {
+        DefaultResourceCollection c = new DefaultResourceCollection(ownerbundle, aggbundle, new Resource[] {
                 makeResource("some/resource.js", true),
         }, null) {
 
