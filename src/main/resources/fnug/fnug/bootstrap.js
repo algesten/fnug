@@ -54,7 +54,7 @@ fnug.populateDebug = function () {
 // keep double quotes since closure compiler changes ' to "
 fnug.bundles = "/***bundles***/";
 
-if (JSON && JSON.parse) {
+if (window.JSON && JSON.parse) {
 	fnug.bundles = JSON.parse(fnug.bundles);
 } else {
 	/*jslint evil: true*/
