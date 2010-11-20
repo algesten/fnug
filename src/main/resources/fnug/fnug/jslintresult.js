@@ -10,7 +10,7 @@ fnug.openJSLintResultPopup = function (evt) {
 			evt.cancelBubble = true;
 		}
 	}
-	var path = fnug.resourcePath('fnug/jslintresult.html#' + fnug.jsLintBundles.join(','));
+	var path = fnug.resourcePath('fnug/jslintresult-popup.html#' + fnug.jsLintBundles.join(','));
 	var popup = window.open(path, 'fnugJSLintPopup',
 		'location=0,menubar=0,titlebar=0,toolbar=0,status=1,scrollbars=1,width=600');
 	popup.focus();

@@ -2,9 +2,21 @@ body {
 	padding: 10px;
 	font-family: Verdana;
 	font-size: 14px;
+	background: #999999;
 }
 
 h1 {
+	margin: 0 0 1em 0;
+	font-size: 1.3em;
+}
+
+div.file {
+	background: #ffffff;
+	padding: 10;
+	margin-top: 1em;
+}
+
+h2 {
 	margin: 0 0 1em 0;
 	font-size: 1.1em;
 }
@@ -19,16 +31,6 @@ h1 {
 
 .part:last-child {
 	margin-bottom: 0;
-}
-
-#errors {
-	background: #ffdddd;
-	padding: 10px;
-}
-
-#functions {
-	background: #ffffdd;
-	padding: 10px;
 }
 
 .evidence, .function {
