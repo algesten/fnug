@@ -51,6 +51,8 @@ import fnug.servlet.ToServeResource;
 @SuppressWarnings("serial")
 public class ResourceServlet extends HttpServlet {
 
+    private static final String PARAM_CALLBACK = "callback";
+
     public static final String UTF_8 = "utf-8";
 
     public static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
@@ -123,7 +125,12 @@ public class ResourceServlet extends HttpServlet {
         String gzipHeader = req.getHeader(HEADER_ACCEPT_ENCODING);
         boolean gzip = gzipHeader != null && gzipHeader.indexOf(VALUE_GZIP) >= 0;
 
-        RequestEntry entry = new RequestEntry(req.getServletPath(), path, gzip);
+        String jsonp = req.getParameter(PARAM_CALLBACK);
+        if (jsonp != null && jsonp.trim().equals("")) {
+            jsonp = null;
+        }
+
+        RequestEntry entry = new RequestEntry(req.getServletPath(), path, gzip, jsonp);
         reqEntry.set(entry);
 
         super.service(req, resp);
@@ -177,15 +184,18 @@ public class ResourceServlet extends HttpServlet {
          * The suffix: js
          */
         private String suffix;
+
         private Object toServe;
         private byte[] toServeBytes;
+        private String jsonp;
         private boolean gzip;
 
-        public RequestEntry(String servletPath, String path, boolean gzip) {
+        public RequestEntry(String servletPath, String path, boolean gzip, String jsonp) {
 
             this.servletPath = servletPath.endsWith(CHAR_SLASH) ? servletPath.substring(0, servletPath.length() - 1)
                     : servletPath;
             this.gzip = gzip;
+            this.jsonp = jsonp;
 
             initPathFileSuffix(path);
 
@@ -227,13 +237,13 @@ public class ResourceServlet extends HttpServlet {
             try {
 
                 if (path.equals("")) {
-                    toServe = new BundleNames(mapper);
+                    toServe = new BundleNames(mapper, jsonp);
                 } else if (Bundle.BUNDLE_ALLOWED_CHARS.matcher(file).matches()) {
                     Bundle bundle = resolver.getBundle(file);
                     if (bundle != null) {
                         bundle.checkModified();
                         if (suffix.equals("")) {
-                            toServe = new ToServeBundle(mapper, bundle);
+                            toServe = new ToServeBundle(mapper, bundle, jsonp);
                         } else if (suffix.equals("js")) {
                             toServe = new Bootstrap(mapper, servletPath, bundle);
                         } else {

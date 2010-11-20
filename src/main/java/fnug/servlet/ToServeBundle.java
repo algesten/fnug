@@ -1,5 +1,7 @@
 package fnug.servlet;
 
+import java.io.UnsupportedEncodingException;
+
 import org.codehaus.jackson.map.ObjectMapper;
 
 import fnug.ResourceServlet;
@@ -25,17 +27,31 @@ public class ToServeBundle implements ToServe {
 
     byte[] bytes;
     long lastModified;
+    boolean isJsonP;
 
-    public ToServeBundle(ObjectMapper mapper, Bundle bundle) {
+    public ToServeBundle(ObjectMapper mapper, Bundle bundle, String jsonp) {
 
         lastModified = bundle.getLastModified();
+        isJsonP = jsonp != null;
 
         JsonBundle jb = new JsonBundle(bundle);
 
+        String result = isJsonP ? jsonp + "(" : "";
+
         try {
-            bytes = mapper.writeValueAsBytes(jb);
+            result += mapper.writeValueAsString(jb);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate json", e);
+        }
+
+        if (isJsonP) {
+            result += ");";
+        }
+
+        try {
+            bytes = result.getBytes("utf-8");
+        } catch (UnsupportedEncodingException e) {
+            // ye ye whateva.
         }
 
     }
@@ -57,6 +73,6 @@ public class ToServeBundle implements ToServe {
 
     @Override
     public String getContentType() {
-        return ResourceServlet.CONTENT_TYPE_JSON;
+        return isJsonP ? ResourceServlet.CONTENT_TYPE_JS : ResourceServlet.CONTENT_TYPE_JSON;
     }
 }
