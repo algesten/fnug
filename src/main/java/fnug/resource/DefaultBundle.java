@@ -13,19 +13,16 @@ import fnug.config.BundleConfig;
 import fnug.util.JSLintWrapper;
 
 /*
- Copyright 2010 Martin Algesten
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+ * Copyright 2010 Martin Algesten
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 /**
@@ -42,12 +39,10 @@ public class DefaultBundle implements Bundle {
     private static final String SUFFIX_JS = "js";
 
     /**
-     * Arbitrary max size for cached resources. We want to avoid filling the
-     * heap space with resources pointing to non-existing files. If we hit this
-     * limit, something is probably wrong.
+     * Arbitrary max size for cached resources. We want to avoid filling the heap space with resources pointing to
+     * non-existing files. If we hit this limit, something is probably wrong.
      */
     private static final int MAX_CACHE = 10000;
-
 
     private static final String PREFIX_BUNDLE = "bundle:";
 
@@ -70,7 +65,7 @@ public class DefaultBundle implements Bundle {
      */
     public DefaultBundle(BundleConfig config) {
         this.config = config;
-        bundlePattern = Pattern.compile(getName() + "/" + 
+        bundlePattern = Pattern.compile(getName() + "/" +
                 Bundle.BUNDLE_ALLOWED_CHARS.pattern() + "-[a-f0-9]+\\.(js|css)");
     }
 
@@ -130,13 +125,11 @@ public class DefaultBundle implements Bundle {
     }
 
     /**
-     * Can be overridden to provide other implementations of {@link Resource}
-     * than the {@link DefaultBundleResource}.
+     * Can be overridden to provide other implementations of {@link Resource} than the {@link DefaultBundleResource}.
      * 
      * @param path
      *            the path to construct a resource around.
-     * @return the constructed resource, which is an instance of
-     *         {@link DefaultBundleResource}.
+     * @return the constructed resource, which is an instance of {@link DefaultBundleResource}.
      */
     protected Resource makeResource(String path) {
         return new DefaultBundleResource(this, path);
@@ -147,12 +140,16 @@ public class DefaultBundle implements Bundle {
      */
     @Override
     public ResourceCollection[] getResourceCollections() {
+        return getResourceCollections(false);
+    }
+
+    private ResourceCollection[] getResourceCollections(boolean checkModifiedOnBuild) {
         ResourceCollection[] result = resourceCollections;
         if (result == null) {
             synchronized (this) {
                 result = resourceCollections;
                 if (result == null) {
-                    resourceCollections = result = buildResourceCollections();
+                    resourceCollections = result = buildResourceCollections(checkModifiedOnBuild);
                 }
             }
         }
@@ -178,11 +175,11 @@ public class DefaultBundle implements Bundle {
         return null;
     }
 
-    private ResourceCollection[] buildResourceCollections() {
+    private ResourceCollection[] buildResourceCollections(boolean checkModifiedOnBuild) {
 
         List<Resource> l = collectFilesToBuildFrom(config);
 
-        Tarjan tarjan = new Tarjan(l);
+        Tarjan tarjan = new Tarjan(l, checkModifiedOnBuild);
 
         List<List<Resource>> order = tarjan.getResult();
 
@@ -200,7 +197,7 @@ public class DefaultBundle implements Bundle {
             }
 
             Resource r = cur.get(0);
-            
+
             if (!(r instanceof HasBundle)) {
                 throw new IllegalStateException("Can only resolve dependencies resources implementing HasBundle");
             }
@@ -246,28 +243,28 @@ public class DefaultBundle implements Bundle {
         for (String file : config.files()) {
 
             if (file.startsWith(PREFIX_BUNDLE)) {
-                
+
                 String bundleName = file.substring(PREFIX_BUNDLE.length()).trim();
 
                 Bundle bundle = ResourceResolver.getInstance().getBundle(bundleName);
-                
+
                 if (bundle == null) {
-                    LOG.warn("No bundle configured for name '"+bundleName+"'. Ignoring resource");
+                    LOG.warn("No bundle configured for name '" + bundleName + "'. Ignoring resource");
                 }
-                
+
                 l.addAll(collectFilesToBuildFrom(bundle.getConfig()));
-                
+
             } else {
 
                 Resource r = ResourceResolver.getInstance().resolve(file);
-    
+
                 if (r == null) {
                     LOG.warn("No bundle configured to resolve '" + file + "'. Ignoring file.");
                     continue;
                 }
-                
+
                 l.add(r);
-            
+
             }
 
         }
@@ -293,14 +290,13 @@ public class DefaultBundle implements Bundle {
     @Override
     public boolean checkModified() {
         boolean modified = false;
-        for (ResourceCollection rc : getResourceCollections()) {
+        for (ResourceCollection rc : getResourceCollections(true)) {
             modified = rc.checkModified() || modified;
         }
         if (modified) {
             synchronized (this) {
                 if (resourceCollections != null) {
-                    // save resource collections to perhaps be reused when
-                    // rebuilding.
+                    // save resource collections to perhaps be reused when rebuilding.
                     for (ResourceCollection rc : resourceCollections) {
                         previousResourceCollections.put(rc.getPath(), rc);
                     }

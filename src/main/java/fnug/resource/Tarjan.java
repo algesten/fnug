@@ -43,10 +43,12 @@ import fnug.config.BundleConfig;
 public class Tarjan {
 
     private final static Logger LOG = LoggerFactory.getLogger(Tarjan.class);
-    
+
     private HashMap<String, Node> nodes = new HashMap<String, Node>();
 
     private RootNode root;
+
+    private boolean checkModified;
 
     /**
      * Performs a tarjan's calculation of the given resources. These resources
@@ -56,20 +58,23 @@ public class Tarjan {
      * 
      * @param resources
      *            starting resources.
+     * @param checkModified
      */
-    public Tarjan(List<Resource> resources) {
+    public Tarjan(List<Resource> resources, boolean checkModified) {
         root = new RootNode(resources);
+        this.checkModified = checkModified;
         tarjan(root);
     }
 
     /**
-     * Same as {@link #Tarjan(List)}, but provided as array.
+     * Same as {@link #Tarjan(List, boolean)}, with checkModified set to
+     * false,but provided as array. For testing.
      * 
      * @param resources
      *            resources to start from.
      */
     public Tarjan(Resource... resources) {
-        this(Arrays.asList(resources));
+        this(Arrays.asList(resources), false);
     }
 
     /**
@@ -161,6 +166,9 @@ public class Tarjan {
         public List<Node> getAdjacent() {
             LinkedList<Node> nodes = new LinkedList<Node>();
             for (Resource res : resources) {
+                if (checkModified) {
+                    res.checkModified();
+                }
                 nodes.add(getNodeForResource(res));
             }
             return nodes;
@@ -190,6 +198,9 @@ public class Tarjan {
         public List<Node> getAdjacent() {
             if (adjacent == null) {
                 adjacent = new LinkedList<Node>();
+                if (checkModified) {
+                    resource.checkModified();
+                }
                 List<String> deps = resource.findRequiresTags();
                 for (String dep : deps) {
                     Resource res = ResourceResolver.getInstance().resolve(dep);

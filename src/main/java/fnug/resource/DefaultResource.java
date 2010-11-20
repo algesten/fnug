@@ -58,6 +58,8 @@ public class DefaultResource extends AbstractResource {
     private static final File TMP_EXTRACT_DIR;
 
     private static final byte[] EMPTY_BYTES = new byte[] {};
+    private final static Pattern REQUIRES_PAT = Pattern.compile("\\s*[*]\\s*@requires\\s+([^ \\t\\n\\x0B\\f\\r]+)");
+
     private File jarFile;
     private File file;
 
@@ -288,8 +290,6 @@ public class DefaultResource extends AbstractResource {
         return new File(TMP_EXTRACT_DIR, md5sig);
 
     }
-
-    private final static Pattern REQUIRES_PAT = Pattern.compile("\\s*[*]\\s*@requires\\s+([^ \\t\\n\\x0B\\f\\r]+)");
 
     /**
      * {@inheritDoc}
