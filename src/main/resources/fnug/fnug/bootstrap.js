@@ -48,7 +48,8 @@ fnug.populateDebug = function () {
 };
 
 fnug.isDebug = function (bundleName, bundle) {
-	return fnug.debugAll || fnug.debugDefault && bundle && bundle.name === bundleName || fnug.debug[bundleName];
+	return fnug.debugAll || fnug.debugDefault && bundle && bundle.name === bundleName || 
+		fnug.debug[bundleName];
 };
 
 // keep double quotes since closure compiler changes ' to "
