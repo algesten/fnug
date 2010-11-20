@@ -11,8 +11,7 @@ import com.googlecode.jslint4java.JSLintResult;
 public interface HasJSLintResult {
 
     /**
-     * Returns the jslint result. If the entity does not have a lint result,
-     * null is returned.
+     * Returns the jslint result. If the entity does not have a lint result, null is returned.
      */
     JSLintResult getJSLintResult();
 

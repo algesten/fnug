@@ -37,11 +37,9 @@ import fnug.util.IOUtils;
  */
 
 /**
- * Default file resource implementation. Relies on
- * {@link Class#getResource(String)} to do its magic. The class also handles the
- * case where the class loader resolved resource is inside a jar-file. That jar
- * file is then unpacked into a temporary directory and the file last modified
- * is read from there.
+ * Default file resource implementation. Relies on {@link Class#getResource(String)} to do its magic. The class also
+ * handles the case where the class loader resolved resource is inside a jar-file. That jar file is then unpacked into a
+ * temporary directory and the file last modified is read from there.
  * 
  * @author Martin Algesten
  * 
@@ -96,10 +94,8 @@ public class DefaultResource extends AbstractResource {
      * @param path
      *            The path of the resource. See {@link #getPath()}.
      * @param checkModifiedInterval
-     *            the interval in millisecond that we are to check the resource
-     *            last modified date. Any sooner checks will just returned the
-     *            previously read value. A value of 0 will disable modified
-     *            checks.
+     *            the interval in millisecond that we are to check the resource last modified date. Any sooner checks
+     *            will just returned the previously read value. A value of 0 will disable modified checks.
      */
     public DefaultResource(String basePath, String path, int checkModifiedInterval) {
         super(basePath, path);
@@ -107,8 +103,8 @@ public class DefaultResource extends AbstractResource {
     }
 
     /**
-     * Creates a new resource setting the base path and path. Assumed
-     * {@link #DEFAULT_CHECK_MODIFIED_INTERVAL} for checking modified times.
+     * Creates a new resource setting the base path and path. Assumed {@link #DEFAULT_CHECK_MODIFIED_INTERVAL} for
+     * checking modified times.
      * 
      * @param basePath
      *            The base path of the resource. See {@link #getBasePath()}.
@@ -120,8 +116,7 @@ public class DefaultResource extends AbstractResource {
     }
 
     /**
-     * Reads the entry from the class loader using
-     * {@link Class#getResource(String)}. Also handles the case where that
+     * Reads the entry from the class loader using {@link Class#getResource(String)}. Also handles the case where that
      * resource is in a jar file.
      */
     @Override
@@ -145,9 +140,8 @@ public class DefaultResource extends AbstractResource {
     }
 
     /**
-     * Returns the last modified date of the file. If the file was inside a
-     * jar-file, the jar file time stamp is also checked, and potentially
-     * extracted again.
+     * Returns the last modified date of the file. If the file was inside a jar-file, the jar file time stamp is also
+     * checked, and potentially extracted again.
      */
     @Override
     protected long readLastModified() {
@@ -164,8 +158,8 @@ public class DefaultResource extends AbstractResource {
     }
 
     /**
-     * Tells if we are allowed to check the last modified date. This looks at
-     * the check interval to assert whether checking is allowed.
+     * Tells if we are allowed to check the last modified date. This looks at the check interval to assert whether
+     * checking is allowed.
      * 
      * @return whether a last modified date is allowed to be checked.
      */

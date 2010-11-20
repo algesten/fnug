@@ -17,8 +17,7 @@ package fnug.resource;
  */
 
 /**
- * Extension of {@link Resource} for resources that are products of other
- * resource.
+ * Extension of {@link Resource} for resources that are products of other resource.
  * 
  * @author Martin Algesten
  * 
@@ -26,25 +25,22 @@ package fnug.resource;
 public interface AggregatedResource extends Resource {
 
     /**
-     * Base path for an aggregated resource is set to the owning bundle's name prepended with a slash.
-     * That is for a aggregated resource beloning to <code>mybundle</code>, the base path with be
-     * <code>mybundle/</code>.
+     * Base path for an aggregated resource is set to the owning bundle's name prepended with a slash. That is for a
+     * aggregated resource beloning to <code>mybundle</code>, the base path with be <code>mybundle/</code>.
      */
     String getBasePath();
-    
+
     /**
-     * Aggregates are the resources that actually make up the aggregated
-     * resource - that are used to produce the {@link #getBytes()}.
+     * Aggregates are the resources that actually make up the aggregated resource - that are used to produce the
+     * {@link #getBytes()}.
      * 
-     * @return the resources that are part of producing the aggregated resource
-     *         bytes.
+     * @return the resources that are part of producing the aggregated resource bytes.
      */
     Resource[] getAggregates();
 
     /**
-     * Dependencies are resources that are just dependent on for
-     * {@link #getLastModified()} (along with {@link #getAggregates()}) but are
-     * not part of making the bytes of the aggregate.
+     * Dependencies are resources that are just dependent on for {@link #getLastModified()} (along with
+     * {@link #getAggregates()}) but are not part of making the bytes of the aggregate.
      * 
      * @return the dependencies used only for last modified date, not bytes.
      */

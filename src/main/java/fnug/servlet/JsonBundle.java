@@ -27,14 +27,14 @@ public class JsonBundle {
 
     @JsonProperty
     String name;
-    
+
     @JsonProperty
     LinkedList<JsonResourceCollection> colls = new LinkedList<JsonResourceCollection>();
 
     public JsonBundle(Bundle bundle) {
 
         this.name = bundle.getName();
-        
+
         ResourceCollection[] tmp = bundle.getResourceCollections();
         for (ResourceCollection c : tmp) {
             colls.add(new JsonResourceCollection(c, c.getBundle() == bundle));

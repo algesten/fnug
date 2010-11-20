@@ -22,8 +22,7 @@ import googccwrap.GoogleClosureCompilerWrapper;
  */
 
 /**
- * Implementation of {@link Compressor} for javascript. Uses a wrapped Google
- * Closure Compiler.
+ * Implementation of {@link Compressor} for javascript. Uses a wrapped Google Closure Compiler.
  * 
  * @author Martin Algesten
  * 
@@ -41,8 +40,7 @@ public class JsCompressor implements Compressor {
     }
 
     /**
-     * Constructs potentially sending configuration options to the wrapped
-     * google closure compiler.
+     * Constructs potentially sending configuration options to the wrapped google closure compiler.
      * 
      * @param args
      *            arguments to send.

@@ -7,7 +7,6 @@ import java.io.UnsupportedEncodingException;
 
 import fnug.util.YUICssCompressor;
 
-
 /*
  Copyright 2010 Martin Algesten
 
@@ -25,8 +24,7 @@ import fnug.util.YUICssCompressor;
  */
 
 /**
- * Css variant of the compressor. Uses a modified version of the YUICompressor
- * that is included in the package.
+ * Css variant of the compressor. Uses a modified version of the YUICompressor that is included in the package.
  * 
  * @author Martin Algesten
  * 

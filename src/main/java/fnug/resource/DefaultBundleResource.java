@@ -42,10 +42,9 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle,
     private volatile JSLintResult jsLintResult;
 
     /**
-     * Constructs setting the necessary bundle and path. The
-     * {@link BundleConfig#basePath()} will be used as {@link #getBasePath()}.
-     * The {@link BundleConfig#checkModifiedInterval()} will be used for check
-     * intervals of the resource.
+     * Constructs setting the necessary bundle and path. The {@link BundleConfig#basePath()} will be used as
+     * {@link #getBasePath()}. The {@link BundleConfig#checkModifiedInterval()} will be used for check intervals of the
+     * resource.
      * 
      * @param bundle
      *            the bundle to construct from and which base path to use.

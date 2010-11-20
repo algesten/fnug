@@ -55,17 +55,15 @@ public interface BundleConfig {
     String basePath();
 
     /**
-     * The arguments used for JSLint. No arguments indicates that jslint is
-     * turned off.
+     * The arguments used for JSLint. No arguments indicates that jslint is turned off.
      * 
-     * @return The arguments used for JSLint. Example: ["white: true",
-     *         "onevar: true"].
+     * @return The arguments used for JSLint. Example: ["white: true", "onevar: true"].
      */
     String[] jsLintArgs();
 
     /**
-     * The interval in milliseconds that we are to check the modified dates of
-     * resources resolved by this bundle. A value of 0 disables modified checks.
+     * The interval in milliseconds that we are to check the modified dates of resources resolved by this bundle. A
+     * value of 0 disables modified checks.
      * 
      * @return number of milliseconds between checks.
      */
@@ -79,8 +77,8 @@ public interface BundleConfig {
     String[] jsCompileArgs();
 
     /**
-     * Files that comprises this bundle. Additional dependencies will be
-     * discovered using {@link Resource#findRequiresTags()}.
+     * Files that comprises this bundle. Additional dependencies will be discovered using
+     * {@link Resource#findRequiresTags()}.
      * 
      * @return Starting point files of this bundle.
      */

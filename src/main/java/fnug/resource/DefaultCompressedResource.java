@@ -22,11 +22,10 @@ import org.slf4j.LoggerFactory;
  */
 
 /**
- * Special resource that only postpones compression of bytes to the call of
- * {@link #getBytes()}. Returned by {@link ResourceCollection#getCompressedJs()}
- * and {@link ResourceCollection#getCompressedCss()}. When a resource change,
- * this instance is dropped instead of reused since the change may make the
- * aggregation be comprised of other resources.
+ * Special resource that only postpones compression of bytes to the call of {@link #getBytes()}. Returned by
+ * {@link ResourceCollection#getCompressedJs()} and {@link ResourceCollection#getCompressedCss()}. When a resource
+ * change, this instance is dropped instead of reused since the change may make the aggregation be comprised of other
+ * resources.
  * 
  * @author Martin Algesten
  * 
@@ -47,12 +46,11 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
      * @param bundle
      *            The associated bundle.
      * @param basePath
-     *            Base path of the compressed resource. This is not always the
-     *            same as the associated bundle's since a resource collection
-     *            may be for another bundle.
+     *            Base path of the compressed resource. This is not always the same as the associated bundle's since a
+     *            resource collection may be for another bundle.
      * @param path
-     *            Path of the compressed resource. This is set to an md5 sum of
-     *            all the aggregated paths and modified dates.
+     *            Path of the compressed resource. This is set to an md5 sum of all the aggregated paths and modified
+     *            dates.
      * @param bytes
      *            the bytes to compress.
      * @param lastModified
@@ -78,8 +76,7 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
     }
 
     /**
-     * Returns {@link #readLastModified()} and the bytes given in the
-     * constructor.
+     * Returns {@link #readLastModified()} and the bytes given in the constructor.
      */
     @Override
     protected Entry readEntry() {
@@ -87,11 +84,9 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
     }
 
     /**
-     * Retrieves the bytes via the superclass
-     * {@link AbstractResource#getBytes()} (which ultimately leads to
-     * {@link #readEntry()}). After that the compressed bytes are reused, never
-     * recompressed since the whole instance is dropped if any underlying
-     * resource changes.
+     * Retrieves the bytes via the superclass {@link AbstractResource#getBytes()} (which ultimately leads to
+     * {@link #readEntry()}). After that the compressed bytes are reused, never recompressed since the whole instance is
+     * dropped if any underlying resource changes.
      */
     @Override
     public byte[] getBytes() {

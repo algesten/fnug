@@ -20,9 +20,8 @@ import javax.activation.MimetypesFileTypeMap;
  */
 
 /**
- * Abstract supertype for {@link Resource} implementations. Reads a classpath
- * resource /fnug/mime.types to get a {@link FileTypeMap} for
- * {@link #getContentType()}.
+ * Abstract supertype for {@link Resource} implementations. Reads a classpath resource /fnug/mime.types to get a
+ * {@link FileTypeMap} for {@link #getContentType()}.
  * 
  * @author Martin Algesten
  * 
@@ -131,9 +130,8 @@ public abstract class AbstractResource implements Resource {
     }
 
     /**
-     * Ensures the bytes and lastmodified is read from the underlying resource
-     * (such as a file). This will in turn call {@link #readEntry()} which needs
-     * to be implemented to do the actual reading.
+     * Ensures the bytes and lastmodified is read from the underlying resource (such as a file). This will in turn call
+     * {@link #readEntry()} which needs to be implemented to do the actual reading.
      * 
      * @return true if the entry was read.
      */
@@ -196,9 +194,8 @@ public abstract class AbstractResource implements Resource {
     }
 
     /**
-     * Reads the actual entry providing the bytes and lastModified date back to
-     * the caller. This must be implemented in subclasses. It must just read the
-     * actual data without checking whether bytes or lastModified has been read
+     * Reads the actual entry providing the bytes and lastModified date back to the caller. This must be implemented in
+     * subclasses. It must just read the actual data without checking whether bytes or lastModified has been read
      * already.
      * 
      * @return the bytes and last modified date.
@@ -206,18 +203,15 @@ public abstract class AbstractResource implements Resource {
     protected abstract Entry readEntry();
 
     /**
-     * Reads just the last modified date from the actual data source. This is
-     * used by {@link #checkModified()} to compare the stored last modified with
-     * the one on disk.
+     * Reads just the last modified date from the actual data source. This is used by {@link #checkModified()} to
+     * compare the stored last modified with the one on disk.
      * 
-     * @return the last modified date of the underlying data source, such as a
-     *         file.
+     * @return the last modified date of the underlying data source, such as a file.
      */
     protected abstract long readLastModified();
 
     /**
-     * Wrapper class for returning data from
-     * {@link AbstractResource#readEntry()}.
+     * Wrapper class for returning data from {@link AbstractResource#readEntry()}.
      * 
      * @author Martin Algesten
      * 

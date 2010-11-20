@@ -51,17 +51,15 @@ public class JsonConfigParser implements ConfigParser {
     private static final String KEY_JS_COMPILER_ARGS = "jsCompilerArgs";
     private static final String KEY_FILES = "files";
     private static final String KEY_BASE_PATH = "basePath";
-    
+
     private static final String[] EMPTY_STRINGS = new String[] {};
 
     private ObjectMapper mapper;
     private JsonFactory jsonFactory;
 
-
     public JsonConfigParser() {
         configureJsonParser();
     }
-
 
     private void configureJsonParser() {
         mapper = new ObjectMapper();
@@ -73,7 +71,6 @@ public class JsonConfigParser implements ConfigParser {
 
         jsonFactory = mapper.getJsonFactory();
     }
-
 
     /**
      * {@inheritDoc}
@@ -134,7 +131,6 @@ public class JsonConfigParser implements ConfigParser {
 
     }
 
-
     private DefaultBundleConfig buildConfig(JsonNode node, String name, JsonLocation loc, Resource configResource)
             throws JsonParseException, IOException {
 
@@ -150,10 +146,10 @@ public class JsonConfigParser implements ConfigParser {
         } else {
             URL url = getClass().getResource(basePath);
             if (url == null) {
-                throw new JsonConfigParseException("No directory found for 'basePath': "+basePath, loc);
+                throw new JsonConfigParseException("No directory found for 'basePath': " + basePath, loc);
             }
         }
-        
+
         for (String file : files) {
             if (file.startsWith("/")) {
                 throw new JsonConfigParseException("File path must not start with slash: " + file, loc);
@@ -165,9 +161,7 @@ public class JsonConfigParser implements ConfigParser {
                 files);
     }
 
-
     private final static Pattern JSLINT_ARG_PAT = Pattern.compile("\\w+:\\s+\\w+");
-
 
     private String[] parseJsLintArgs(JsonNode node, String key, JsonLocation loc) {
 
@@ -183,7 +177,6 @@ public class JsonConfigParser implements ConfigParser {
 
         return args.toArray(new String[args.size()]);
     }
-
 
     private String parseString(JsonNode node, String key, JsonLocation loc, String def) {
 
@@ -203,7 +196,6 @@ public class JsonConfigParser implements ConfigParser {
 
     }
 
-
     private int parseInt(JsonNode node, String key, JsonLocation loc, int def) {
 
         if (!node.has(key)) {
@@ -221,7 +213,6 @@ public class JsonConfigParser implements ConfigParser {
         return m.getIntValue();
 
     }
-
 
     private String[] parseStringArray(JsonNode node, String key, JsonLocation loc, String[] def) {
 

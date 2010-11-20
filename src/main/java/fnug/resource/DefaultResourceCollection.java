@@ -55,11 +55,11 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
      * @param bundle
      *            The bundle to which the resources in this collection belongs.
      * @param aggregates
-     *            Resources that comprises the aggregates. This is a mix of
-     *            javascript, css and other dependent resources.
+     *            Resources that comprises the aggregates. This is a mix of javascript, css and other dependent
+     *            resources.
      * @param dependencies
-     *            Resources that are just dependencies, not used for building
-     *            aggregated bytes, but for {@link #getLastModified()}.
+     *            Resources that are just dependencies, not used for building aggregated bytes, but for
+     *            {@link #getLastModified()}.
      */
     public DefaultResourceCollection(Bundle owner, Bundle bundle, Resource[] aggregates, Resource[] dependencies) {
         super(owner, SUPER_NAME);
@@ -80,9 +80,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     }
 
     /**
-     * The path of a resource collection is an md5 hash sum as hexadecimal of
-     * all the aggregates file names and last modified dates prepended with the
-     * bundle name. I.e. "bundle-ab39283bcd09237576"
+     * The path of a resource collection is an md5 hash sum as hexadecimal of all the aggregates file names and last
+     * modified dates prepended with the bundle name. I.e. "bundle-ab39283bcd09237576"
      */
     @Override
     public String getPath() {
@@ -123,9 +122,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     }
 
     /**
-     * Builds two sets of aggregated bytes. One which is {@link #getJs()} and
-     * the other {@link #getCss()}. Loops over all {@link #getAggregates()} and
-     * picks out {@link Resource#isJs()} and {@link Resource#isCss()}.
+     * Builds two sets of aggregated bytes. One which is {@link #getJs()} and the other {@link #getCss()}. Loops over
+     * all {@link #getAggregates()} and picks out {@link Resource#isJs()} and {@link Resource#isCss()}.
      */
     @Override
     protected byte[] buildAggregate() {
@@ -200,8 +198,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
     }
 
     /**
-     * {@inheritDoc} If any resource is changed, will dropped the compressed
-     * javascript and css.
+     * {@inheritDoc} If any resource is changed, will dropped the compressed javascript and css.
      */
     @Override
     public boolean checkModified() {

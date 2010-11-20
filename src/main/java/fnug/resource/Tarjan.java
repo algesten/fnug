@@ -28,13 +28,11 @@ import fnug.config.BundleConfig;
  */
 
 /**
- * Implementation of Tarjan's strongly connected components algorithm. Used for
- * finding load order the dependent resources, and to discover cyclic
- * dependencies.
+ * Implementation of Tarjan's strongly connected components algorithm. Used for finding load order the dependent
+ * resources, and to discover cyclic dependencies.
  * 
  * <p>
- * <a href=
- * "http://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm"
+ * <a href= "http://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm"
  * >Tarjan's_strongly_connected_components_algorithm</a>
  * 
  * @author Martin Algesten
@@ -51,9 +49,8 @@ public class Tarjan {
     private boolean checkModified;
 
     /**
-     * Performs a tarjan's calculation of the given resources. These resources
-     * are exactly those configured in {@link BundleConfig#files()}, additional
-     * dependencies are discovered as part of this algorithm using
+     * Performs a tarjan's calculation of the given resources. These resources are exactly those configured in
+     * {@link BundleConfig#files()}, additional dependencies are discovered as part of this algorithm using
      * {@link Resource#findRequiresTags()}.
      * 
      * @param resources
@@ -67,8 +64,7 @@ public class Tarjan {
     }
 
     /**
-     * Same as {@link #Tarjan(List, boolean)}, with checkModified set to
-     * false,but provided as array. For testing.
+     * Same as {@link #Tarjan(List, boolean)}, with checkModified set to false,but provided as array. For testing.
      * 
      * @param resources
      *            resources to start from.

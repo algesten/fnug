@@ -117,6 +117,7 @@ public class ResourceResolver {
     protected void setConfigs(Config... configs) {
         this.configs = Arrays.asList(configs);
         this.bundles = readBundles(this.configs);
+        this.buildConfigs = false;
     }
 
     /**
@@ -203,22 +204,22 @@ public class ResourceResolver {
     }
 
     private LinkedHashMap<String, Bundle> readBundles(List<Config> configs) {
-        LinkedHashMap<String, Bundle> resuly = new LinkedHashMap<String, Bundle>();
+        LinkedHashMap<String, Bundle> result = new LinkedHashMap<String, Bundle>();
         for (Config cfg : configs) {
             for (BundleConfig bcfg : cfg.getBundleConfigs()) {
                 if (BUNDLE_RESERVED_WORDS.contains(bcfg.name().toLowerCase())) {
                     throw new IllegalStateException("Bundle name '" + bcfg.name() + "' is a reserved word.");
                 }
-                if (resuly.containsKey(bcfg.name())) {
+                if (result.containsKey(bcfg.name())) {
                     throw new IllegalStateException("Duplicate definitions of bundle name '" + bcfg.name() + "' " +
-                            "in '" + bundles.get(bcfg.name()).getConfig().configResource().getFullPath() + "' and '" +
+                            "in '" + result.get(bcfg.name()).getConfig().configResource().getFullPath() + "' and '" +
                             bcfg.configResource().getFullPath() + "'");
                 }
                 Bundle bundle = new DefaultBundle(bcfg);
-                resuly.put(bundle.getName(), bundle);
+                result.put(bundle.getName(), bundle);
             }
         }
-        return resuly;
+        return result;
     }
 
     /**

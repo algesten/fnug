@@ -39,9 +39,8 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
     }
 
     /**
-     * Implements the abstract readEntry(), and uses {@link #readLastModified()}
-     * and {@link #buildAggregate()} to build the {@link AbstractResource.Entry}
-     * .
+     * Implements the abstract readEntry(), and uses {@link #readLastModified()} and {@link #buildAggregate()} to build
+     * the {@link AbstractResource.Entry} .
      */
     @Override
     protected final Entry readEntry() {
@@ -56,8 +55,7 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
     protected abstract byte[] buildAggregate();
 
     /**
-     * Loops over {@link #getAggregates()} and {@link #getDependencies()} to
-     * find the most recent last modified date.
+     * Loops over {@link #getAggregates()} and {@link #getDependencies()} to find the most recent last modified date.
      * 
      * @return the most recent last modified date.
      */
@@ -74,10 +72,9 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
     }
 
     /**
-     * Calls {@link Resource#checkModified()} on all the underlying resources in
-     * {@link #getAggregates()} and {@link #getDependencies()}. After that calls
-     * super class checkModified() which may trigger a rebuild of the aggregate
-     * (via {@link #readEntry()}, {@link #buildAggregate()})
+     * Calls {@link Resource#checkModified()} on all the underlying resources in {@link #getAggregates()} and
+     * {@link #getDependencies()}. After that calls super class checkModified() which may trigger a rebuild of the
+     * aggregate (via {@link #readEntry()}, {@link #buildAggregate()})
      * 
      * @return true if any of the resources were found to be newer.
      */

@@ -17,8 +17,8 @@ package fnug.config;
  */
 
 /**
- * Product of {@link ConfigParser#parse(fnug.resource.Resource)}. One of these
- * objects is created for each config file parsed.
+ * Product of {@link ConfigParser#parse(fnug.resource.Resource)}. One of these objects is created for each config file
+ * parsed.
  * 
  * @author Martin Algesten
  * 

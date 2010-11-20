@@ -175,10 +175,11 @@ public class DefaultBundleTest {
         Assert.assertSame(b1, ((DefaultResourceCollection) colls[1]).getBundle());
 
         Assert.assertEquals("[bundle2/js-inbundle2.js]", Arrays.asList(colls[0].getAggregates()).toString());
-        Assert.assertEquals("[test/singlequote.js, test/js-inbundle1.js]", Arrays.asList(colls[1].getAggregates()).toString());
+        Assert.assertEquals("[test/singlequote.js, test/js-inbundle1.js]", Arrays.asList(colls[1].getAggregates())
+                .toString());
 
     }
-    
+
     @Test
     public void testMaxCache() {
 
@@ -216,14 +217,14 @@ public class DefaultBundleTest {
 
     @Test
     public void testBundleIncludes() {
-        
+
         final DefaultBundle b1 = new DefaultBundle(makeBundleConfig("bundle1",
                 new String[] { "bundle1/js-inbundle1.js", "bundle1/js-inbundle1_2.js" }));
 
         final DefaultBundle b2 = new DefaultBundle(makeBundleConfig("bundle2",
                 new String[] { "bundle2/js-inbundle2.js", "bundle1/direct.js",
-                "bundle: bundle1", "bundle2/js-inbundle2_2" }));
-    
+                        "bundle: bundle1", "bundle2/js-inbundle2_2" }));
+
         ResourceResolver.setThreadLocal(new ResourceResolver() {
             @Override
             public Resource resolve(String path) {
@@ -234,6 +235,7 @@ public class DefaultBundleTest {
                 }
                 throw new RuntimeException();
             }
+
             @Override
             public Bundle getBundle(String name) {
                 if (name.equals("bundle1")) {
@@ -244,15 +246,17 @@ public class DefaultBundleTest {
                 return null;
             }
         });
-        
+
         ResourceCollection[] colls = b2.getResourceCollections();
-    
+
         Assert.assertNotNull(colls);
         Assert.assertEquals(2, colls.length);
 
-        Assert.assertEquals("[bundle2/js-inbundle2.js, bundle2/js-inbundle2_2]", Arrays.asList(colls[0].getAggregates()).toString());
-        Assert.assertEquals("[bundle1/direct.js, bundle1/js-inbundle1.js, bundle1/js-inbundle1_2.js]", Arrays.asList(colls[1].getAggregates()).toString());
-        
+        Assert.assertEquals("[bundle2/js-inbundle2.js, bundle2/js-inbundle2_2]", Arrays
+                .asList(colls[0].getAggregates()).toString());
+        Assert.assertEquals("[bundle1/direct.js, bundle1/js-inbundle1.js, bundle1/js-inbundle1_2.js]",
+                Arrays.asList(colls[1].getAggregates()).toString());
+
     }
 
     private BundleConfig makeBundleConfig(final String bundleName, final String[] files) {

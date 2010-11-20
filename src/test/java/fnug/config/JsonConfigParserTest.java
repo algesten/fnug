@@ -159,7 +159,8 @@ public class JsonConfigParserTest {
             parser.parse(res);
             Assert.fail();
         } catch (JsonConfigParseException jcpe) {
-            Assert.assertEquals("At line 5 col 2: At line 5 col 2: 'basePath' must end with slash: /test", jcpe.getMessage());
+            Assert.assertEquals("At line 5 col 2: At line 5 col 2: 'basePath' must end with slash: /test",
+                    jcpe.getMessage());
         }
 
     }
@@ -175,10 +176,11 @@ public class JsonConfigParserTest {
             parser.parse(res);
             Assert.fail();
         } catch (JsonConfigParseException jcpe) {
-            Assert.assertEquals("At line 5 col 2: At line 5 col 2: No directory found for 'basePath': /does/not/exist/", jcpe.getMessage());
+            Assert.assertEquals(
+                    "At line 5 col 2: At line 5 col 2: No directory found for 'basePath': /does/not/exist/",
+                    jcpe.getMessage());
         }
-        
+
     }
 
-    
 }

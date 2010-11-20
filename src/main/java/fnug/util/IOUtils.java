@@ -68,8 +68,7 @@ public class IOUtils {
     }
 
     /**
-     * Copies all bytes of the input stream to the output stream. Will not close
-     * any streams.
+     * Copies all bytes of the input stream to the output stream. Will not close any streams.
      * 
      * @param is
      *            Read from
@@ -90,7 +89,9 @@ public class IOUtils {
 
     /**
      * Helper method to normalize <code>../foo/../bar/../</code> style paths.
-     * @param path to normalize
+     * 
+     * @param path
+     *            to normalize
      * @return the normalized path.
      */
     public static String normalize(String path) {

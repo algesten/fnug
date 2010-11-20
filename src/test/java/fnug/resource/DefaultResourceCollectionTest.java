@@ -38,9 +38,9 @@ public class DefaultResourceCollectionTest {
 
         Assert.assertEquals("testbundle/", c.getBasePath());
         Assert.assertTrue(c.getPath().startsWith("testbundle-"));
-        
+
         String fullPath = c.getFullPath();
-        
+
         Assert.assertTrue(fullPath.startsWith("testbundle/"));
 
         Assert.assertEquals(-559262445, new String(c.getBytes()).hashCode());
@@ -60,10 +60,10 @@ public class DefaultResourceCollectionTest {
         Assert.assertTrue(c.getBundle().getConfig().configResource().getLastModified() <= compressedJs
                 .getLastModified());
         Assert.assertSame(compressedJs, c.getCompressedJs());
-        
-        Assert.assertEquals("body{background:black;color:white;font-size:14em}\n" + 
-        		"p{margin-top:14px 14px 14px 14px}\n" + 
-        		"a{color:red}",
+
+        Assert.assertEquals("body{background:black;color:white;font-size:14em}\n" +
+                "p{margin-top:14px 14px 14px 14px}\n" +
+                "a{color:red}",
                 new String(compressedCss.getBytes()));
         Assert.assertEquals("testbundle/", compressedCss.getBasePath());
         Assert.assertEquals(c.getPath() + ".css", compressedCss.getPath());
@@ -134,7 +134,7 @@ public class DefaultResourceCollectionTest {
 
     @Test
     public void testResourceInOtherBundle() throws Exception {
-        
+
         Bundle aggbundle = makeBundle("aggbundle", 1);
         Bundle ownerbundle = makeBundle("ownerbundle", 1);
 
@@ -142,11 +142,11 @@ public class DefaultResourceCollectionTest {
                 makeResource("some/resource.js", true),
         }, null) {
 
-               @Override
+            @Override
             public String getPath() {
-                   return "fake";
+                return "fake";
             }
-            
+
         };
 
         Assert.assertEquals("fake", c.getPath());
@@ -158,7 +158,7 @@ public class DefaultResourceCollectionTest {
         Assert.assertEquals("fake.css", c.getCompressedCss().getPath());
         Assert.assertEquals("ownerbundle/", c.getCompressedCss().getBasePath());
         Assert.assertEquals("ownerbundle/fake.css", c.getCompressedCss().getFullPath());
-        
+
     }
 
     private Resource makeResource(String path, final boolean forceModified) {

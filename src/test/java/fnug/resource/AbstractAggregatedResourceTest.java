@@ -36,13 +36,13 @@ public class AbstractAggregatedResourceTest {
 
     @Test
     public void testPath() {
-        
+
         TestAggResource r = new TestAggResource("foo.js", new Resource[] {}, new Resource[] {});
 
         Assert.assertEquals("dabundle/", r.getBasePath());
         Assert.assertEquals("foo.js", r.getPath());
         Assert.assertEquals("dabundle/foo.js", r.getFullPath());
-        
+
     }
 
     @Test
@@ -84,11 +84,11 @@ public class AbstractAggregatedResourceTest {
         Assert.assertEquals(4l, r1.getLastModified());
 
         Assert.assertEquals(0, checkModifiedCount);
-        
+
         Assert.assertFalse(r1.checkModified());
         Assert.assertFalse(r1.checkModified());
         Assert.assertFalse(r1.checkModified());
-        
+
         // 4 resources x 3 checks
         Assert.assertEquals(12, checkModifiedCount);
 
@@ -208,7 +208,7 @@ public class AbstractAggregatedResourceTest {
         }
 
     }
-    
+
     private Bundle makeBundle() {
         return new Bundle() {
 
