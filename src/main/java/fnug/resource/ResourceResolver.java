@@ -32,8 +32,7 @@ import fnug.util.IOUtils;
  */
 
 /**
- * Entry point for resource resolving. Comprised of a number of {@link Bundle}
- * that are created using {@link Config}.
+ * Entry point for resource resolving. Comprised of a number of {@link Bundle} that are created using {@link Config}.
  * 
  * @author Martin Algesten
  * 
@@ -50,15 +49,16 @@ public class ResourceResolver {
     }));
 
     private List<Resource> configResources;
-    private List<Config> configs = new LinkedList<Config>();
     private ConfigParser configParser = new JsonConfigParser();
-    private LinkedHashMap<String, Bundle> bundles = new LinkedHashMap<String, Bundle>();
+    private volatile List<Config> configs = null;
+    private volatile LinkedHashMap<String, Bundle> bundles = null;
+    private volatile boolean buildConfigs = true;
 
     private static ThreadLocal<ResourceResolver> instance = new ThreadLocal<ResourceResolver>();
 
     /**
-     * Must be called before using the {@link ResourceResolver} to bind this
-     * instance of the resolver to the currently executing thread.
+     * Must be called before using the {@link ResourceResolver} to bind this instance of the resolver to the currently
+     * executing thread.
      */
     public void setThreadLocal() {
         setThreadLocal(this);
@@ -88,9 +88,8 @@ public class ResourceResolver {
     }
 
     /**
-     * Constructs a resolver from the given list of resources pointing out
-     * config files. These files will be parsed into {@link Config} by a
-     * {@link ConfigParser}.
+     * Constructs a resolver from the given list of resources pointing out config files. These files will be parsed into
+     * {@link Config} by a {@link ConfigParser}.
      * 
      * @param configResources
      *            resources to configure from.
@@ -100,7 +99,7 @@ public class ResourceResolver {
             throw new IllegalArgumentException("Need at least one config resource");
         }
         this.configResources = configResources;
-        initConfigs();
+        ensureConfigs();
     }
 
     /**
@@ -117,23 +116,19 @@ public class ResourceResolver {
      */
     protected void setConfigs(Config... configs) {
         this.configs = Arrays.asList(configs);
-        initBundles();
+        this.bundles = readBundles(this.configs);
     }
 
     /**
-     * Resolves the give path. This first attempts to resolve using just the
-     * bundle names themselves. I.e. a path such as
-     * <code>/mybundle/myresource.js</code> would be matched against a bundle
-     * named <code>mybundle</code>.
+     * Resolves the give path. This first attempts to resolve using just the bundle names themselves. I.e. a path such
+     * as <code>/mybundle/myresource.js</code> would be matched against a bundle named <code>mybundle</code>.
      * 
      * @param path
      *            Path to match.
      * @return The resolved resource, or null if no bundle will resolve.
      */
     public Resource resolve(String path) {
-        if (configs.isEmpty()) {
-            initConfigs();
-        }
+        ensureConfigs();
         if (path == null || path.isEmpty()) {
             throw new IllegalArgumentException("Can't resolve empty path");
         }
@@ -171,53 +166,59 @@ public class ResourceResolver {
      * @return the bundle or null if not found.
      */
     public Bundle getBundle(String name) {
-        if (configs.isEmpty()) {
-            initConfigs();
-        }
+        ensureConfigs();
         return bundles.get(name);
     }
 
-    private void initConfigs() {
-        synchronized (this) {
-            if (configs.isEmpty()) {
+    private void ensureConfigs() {
+        if (buildConfigs) {
+            synchronized (this) {
+                if (buildConfigs) {
 
-                bundles.clear();
+                    LinkedList<Config> newConfigs = new LinkedList<Config>();
 
-                for (Resource configResource : configResources) {
+                    for (Resource configResource : configResources) {
 
-                    if (configResource.getLastModified() == -1) {
-                        LOG.warn("Config file missing: " + configResource.getFullPath());
-                        continue;
+                        if (configResource.getLastModified() == -1) {
+                            LOG.warn("Config file missing: " + configResource.getFullPath());
+                            continue;
+                        }
+
+                        LOG.info("Reading config: " + configResource.getFullPath());
+
+                        Config parsedConfig = configParser.parse(configResource);
+                        newConfigs.add(parsedConfig);
+
                     }
 
-                    LOG.info("Reading config: " + configResource.getFullPath());
+                    LinkedHashMap<String, Bundle> newBundles = readBundles(newConfigs);
 
-                    Config parsedConfig = configParser.parse(configResource);
-                    configs.add(parsedConfig);
+                    configs = newConfigs;
+                    bundles = newBundles;
+                    buildConfigs = false;
 
                 }
-
-                initBundles();
-
             }
         }
     }
 
-    private void initBundles() {
+    private LinkedHashMap<String, Bundle> readBundles(List<Config> configs) {
+        LinkedHashMap<String, Bundle> resuly = new LinkedHashMap<String, Bundle>();
         for (Config cfg : configs) {
             for (BundleConfig bcfg : cfg.getBundleConfigs()) {
                 if (BUNDLE_RESERVED_WORDS.contains(bcfg.name().toLowerCase())) {
                     throw new IllegalStateException("Bundle name '" + bcfg.name() + "' is a reserved word.");
                 }
-                if (bundles.containsKey(bcfg.name())) {
+                if (resuly.containsKey(bcfg.name())) {
                     throw new IllegalStateException("Duplicate definitions of bundle name '" + bcfg.name() + "' " +
                             "in '" + bundles.get(bcfg.name()).getConfig().configResource().getFullPath() + "' and '" +
                             bcfg.configResource().getFullPath() + "'");
                 }
                 Bundle bundle = new DefaultBundle(bcfg);
-                bundles.put(bundle.getName(), bundle);
+                resuly.put(bundle.getName(), bundle);
             }
         }
+        return resuly;
     }
 
     /**
@@ -226,16 +227,17 @@ public class ResourceResolver {
      * @return the bundle that are configured.
      */
     public List<Bundle> getBundles() {
+        ensureConfigs();
         return new LinkedList<Bundle>(bundles.values());
     }
 
     /**
-     * Returns the last modified date of all the configured bundles, see
-     * {@link Bundle#getLastModified()}.
+     * Returns the last modified date of all the configured bundles, see {@link Bundle#getLastModified()}.
      * 
      * @return the last modified date.
      */
     public long getLastModified() {
+        ensureConfigs();
         long mostRecent = -1;
         for (Bundle b : getBundles()) {
             mostRecent = Math.max(mostRecent, b.getLastModified());
@@ -244,8 +246,8 @@ public class ResourceResolver {
     }
 
     /**
-     * Checks if any of the config resources passed in the constructor is
-     * changed, in which case the resolver reinitialises all bundles.
+     * Checks if any of the config resources passed in the constructor is changed, in which case the resolver
+     * reinitialises all bundles.
      * 
      * @return true if any config was changed
      */
@@ -256,8 +258,8 @@ public class ResourceResolver {
         }
         if (changed) {
             synchronized (this) {
-                // this also triggers a drop of all bundles.
-                configs.clear();
+                // this makes next call to ensureConfigs stall and rebuild.
+                buildConfigs = true;
             }
         }
         return changed;
