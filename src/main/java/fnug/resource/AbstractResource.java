@@ -44,8 +44,9 @@ public abstract class AbstractResource implements Resource {
 
     private String basePath;
     private String path;
+    private volatile boolean doReadEntry = true;
     private byte[] bytes;
-    private volatile Long lastModified; // null = not read, -1 = not exist
+    private Long lastModified; // null = not read, -1 = not exist
 
     /**
      * Constructor setting necessary fields.
@@ -137,9 +138,9 @@ public abstract class AbstractResource implements Resource {
      * @return true if the entry was read.
      */
     protected final boolean ensureReadEntry() {
-        if (lastModified == null) {
+        if (doReadEntry) {
             synchronized (this) {
-                if (lastModified == null) {
+                if (doReadEntry) {
                     doReadEntry();
                 }
             }
@@ -161,6 +162,7 @@ public abstract class AbstractResource implements Resource {
         }
         bytes = e.bytes;
         lastModified = e.lastModified;
+        doReadEntry = false;
     }
 
     /**
@@ -186,8 +188,7 @@ public abstract class AbstractResource implements Resource {
         // 1 sec tolerance for windoze
         if (l == null || Math.abs(l - lastModified) > 1000) {
             synchronized (this) {
-                lastModified = null;
-                bytes = null;
+                doReadEntry = true;
             }
             return true;
         }

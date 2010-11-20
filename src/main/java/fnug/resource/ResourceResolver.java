@@ -50,7 +50,7 @@ public class ResourceResolver {
     }));
 
     private List<Resource> configResources;
-    private volatile List<Config> configs = new LinkedList<Config>();
+    private List<Config> configs = new LinkedList<Config>();
     private ConfigParser configParser = new JsonConfigParser();
     private LinkedHashMap<String, Bundle> bundles = new LinkedHashMap<String, Bundle>();
 
@@ -151,7 +151,7 @@ public class ResourceResolver {
             normalised = normalised.substring(1);
         }
         path = normalised;
-        
+
         if (path.endsWith(SEPARATOR)) {
             throw new IllegalArgumentException("Path must not end with '" + SEPARATOR + "'");
         }

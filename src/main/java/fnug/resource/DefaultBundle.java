@@ -53,7 +53,7 @@ public class DefaultBundle implements Bundle {
 
     private BundleConfig config;
 
-    private volatile HashMap<String, Resource> cache = new HashMap<String, Resource>();
+    private HashMap<String, Resource> cache = new HashMap<String, Resource>();
 
     private volatile ResourceCollection[] resourceCollections;
     private HashMap<String, ResourceCollection> previousResourceCollections = new HashMap<String, ResourceCollection>();
@@ -152,8 +152,7 @@ public class DefaultBundle implements Bundle {
             synchronized (this) {
                 result = resourceCollections;
                 if (result == null) {
-                    resourceCollections = buildResourceCollections();
-                    result = resourceCollections;
+                    resourceCollections = result = buildResourceCollections();
                 }
             }
         }
@@ -325,8 +324,7 @@ public class DefaultBundle implements Bundle {
             synchronized (this) {
                 result = jsLintWrapper;
                 if (result == null) {
-                    jsLintWrapper = new JSLintWrapper(getConfig().jsLintArgs());
-                    result = jsLintWrapper;
+                    jsLintWrapper = result = new JSLintWrapper(getConfig().jsLintArgs());
                 }
             }
         }

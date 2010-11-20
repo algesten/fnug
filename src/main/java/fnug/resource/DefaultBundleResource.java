@@ -70,9 +70,7 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle,
      */
     @Override
     public JSLintResult getJSLintResult() {
-        // can't use bundle.getJsLinter() == null since that actually builds a
-        // linter, which takes ages.
-        if (!isJs() || isEmpty(bundle.getConfig().jsLintArgs()) || getLastModified() == -1) {
+        if (!isJs() || bundle.getJsLinter() == null || getLastModified() == -1) {
             return null;
         }
         JSLintResult result = jsLintResult;
@@ -94,10 +92,6 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle,
             }
         }
         return result;
-    }
-
-    private boolean isEmpty(String[] arr) {
-        return arr == null || arr.length == 0;
     }
 
     /**

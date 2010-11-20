@@ -49,6 +49,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
 
     /**
      * Constructs setting all necessary bits.
+     * 
      * @param owner
      *            The bundle that generated this collection.
      * @param bundle
@@ -80,8 +81,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
 
     /**
      * The path of a resource collection is an md5 hash sum as hexadecimal of
-     * all the aggregates file names and last modified dates prepended with the bundle name.
-     * I.e. "bundle-ab39283bcd09237576"
+     * all the aggregates file names and last modified dates prepended with the
+     * bundle name. I.e. "bundle-ab39283bcd09237576"
      */
     @Override
     public String getPath() {
@@ -90,8 +91,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             synchronized (this) {
                 result = path;
                 if (result == null) {
-                    path = bundle.getName() + "-" + IOUtils.md5("" + hash(getAggregates()));
-                    result = path;
+                    path = result = bundle.getName() + "-" + IOUtils.md5("" + hash(getAggregates()));
                 }
             }
         }
@@ -173,9 +173,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             synchronized (this) {
                 result = compressedJs;
                 if (result == null) {
-                    compressedJs = new DefaultCompressedResource(getBundle(), getBasePath(), getPath() + ".js",
-                            getJs(), getLastModified(getExistingJsAggregates()), jsCompressor);
-                    result = compressedJs;
+                    compressedJs = result = new DefaultCompressedResource(getBundle(), getBasePath(),
+                            getPath() + ".js", getJs(), getLastModified(getExistingJsAggregates()), jsCompressor);
                 }
             }
         }
@@ -192,9 +191,8 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             synchronized (this) {
                 result = compressedCss;
                 if (compressedCss == null) {
-                    compressedCss = new DefaultCompressedResource(getBundle(), getBasePath(), getPath() + ".css",
-                            getCss(), getLastModified(getExistingCssAggregates()), cssCompressor);
-                    result = compressedCss;
+                    compressedCss = result = new DefaultCompressedResource(getBundle(), getBasePath(), getPath()
+                            + ".css", getCss(), getLastModified(getExistingCssAggregates()), cssCompressor);
                 }
             }
         }

@@ -104,8 +104,7 @@ public class DefaultCompressedResource extends AbstractResource implements HasBu
                     byte[] superBytes = super.getBytes();
                     LOG.info("Compiling " + compressor.name() + " of bundle '" + getBundle().getName()
                             + "' for basePath: " + getBasePath());
-                    compressedBytes = compressor.compress(superBytes);
-                    result = compressedBytes;
+                    compressedBytes = result = compressor.compress(superBytes);
                 }
             }
         }
