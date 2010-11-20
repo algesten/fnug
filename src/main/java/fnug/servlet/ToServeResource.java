@@ -1,5 +1,8 @@
 package fnug.servlet;
 
+import java.io.UnsupportedEncodingException;
+
+import fnug.ResourceServlet;
 import fnug.resource.DefaultCompressedResource;
 import fnug.resource.Resource;
 
@@ -21,15 +24,52 @@ import fnug.resource.Resource;
 
 public class ToServeResource implements ToServe {
 
+    private static final String MIME_TEXT = "text/";
     private Resource res;
+    private boolean isJsonP;
+    private byte[] bytes;
 
-    public ToServeResource(Resource res) {
+    public ToServeResource(Resource res, String jsonp) {
         this.res = res;
+        isJsonP = jsonp != null && isText(res.getContentType());
+
+        if (isJsonP) {
+            String result = jsonp + "('";
+            result += escape(res.getBytes());
+            result += "');";
+            try {
+                bytes = result.getBytes("utf-8");
+            } catch (UnsupportedEncodingException e) {
+                // dum de dum
+            }
+        } else {
+            bytes = res.getBytes();
+        }
+
+    }
+
+    private boolean isText(String contentType) {
+        return contentType != null && contentType.startsWith(MIME_TEXT);
+    }
+
+    private String escape(byte[] bytes) {
+
+        String s = null;
+
+        try {
+            s = new String(bytes, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            // so tiring...
+        }
+
+        s = s.replace("'", "\\'");
+
+        return s;
     }
 
     @Override
     public byte[] getBytes() {
-        return res.getBytes();
+        return bytes;
     }
 
     @Override
@@ -44,7 +84,7 @@ public class ToServeResource implements ToServe {
 
     @Override
     public String getContentType() {
-        return res.getContentType();
+        return isJsonP ? ResourceServlet.CONTENT_TYPE_JS : res.getContentType();
     }
 
 }

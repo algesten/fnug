@@ -138,14 +138,16 @@ public class ResourceServlet extends HttpServlet {
         // when the servlet container does a 304 not modified, Content-Type is
         // set to null, this often results in the Content-Type being set to a
         // default by the servlet container or a web server/cache in front of
-        // the servlet container. That deafult content type is wrong about the
-        // original resource (text/plain or similar). by always setting the
+        // the servlet container. Such deafult content type is often wrong about the
+        // original resource (text/plain or similar). By always setting the
         // "correct" content type, we ensure to not pollute caches etc.
-        // according to the HTTP spec, t's okay to set any meta header about the
-        // content as long as they are true for the original resource.
-        if (resp.getContentType() == null) {
+        // according to the HTTP spec, it's okay to set any meta header about the
+        // content in a 304 as long as they are true for the original resource.
+        if (resp.getContentType() == null && !resp.isCommitted()) {
             entry.setHeaders(resp);
         }
+        
+        reqEntry.remove();
 
     }
 
@@ -256,7 +258,7 @@ public class ResourceServlet extends HttpServlet {
                     if (r != null) {
                         r.checkModified();
                     }
-                    toServe = r == null || r.getLastModified() == -1 ? null : new ToServeResource(r);
+                    toServe = r == null || r.getLastModified() == -1 ? null : new ToServeResource(r, jsonp);
                 }
 
             } catch (IllegalArgumentException iae) {
