@@ -5,12 +5,11 @@
  * @requires fnug/jslintresult.js
  */
 
-fnug.populateDebug = function () {
+fnug.debugAll = false;
+fnug.debugDefault = false;
+fnug.debug = {};
 
-	var debugAll = false;
-	var debugDefault = false;
-	var debug = {};
-	var i;
+fnug.populateDebug = function () {
 
 	var query = window.location.search;
 	if (query) {
@@ -33,51 +32,55 @@ fnug.populateDebug = function () {
 				}
 			}
 			var values = value.split(',');
-			for (i = 0; i < values.length; i++) {
+			for (var i = 0; i < values.length; i++) {
 				if (values[i] === 'all') {
-					debugAll = true;
+					fnug.debugAll = true;
 				} else if (values[i] === 'true' || values[i] === '1') {
-					debugDefault = true;
+					fnug.debugDefault = true;
 				} else {
-					debug[values[i]] = true;
+					fnug.debug[values[i]] = true;
 				}
 			}
 		}
 	}
 
-	fnug.isDebug = function (bundleName) {
-		return debugAll || debugDefault && fnug.bundle === bundleName || debug[bundleName];
-	};
 
 };
 
+fnug.isDebug = function (bundleName, bundle) {
+	return fnug.debugAll || fnug.debugDefault && bundle && bundle.name === bundleName || fnug.debug[bundleName];
+};
+
 // keep double quotes since closure compiler changes ' to "
-fnug.bundles = "/***bundles***/";
+fnug.bundle = "/***bundles***/";
 
-if (window.JSON && JSON.parse) {
-	fnug.bundles = JSON.parse(fnug.bundles);
-} else {
-	/*jslint evil: true*/
-	fnug.bundles = eval(fnug.bundles);
-	/*jslint evil: false*/
-}
+fnug.loadBundle = function (bundle) {
 
-fnug.init = function () {
+	var webKit = navigator.userAgent.indexOf("AppleWebKit") > 0;
+	var sequential = webKit;
+	
+	if (window.JSON && JSON.parse) {
+		bundle = JSON.parse(bundle);
+	} else {
+		/*jslint evil: true*/
+		bundle = eval(bundle);
+		/*jslint evil: false*/
+	}
 
-	for (var i = 0; i < fnug.bundles.length; i++) {
-		var cur = fnug.bundles[i];
+	for (var i = 0; i < bundle.length; i++) {
+		var cur = bundle[i];
 		if (cur.bundle) {
 			fnug.bundle = cur.name;
 		}
-		if (fnug.isDebug(cur.name)) {
+		if (fnug.isDebug(cur.name, bundle)) {
 			for (var j = 0; j < cur.files.length; j++) {
 				var file = cur.files[j];
 				if (file.lint) {
-					fnug.showJSLintPopupButton();
+					fnug.showJSLintPopupButton(cur.name);
 				}
 				var path = file.path;
 				if (path.lastIndexOf('.js') === path.length - 3) {
-					fnug.loadScript(path);
+					fnug.loadScript(path, sequential);
 				} else if (path.lastIndexOf('.css') === path.length - 4) {
 					fnug.loadStyles(path);
 				}
@@ -87,12 +90,14 @@ fnug.init = function () {
 				fnug.loadStyles(cur.compCss);
 			}
 			if (cur.compJs) {
-				fnug.loadScript(cur.compJs);
+				fnug.loadScript(cur.compJs, sequential);
 			}
 		}
 	}
+	
+	fnug.startLoad();
 
 };
 
 fnug.populateDebug();
-fnug.init();
+fnug.loadBundle(fnug.bundle);

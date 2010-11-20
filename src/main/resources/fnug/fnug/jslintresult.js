@@ -1,5 +1,7 @@
 /*global fnug window*/
 
+fnug.jsLintBundles = [];
+
 fnug.openJSLintResultPopup = function (evt) {
 	if (evt) {
 		if (evt.stopPropagation) {
@@ -8,13 +10,19 @@ fnug.openJSLintResultPopup = function (evt) {
 			evt.cancelBubble = true;
 		}
 	}
-	var popup = window.open(null, 'fnugJSLintPopup',
+	var path = fnug.resourcePath('fnug/jslintresult.html#' + fnug.jsLintBundles.join(','));
+	var popup = window.open(path, 'fnugJSLintPopup',
 		'location=0,menubar=0,titlebar=0,toolbar=0,status=1,scrollbars=1,width=600');
-	fnug.populateJSLintResultPopup(popup);
 	popup.focus();
 };
 
-fnug.showJSLintPopupButton = function () {
+fnug.showJSLintPopupButton = function (bundleName) {
+
+	if (!fnug.showJSLintPopupButton[bundleName]) {
+		fnug.jsLintBundles.push(bundleName);
+		fnug.showJSLintPopupButton[bundleName] = true;
+	}
+	
 	var b = document.getElementById('fnugJSLintButton');
 	if (!b) {
 		fnug.loadStyles('fnug/jslintresult-button.css');
@@ -33,35 +41,4 @@ fnug.showJSLintPopupButton = function () {
 		    }, 10);
 		}
 	}
-};
-
-fnug.populateJSLintResultPopup = function (popup) {
-	var doc = popup.document;
-	doc.open();
-	doc.write('<html><head><title>JSLint Errors</title>');
-	doc.write('<link type="text/css" rel="stylesheet" href="');
-	doc.write(fnug.resourceUrl('fnug/jslintresult.css'));
-	doc.write('"/>');
-	doc.write('<body>');
-	var tmpDiv = document.createElement('div');
-	for (var i = 0; i < fnug.bundles.length; i++) {
-		var cur = fnug.bundles[i];
-		if (fnug.isDebug(cur.name)) {
-			for (var j = 0; j < cur.files.length; j++) {
-				var file = cur.files[j];
-				if (file.lint) {
-					doc.write('<div class="part">');
-					doc.write('<h1>');
-					doc.write(file.path);
-					doc.write('</h1>');
-					// escape html via innerHTML
-					tmpDiv.innerHTML = file.lint;
-					doc.write(tmpDiv.innerHTML);
-					doc.write('</div>');
-				}
-			}
-		}
-	}
-	doc.write('</body></html>');
-	doc.close();
 };
