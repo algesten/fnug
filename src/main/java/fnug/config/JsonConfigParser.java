@@ -179,7 +179,7 @@ public class JsonConfigParser implements ConfigParser {
                 files);
     }
 
-    private final static Pattern JSLINT_ARG_PAT = Pattern.compile("\\w+:\\s+\\w+");
+    private final static Pattern JSLINT_ARG_PAT = Pattern.compile("\\w+:\\s*\\w+");
 
     private String[] parseJsLintArgs(JsonNode node, String key, JsonLocation loc) {
 
