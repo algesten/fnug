@@ -33,13 +33,12 @@ public class JsonConfigParseException extends ConfigParseException {
 
     /**
      * Constructs with message and location.
-     * 
-     * @param msg
-     *            Message
      * @param loc
      *            Location
+     * @param msg
+     *            Message
      */
-    public JsonConfigParseException(String msg, JsonLocation loc) {
+    public JsonConfigParseException(JsonLocation loc, String msg) {
         this(msg, loc, null);
     }
 

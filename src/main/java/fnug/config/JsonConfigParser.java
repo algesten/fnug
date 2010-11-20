@@ -2,6 +2,7 @@ package fnug.config;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
@@ -51,6 +52,15 @@ public class JsonConfigParser implements ConfigParser {
     private static final String KEY_JS_COMPILER_ARGS = "jsCompilerArgs";
     private static final String KEY_FILES = "files";
     private static final String KEY_BASE_PATH = "basePath";
+    private static final HashSet<String> ALL_KEYS = new HashSet<String>();
+
+    static {
+        ALL_KEYS.add(KEY_JS_LINT);
+        ALL_KEYS.add(KEY_CHECK_MODIFIED);
+        ALL_KEYS.add(KEY_JS_COMPILER_ARGS);
+        ALL_KEYS.add(KEY_FILES);
+        ALL_KEYS.add(KEY_BASE_PATH);
+    }
 
     private static final String[] EMPTY_STRINGS = new String[] {};
 
@@ -134,6 +144,14 @@ public class JsonConfigParser implements ConfigParser {
     private DefaultBundleConfig buildConfig(JsonNode node, String name, JsonLocation loc, Resource configResource)
             throws JsonParseException, IOException {
 
+        Iterator<String> iter = node.getFieldNames();
+        while (iter.hasNext()) {
+            String s = iter.next();
+            if (!ALL_KEYS.contains(s)) {
+                throw new JsonConfigParseException(loc, "Unknown config key: " + s);
+            }
+        }
+
         String[] jsLintArgs = parseJsLintArgs(node, KEY_JS_LINT, loc);
         int checkModifiedInterval = parseInt(node, KEY_CHECK_MODIFIED, loc,
                 DefaultResource.DEFAULT_CHECK_MODIFIED_INTERVAL);
@@ -142,17 +160,17 @@ public class JsonConfigParser implements ConfigParser {
         String basePath = parseString(node, KEY_BASE_PATH, loc, configResource.getBasePath());
 
         if (!basePath.endsWith("/")) {
-            throw new JsonConfigParseException("'basePath' must end with slash: " + basePath, loc);
+            throw new JsonConfigParseException(loc, "'basePath' must end with slash: " + basePath);
         } else {
             URL url = getClass().getResource(basePath);
             if (url == null) {
-                throw new JsonConfigParseException("No directory found for 'basePath': " + basePath, loc);
+                throw new JsonConfigParseException(loc, "No directory found for 'basePath': " + basePath);
             }
         }
 
         for (String file : files) {
             if (file.startsWith("/")) {
-                throw new JsonConfigParseException("File path must not start with slash: " + file, loc);
+                throw new JsonConfigParseException(loc, "File path must not start with slash: " + file);
             }
         }
 
@@ -189,7 +207,7 @@ public class JsonConfigParser implements ConfigParser {
             return def;
         }
         if (!m.isTextual()) {
-            throw new JsonConfigParseException("Key '" + key + "' is not an string value", loc);
+            throw new JsonConfigParseException(loc, "Key '" + key + "' is not an string value");
         }
 
         return m.getValueAsText();
@@ -207,7 +225,7 @@ public class JsonConfigParser implements ConfigParser {
             return def;
         }
         if (!m.isInt()) {
-            throw new JsonConfigParseException("Key '" + key + "' is not an integer value", loc);
+            throw new JsonConfigParseException(loc, "Key '" + key + "' is not an integer value");
         }
 
         return m.getIntValue();
@@ -218,7 +236,7 @@ public class JsonConfigParser implements ConfigParser {
 
         if (!node.has(key)) {
             if (def == null) {
-                throw new JsonConfigParseException("Missing key '" + key + "'", loc);
+                throw new JsonConfigParseException(loc, "Missing key '" + key + "'");
             } else {
                 return def;
             }
@@ -229,7 +247,7 @@ public class JsonConfigParser implements ConfigParser {
             return def;
         }
         if (!m.isArray()) {
-            throw new JsonConfigParseException("Key '" + key + "' is not array", loc);
+            throw new JsonConfigParseException(loc, "Key '" + key + "' is not array");
         }
         String[] vals = new String[m.size()];
         int i = 0;
