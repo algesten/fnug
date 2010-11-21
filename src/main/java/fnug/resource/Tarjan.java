@@ -3,6 +3,8 @@ package fnug.resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,11 +44,19 @@ public class Tarjan {
 
     private final static Logger LOG = LoggerFactory.getLogger(Tarjan.class);
 
-    private HashMap<String, Node> nodes = new HashMap<String, Node>();
+    private HashMap<String, Node> resourceNodes = new HashMap<String, Node>();
+    private HashMap<String, Node> bundleNodes = new HashMap<String, Node>();
 
-    private RootNode root;
+    private LinkedHashMap<String, LinkedHashSet<String>> bundleDeps = new LinkedHashMap<String, LinkedHashSet<String>>();
 
     private boolean checkModified;
+
+    private int index = 0;
+    private ArrayList<Node> stack = new ArrayList<Node>();
+
+    private ArrayList<ArrayList<Node>> resourceResult = new ArrayList<ArrayList<Node>>();
+
+    private ArrayList<ArrayList<Node>> bundleResult = new ArrayList<ArrayList<Node>>();
 
     /**
      * Performs a tarjan's calculation of the given resources. These resources are exactly those configured in
@@ -58,9 +68,17 @@ public class Tarjan {
      * @param checkModified
      */
     public Tarjan(List<Resource> resources, boolean checkModified) {
-        root = new RootNode(resources);
+
         this.checkModified = checkModified;
-        tarjan(root);
+
+        ResourceRootNode resourceRoot = new ResourceRootNode(resources);
+        tarjan(resourceRoot, resourceResult);
+
+        index = 0;
+        stack.clear();
+        BundleRootNode bundleRoot = new BundleRootNode();
+        tarjan(bundleRoot, bundleResult);
+
     }
 
     /**
@@ -78,34 +96,65 @@ public class Tarjan {
      * 
      * @return result of the algorithm.
      */
-    public List<List<Resource>> getResult() {
-        List<List<Resource>> r = new LinkedList<List<Resource>>();
-        for (List<Node> n : result) {
-            List<Resource> inner = new LinkedList<Resource>();
-            for (Node node : n) {
-                if (node instanceof ResourceNode) {
-                    inner.add(((ResourceNode) node).getResource());
+    public List<Resource> getResult() {
+
+        List<Resource> result = new LinkedList<Resource>();
+
+        for (List<Node> bl : bundleResult) {
+
+            if (bl.size() > 1) {
+                StringBuilder bld = new StringBuilder();
+                for (Node node : bl) {
+                    bld.append(node.getPath() + " -> ");
                 }
+                bld.append(bl.get(0).getPath());
+                throw new IllegalStateException("Found cyclic bundle dependency: " + bld.toString());
             }
-            if (!inner.isEmpty()) {
-                r.add(inner);
+
+            Node bundleNode = bl.get(0);
+            if (bundleNode instanceof BundleRootNode) {
+                continue;
+            }
+
+            String bundleName = bundleNode.getPath();
+
+            for (List<Node> rl : resourceResult) {
+
+                if (rl.size() > 1) {
+                    StringBuilder bld = new StringBuilder();
+                    for (Node node : rl) {
+                        bld.append(node.getPath() + " -> ");
+                    }
+                    bld.append(rl.get(0).getPath());
+                    throw new IllegalStateException("Found cyclic dependency: " + bld.toString());
+                }
+
+                Node node = rl.get(0);
+
+                if (node instanceof ResourceRootNode) {
+                    continue;
+                }
+
+                Resource r = ((ResourceNode) node).getResource();
+                Bundle b = ((HasBundle) r).getBundle();
+                if (b.getName().equals(bundleName)) {
+                    result.add(r);
+                }
+
             }
         }
-        return r;
+
+        return result;
     }
 
-    private int index = 0;
-    private ArrayList<Node> stack = new ArrayList<Node>();
-    private ArrayList<ArrayList<Node>> result = new ArrayList<ArrayList<Node>>();
-
-    private ArrayList<ArrayList<Node>> tarjan(Node v) {
+    private void tarjan(Node v, ArrayList<ArrayList<Node>> result) {
         v.setIndex(index);
         v.setLowLink(index);
         index++;
         stack.add(0, v);
         for (Node n : v.getAdjacent()) {
             if (n.getIndex() == -1) {
-                tarjan(n);
+                tarjan(n, result);
                 v.setLowLink(Math.min(v.getLowLink(), n.getLowLink()));
             } else if (stack.contains(n)) {
                 v.setLowLink(Math.min(v.getLowLink(), n.getIndex()));
@@ -120,7 +169,6 @@ public class Tarjan {
             } while (n != v);
             result.add(component);
         }
-        return result;
     }
 
     private abstract class Node {
@@ -143,6 +191,12 @@ public class Tarjan {
         public void setLowLink(int lowLink) {
             this.lowLink = lowLink;
         }
+        
+        // for testing
+        @Override
+        public String toString() {
+            return getPath();
+        }
 
         public abstract List<Node> getAdjacent();
 
@@ -150,11 +204,11 @@ public class Tarjan {
 
     }
 
-    private class RootNode extends Node {
+    private class ResourceRootNode extends Node {
 
         List<Resource> resources;
 
-        RootNode(List<Resource> resources) {
+        ResourceRootNode(List<Resource> resources) {
             this.resources = resources;
         }
 
@@ -206,6 +260,16 @@ public class Tarjan {
                         LOG.warn("Ignoring dependent aggregated resource: " + dep);
                     } else {
                         adjacent.add(getNodeForResource(res));
+
+                        // this is where we add discovered bundle dependencies.
+                        if (resource instanceof HasBundle && res instanceof HasBundle) {
+                            Bundle b1 = ((HasBundle) resource).getBundle();
+                            Bundle b2 = ((HasBundle) res).getBundle();
+                            if (!b1.getName().equals(b2.getName())) {
+                                bundleDeps.get(b1.getName()).add(b2.getName());
+                            }
+                        }
+
                     }
                 }
             }
@@ -219,12 +283,71 @@ public class Tarjan {
 
     }
 
+    private class BundleRootNode extends Node {
+
+        @Override
+        public List<Node> getAdjacent() {
+            LinkedList<Node> adjacent = new LinkedList<Node>();
+            for (String bundleName : bundleDeps.keySet()) {
+                adjacent.add(getNodeForBundle(bundleName));
+            }
+            return adjacent;
+        }
+
+        @Override
+        public String getPath() {
+            return "$$$ROOT$$$";
+        }
+
+    }
+
+    private class BundleNode extends Node {
+
+        private String bundleName;
+
+        public BundleNode(String bundleName) {
+            this.bundleName = bundleName;
+        }
+
+        @Override
+        public List<Node> getAdjacent() {
+            LinkedList<Node> adjacent = new LinkedList<Node>();
+            for (String dep : bundleDeps.get(bundleName)) {
+                adjacent.add(getNodeForBundle(dep));
+            }
+            return adjacent;
+        }
+
+        @Override
+        public String getPath() {
+            return bundleName;
+        }
+
+    }
+
     private Node getNodeForResource(Resource res) {
-        Node n = nodes.get(res.getPath());
+        Node n = resourceNodes.get(res.getPath());
         if (n == null) {
             n = new ResourceNode(res);
-            nodes.put(res.getPath(), n);
+            resourceNodes.put(res.getPath(), n);
+            if (!(res instanceof HasBundle)) {
+                throw new IllegalStateException("Resource not instanceof HasBundle: " + res.getFullPath());
+            }
+            Bundle b = ((HasBundle) res).getBundle();
+            if (!bundleDeps.containsKey(b.getName())) {
+                bundleDeps.put(b.getName(), new LinkedHashSet<String>());
+            }
         }
         return n;
     }
+
+    private Node getNodeForBundle(String bundleName) {
+        Node n = bundleNodes.get(bundleName);
+        if (n == null) {
+            n = new BundleNode(bundleName);
+            bundleNodes.put(bundleName, n);
+        }
+        return n;
+    }
+
 }

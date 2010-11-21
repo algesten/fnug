@@ -181,22 +181,11 @@ public class DefaultBundle implements Bundle {
 
         Tarjan tarjan = new Tarjan(l, checkModifiedOnBuild);
 
-        List<List<Resource>> order = tarjan.getResult();
+        List<Resource> order = tarjan.getResult();
 
         LinkedHashMap<Bundle, List<Resource>> bundleResources = new LinkedHashMap<Bundle, List<Resource>>();
 
-        for (List<Resource> cur : order) {
-
-            if (cur.size() > 1) {
-                StringBuilder bld = new StringBuilder();
-                for (Resource r : cur) {
-                    bld.append(r.getPath() + " -> ");
-                }
-                bld.append(cur.get(0));
-                throw new IllegalStateException("Found cyclic dependency: " + bld.toString());
-            }
-
-            Resource r = cur.get(0);
+        for (Resource r : order) {
 
             if (!(r instanceof HasBundle)) {
                 throw new IllegalStateException("Can only resolve dependencies resources implementing HasBundle");
