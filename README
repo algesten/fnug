@@ -1,11 +1,15 @@
 Serlvet that does:
 
-        1. JavaScript/CSS resource dependency management using JSDoc
-           @requires tags.
+        1. JavaScript/CSS resource transitive dependency resolving
+           using JSDoc @requires tags.
 
-        2. On-the-fly compressed deploy/debug mode.
+        2. On-the-fly compressed deploy/debug mode using Google
+           Closure Compiler.
         
         3. JSLint of JavaScript.
+
+        4. Concept of "bundles" that allows for javascript packaging
+           inside .jar-files.
 
 This servlet is aimed at projects doing hand written JavaScript
 specifically using tools like FireBug.
