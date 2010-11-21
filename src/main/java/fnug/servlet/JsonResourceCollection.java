@@ -32,8 +32,7 @@ import fnug.resource.ResourceCollection;
 @JsonPropertyOrder({ "name", "compJs", "compCss", "files" })
 @JsonSerialize(include = Inclusion.NON_NULL)
 public class JsonResourceCollection {
-    @JsonProperty
-    Boolean bundle;
+
     @JsonProperty
     String name;
     @JsonProperty
@@ -43,11 +42,7 @@ public class JsonResourceCollection {
     @JsonProperty
     LinkedList<JsonResourceCollectionFile> files = new LinkedList<JsonResourceCollectionFile>();
 
-    public JsonResourceCollection(ResourceCollection c, boolean bundle) {
-
-        if (bundle) {
-            this.bundle = bundle;
-        }
+    public JsonResourceCollection(ResourceCollection c) {
 
         name = c.getBundle().getName();
         if (c.getCompressedJs().getLastModified() > 0) {

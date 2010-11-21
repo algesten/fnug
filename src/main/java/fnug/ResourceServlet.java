@@ -146,7 +146,7 @@ public class ResourceServlet extends HttpServlet {
         if (resp.getContentType() == null && !resp.isCommitted()) {
             entry.setHeaders(resp);
         }
-        
+
         reqEntry.remove();
 
     }
@@ -168,6 +168,8 @@ public class ResourceServlet extends HttpServlet {
 
     private class RequestEntry {
 
+        private static final String SUFFIX_JS = "js";
+        private static final String SUFFIX_ADD_JS = "add.js";
         private static final String CHAR_SLASH = "/";
         private static final String CHAR_DOT = ".";
         private String servletPath;
@@ -213,7 +215,10 @@ public class ResourceServlet extends HttpServlet {
             inpath = normalizePath(inpath);
             int lastDot = inpath.lastIndexOf(CHAR_DOT);
             path = inpath;
-            if (lastDot > inpath.lastIndexOf(CHAR_SLASH)) {
+            if (inpath.endsWith(SUFFIX_ADD_JS)) {
+                file = inpath.substring(0,inpath.length() - SUFFIX_ADD_JS.length() - 1);
+                suffix = SUFFIX_ADD_JS;
+            } else if (lastDot > inpath.lastIndexOf(CHAR_SLASH)) {
                 file = inpath.substring(0, lastDot);
                 suffix = inpath.substring(lastDot + 1);
             } else {
@@ -246,8 +251,10 @@ public class ResourceServlet extends HttpServlet {
                         bundle.checkModified();
                         if (suffix.equals("")) {
                             toServe = new ToServeBundle(mapper, bundle, jsonp);
-                        } else if (suffix.equals("js")) {
-                            toServe = new Bootstrap(mapper, servletPath, bundle);
+                        } else if (suffix.equals(SUFFIX_ADD_JS)) {
+                            toServe = new Bootstrap(mapper, servletPath, bundle, true);
+                        } else if (suffix.equals(SUFFIX_JS)) {
+                            toServe = new Bootstrap(mapper, servletPath, bundle, false);
                         } else {
                             toServe = null;
                         }

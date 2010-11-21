@@ -37,7 +37,7 @@ public class JsonBundle {
 
         ResourceCollection[] tmp = bundle.getResourceCollections();
         for (ResourceCollection c : tmp) {
-            colls.add(new JsonResourceCollection(c, c.getBundle() == bundle));
+            colls.add(new JsonResourceCollection(c));
         }
 
     }

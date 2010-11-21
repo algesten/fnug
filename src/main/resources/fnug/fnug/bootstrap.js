@@ -60,19 +60,18 @@ fnug.loadBundle = function (bundle) {
 	var webKit = navigator.userAgent.indexOf("AppleWebKit") > 0;
 	var sequential = webKit;
 	
-	if (window.JSON && JSON.parse) {
-		bundle = JSON.parse(bundle);
-	} else {
-		/*jslint evil: true*/
-		bundle = eval(bundle);
-		/*jslint evil: false*/
+	if (typeof bundle === 'string') {
+		if (window.JSON && JSON.parse) {
+			bundle = JSON.parse(bundle);
+		} else {
+			/*jslint evil: true*/
+			bundle = eval(bundle);
+			/*jslint evil: false*/
+		}
 	}
 
-	for (var i = 0; i < bundle.length; i++) {
-		var cur = bundle[i];
-		if (cur.bundle) {
-			fnug.bundle = cur.name;
-		}
+	for (var i = 0; i < bundle.colls.length; i++) {
+		var cur = bundle.colls[i];
 		if (fnug.isDebug(cur.name, bundle)) {
 			for (var j = 0; j < cur.files.length; j++) {
 				var file = cur.files[j];
