@@ -96,7 +96,7 @@ public class Bootstrap implements ToServe {
         while (end + length < s.length()) {
             start = end;
             end = start + length;
-            while (s.charAt(end) == '\\')
+            while (s.charAt(end) == '\\' || end > 0 && s.charAt(end-1) == '\\')
                 end--;
             result += s.substring(start, end) + "\"+\n\"";
         }
