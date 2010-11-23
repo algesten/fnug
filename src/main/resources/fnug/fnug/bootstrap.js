@@ -58,15 +58,18 @@ fnug.bundle = "/***bundles***/";
 fnug.loadBundle = function (bundle) {
 
 	var webKit = navigator.userAgent.indexOf("AppleWebKit") > 0;
-	var sequential = webKit;
+	var ie = navigator.userAgent.indexOf("MSIE") > 0
+	var sequential = webKit || ie;
 	
 	if (typeof bundle === 'string') {
 		if (window.JSON && JSON.parse) {
 			bundle = JSON.parse(bundle);
 		} else {
 			/*jslint evil: true*/
-			bundle = eval(bundle);
+			eval('fnug.eval = '+bundle + ';');
 			/*jslint evil: false*/
+			bundle = fnug.eval;
+			delete fnug.eval;
 		}
 	}
 

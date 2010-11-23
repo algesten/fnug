@@ -10,4 +10,9 @@
 	z-index: 9999;
 	bottom: 1px;
 	left: 1px;
+    *position: absolute;
+    *top: 1px;
+    *bottom: auto;
+    *right: 1px;
+    *left: auto;
 }

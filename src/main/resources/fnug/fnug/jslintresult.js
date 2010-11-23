@@ -23,13 +23,13 @@ fnug.showJSLintPopupButton = function (bundleName) {
 		fnug.showJSLintPopupButton[bundleName] = true;
 	}
 	
-	var b = document.getElementById('fnugJSLintButton');
-	if (!b) {
+	if (!fnug.jslintbutton) {
 		fnug.loadStyles('fnug/jslintresult-button.css');
-		b = document.createElement('div');
+		var b = document.createElement('div');
 		b.id = 'fnugJSLintButton';
 		b.innerHTML = 'JSLint Errors';
-		b.addEventListener('click', fnug.openJSLintResultPopup, false);
+		b.onclick = fnug.openJSLintResultPopup;
+		fnug.jslintbutton = b;
 		if (document.body) {
 	        document.body.appendChild(b);
 		} else {
