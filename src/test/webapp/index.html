@@ -1,8 +1,27 @@
 <html>
 	<head>
 		<title>Test Page</title>
-	</head>
-	<body>
+		<script type="text/javascript">
+			if (!window.console) {
+				window.console = {
+					log: function (txt) {
+						alert(txt);
+					},
+					debug: function (txt) {
+						alert(txt);
+					}
+				};
+			}
+			console.log('head start');
+		</script>
 		<script type="text/javascript" src="rs/test.js"></script>
+		<script type="text/javascript">
+			console.log('head end');
+		</script>
+	</head>
+	<body onload="console.log('onload')">
+		<script type="text/javascript">
+			console.log('body');
+		</script>
 	</body>
 </html>
