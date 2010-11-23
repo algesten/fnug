@@ -95,8 +95,6 @@ fnug.loadBundle = function (bundle) {
 		}
 	}
 	
-	fnug.startLoad();
-
 };
 
 fnug.populateDebug();
