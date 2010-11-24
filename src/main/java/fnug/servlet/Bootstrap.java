@@ -54,7 +54,6 @@ public class Bootstrap implements ToServe {
         } else {
             // no strange utf-8 chars in bootstrap
             bootstrapJs = new String(fnug.getResourceCollections()[0].getCompressedJs().getBytes());
-            bootstrapJs = new String(fnug.getResourceCollections()[0].getJs());
         }
 
         this.lastModified = Math.max(bundle.getLastModified(), fnug.getLastModified());
