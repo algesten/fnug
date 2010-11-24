@@ -1,4 +1,4 @@
-Serlvet that does:
+Servlet that does:
 
         1. JavaScript/CSS resource transitive dependency resolving
            using JSDoc @requires tags.
