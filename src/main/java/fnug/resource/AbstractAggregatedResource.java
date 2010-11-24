@@ -80,13 +80,21 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
      */
     @Override
     public boolean checkModified() {
+        
+        if (ResourceResolver.getInstance() != null &&
+                ResourceResolver.getInstance().getGlobalConfig().isNoModify()) {
+            return false;
+        }
+
         for (Resource res : getAggregates()) {
             res.checkModified();
         }
         for (Resource res : getDependencies()) {
             res.checkModified();
         }
+    
         return super.checkModified();
+
     }
 
     /**

@@ -177,6 +177,12 @@ public abstract class AbstractResource implements Resource {
      */
     @Override
     public boolean checkModified() {
+
+        if (ResourceResolver.getInstance() != null &&
+                ResourceResolver.getInstance().getGlobalConfig().isNoModify()) {
+            return false;
+        }
+
         // null means it's not read.
         if (lastModified == null) {
             return ensureReadEntry();
@@ -191,6 +197,7 @@ public abstract class AbstractResource implements Resource {
             return true;
         }
         return false;
+
     }
 
     /**

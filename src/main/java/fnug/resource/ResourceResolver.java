@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import fnug.config.BundleConfig;
 import fnug.config.Config;
 import fnug.config.ConfigParser;
+import fnug.config.GlobalConfig;
 import fnug.config.JsonConfigParser;
 import fnug.util.IOUtils;
 
@@ -48,6 +49,7 @@ public class ResourceResolver {
             "true"
     }));
 
+    private GlobalConfig globalConfig = GlobalConfig.createFromEnv();
     private List<Resource> configResources;
     private ConfigParser configParser = new JsonConfigParser();
     private volatile List<Config> configs = null;
@@ -175,7 +177,7 @@ public class ResourceResolver {
         if (buildConfigs) {
             synchronized (this) {
                 if (buildConfigs) {
-
+                    
                     LinkedList<Config> newConfigs = new LinkedList<Config>();
 
                     for (Resource configResource : configResources) {
@@ -198,6 +200,19 @@ public class ResourceResolver {
                     bundles = newBundles;
                     buildConfigs = false;
 
+                    if (globalConfig.isPrecompile()) {
+
+                        setThreadLocal();
+                        
+                        for (Bundle bundle : bundles.values()) {
+                            for (ResourceCollection coll : bundle.getResourceCollections()) {
+                                coll.getCompressedCss().getBytes();
+                                coll.getCompressedJs().getBytes();
+                            }
+                        }
+
+                    }
+                    
                 }
             }
         }
@@ -215,8 +230,11 @@ public class ResourceResolver {
                             "in '" + result.get(bcfg.name()).getConfig().configResource().getFullPath() + "' and '" +
                             bcfg.configResource().getFullPath() + "'");
                 }
+            
                 Bundle bundle = new DefaultBundle(bcfg);
+                
                 result.put(bundle.getName(), bundle);
+
             }
         }
         return result;
@@ -253,6 +271,11 @@ public class ResourceResolver {
      * @return true if any config was changed
      */
     public boolean checkModified() {
+        
+        if (globalConfig.isNoModify()) {
+            return false;
+        }
+        
         boolean changed = false;
         for (Resource r : configResources) {
             changed = r.checkModified() || changed;
@@ -264,6 +287,16 @@ public class ResourceResolver {
             }
         }
         return changed;
+
+    }
+
+    /**
+     * Returns the global config object.
+     * 
+     * @return global config
+     */
+    public GlobalConfig getGlobalConfig() {
+        return globalConfig;
     }
 
 }
