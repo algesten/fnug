@@ -29,8 +29,8 @@ public abstract class AbstractAggregatedResource extends AbstractResource implem
     /**
      * Constructs setting necessary fields.
      * 
-     * @param basePath
-     *            The base path of the resource. See {@link #getBasePath()}.
+     * @param owner
+     *            The bundle owning this aggregated resource.
      * @param path
      *            The path of the resource. See {@link #getPath()}.
      */
