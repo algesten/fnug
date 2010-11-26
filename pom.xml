@@ -6,7 +6,7 @@
 	<groupId>foodev</groupId>
 	<artifactId>fnug</artifactId>
 	<name>fnug - Javascript Resource Bundler</name>
-	<version>0.24</version>
+	<version>0.25</version>
 
 	<properties>
 		<project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>foodev</groupId>
 			<artifactId>googccwrap</artifactId>
-			<version>20100917-0.2</version>
+			<version>20100917-0.3</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
