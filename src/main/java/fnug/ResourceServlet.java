@@ -72,6 +72,8 @@ public class ResourceServlet extends HttpServlet {
 
     private static final String PATH_IE_CSS = "/ie.css";
 
+    private static final String CHAR_SLASH = "/";
+
     private static ThreadLocal<RequestEntry> reqEntry = new ThreadLocal<RequestEntry>();
 
     private ResourceResolver resolver;
@@ -120,10 +122,12 @@ public class ResourceServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String servletPath = req.getServletPath();
+        String prefix = req.getContextPath() + req.getServletPath();
+        prefix = prefix.endsWith(CHAR_SLASH) ?
+                prefix.substring(0, prefix.length() - 1) : prefix;
 
         if (req.getPathInfo().equals(PATH_IE_CSS)) {
-            serviceIeIncludeCss(servletPath, req, resp);
+            serviceIeIncludeCss(prefix, req, resp);
             return;
         }
 
@@ -140,7 +144,7 @@ public class ResourceServlet extends HttpServlet {
             jsonp = null;
         }
 
-        RequestEntry entry = new RequestEntry(servletPath, path, gzip, jsonp);
+        RequestEntry entry = new RequestEntry(prefix, path, gzip, jsonp);
         reqEntry.set(entry);
 
         super.service(req, resp);
@@ -161,7 +165,7 @@ public class ResourceServlet extends HttpServlet {
 
     }
 
-    private void serviceIeIncludeCss(String servletPath, HttpServletRequest req, HttpServletResponse resp)
+    private void serviceIeIncludeCss(String prefix, HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
         String f = req.getParameter("f");
@@ -184,7 +188,7 @@ public class ResourceServlet extends HttpServlet {
             Resource r = resolver.resolve(file);
 
             if (r != null && r.isCss() && r.getLastModified() > 0) {
-                writer.println("@import url(" + servletPath + "/" + file + ");");
+                writer.println("@import url(" + prefix + "/" + file + ");");
             }
 
         }
@@ -210,9 +214,8 @@ public class ResourceServlet extends HttpServlet {
 
         private static final String SUFFIX_JS = "js";
         private static final String SUFFIX_ADD_JS = "add.js";
-        private static final String CHAR_SLASH = "/";
         private static final String CHAR_DOT = ".";
-        private String servletPath;
+        private String prefix;
 
         /**
          * Full path: /some/path/to/file.js
@@ -234,10 +237,9 @@ public class ResourceServlet extends HttpServlet {
         private String jsonp;
         private boolean gzip;
 
-        public RequestEntry(String servletPath, String path, boolean gzip, String jsonp) {
+        public RequestEntry(String prefix, String path, boolean gzip, String jsonp) {
 
-            this.servletPath = servletPath.endsWith(CHAR_SLASH) ? servletPath.substring(0, servletPath.length() - 1)
-                    : servletPath;
+            this.prefix = prefix;
             this.gzip = gzip;
             this.jsonp = jsonp;
 
@@ -292,9 +294,9 @@ public class ResourceServlet extends HttpServlet {
                         if (suffix.equals("")) {
                             toServe = new ToServeBundle(mapper, bundle, jsonp);
                         } else if (suffix.equals(SUFFIX_ADD_JS)) {
-                            toServe = new Bootstrap(mapper, servletPath, bundle, true);
+                            toServe = new Bootstrap(mapper, prefix, bundle, true);
                         } else if (suffix.equals(SUFFIX_JS)) {
-                            toServe = new Bootstrap(mapper, servletPath, bundle, false);
+                            toServe = new Bootstrap(mapper, prefix, bundle, false);
                         } else {
                             toServe = null;
                         }
