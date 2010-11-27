@@ -1,6 +1,6 @@
 Servlet that does:
 
-        1. JavaScript/CSS resource transitive dependency resolving
+        1. JavaScript/CSS resource transitive dependency resolution
            using JSDoc @requires tags.
 
         2. On-the-fly compressed deploy/debug mode using Google
@@ -13,4 +13,6 @@ Servlet that does:
            inside .jar-files.
 
 This servlet is aimed at projects doing hand written JavaScript
-specifically using tools like FireBug.
+specifically using tools like FireBug. Checkout the concepts page
+
+https://github.com/algesten/fnug/wiki/Concepts
