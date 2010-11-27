@@ -6,7 +6,8 @@ Servlet that does:
         2. On-the-fly compressed deploy/debug mode using Google
            Closure Compiler.
         
-        3. JSLint of JavaScript using Douglas Crockford's excellent tool.
+        3. JSLint of JavaScript using Douglas Crockford's excellent
+           tool via jslint4java.
 
         4. Concept of "bundles" that allows for javascript packaging
            inside .jar-files.
