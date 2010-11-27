@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.zip.GZIPOutputStream;
 
@@ -69,6 +70,8 @@ public class ResourceServlet extends HttpServlet {
 
     private static final long ONE_YEAR = 365l * 24l * 60l * 60l * 1000l;
 
+    private static final String PATH_IE_CSS = "/ie.css";
+
     private static ThreadLocal<RequestEntry> reqEntry = new ThreadLocal<RequestEntry>();
 
     private ResourceResolver resolver;
@@ -117,6 +120,13 @@ public class ResourceServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        String servletPath = req.getServletPath();
+
+        if (req.getPathInfo().equals(PATH_IE_CSS)) {
+            serviceIeIncludeCss(servletPath, req, resp);
+            return;
+        }
+
         resolver.setThreadLocal();
         resolver.checkModified();
 
@@ -130,7 +140,7 @@ public class ResourceServlet extends HttpServlet {
             jsonp = null;
         }
 
-        RequestEntry entry = new RequestEntry(req.getServletPath(), path, gzip, jsonp);
+        RequestEntry entry = new RequestEntry(servletPath, path, gzip, jsonp);
         reqEntry.set(entry);
 
         super.service(req, resp);
@@ -148,6 +158,36 @@ public class ResourceServlet extends HttpServlet {
         }
 
         reqEntry.remove();
+
+    }
+
+    private void serviceIeIncludeCss(String servletPath, HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+
+        String f = req.getParameter("f");
+
+        if (f == null || f.equals("")) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing req param 'f'");
+            return;
+        }
+
+        String[] files = f.split(",");
+
+        resp.setContentType("text/css");
+        resp.setCharacterEncoding("utf-8");
+        PrintWriter writer = resp.getWriter();
+
+        for (String file : files) {
+
+            // this also serves as a protection against injecting strange
+            // stuff into the resulting style sheet.
+            Resource r = resolver.resolve(file);
+
+            if (r != null && r.isCss() && r.getLastModified() > 0) {
+                writer.println("@import url(" + servletPath + "/" + file + ");");
+            }
+
+        }
 
     }
 
@@ -216,7 +256,7 @@ public class ResourceServlet extends HttpServlet {
             int lastDot = inpath.lastIndexOf(CHAR_DOT);
             path = inpath;
             if (inpath.endsWith(SUFFIX_ADD_JS)) {
-                file = inpath.substring(0,inpath.length() - SUFFIX_ADD_JS.length() - 1);
+                file = inpath.substring(0, inpath.length() - SUFFIX_ADD_JS.length() - 1);
                 suffix = SUFFIX_ADD_JS;
             } else if (lastDot > inpath.lastIndexOf(CHAR_SLASH)) {
                 file = inpath.substring(0, lastDot);

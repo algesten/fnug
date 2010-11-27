@@ -58,18 +58,20 @@ fnug.bundle = "/***bundles***/";
 fnug.loadBundle = function (bundle) {
 
 	var webKit = navigator.userAgent.indexOf("AppleWebKit") > 0;
-	var ie = navigator.userAgent.indexOf("MSIE") > 0
+	var ie = navigator.userAgent.indexOf("MSIE") > 0;
 	var sequential = webKit || ie;
+
+	var iecss = ie ? [] : null;
 	
 	if (typeof bundle === 'string') {
 		if (window.JSON && JSON.parse) {
 			bundle = JSON.parse(bundle);
 		} else {
 			/*jslint evil: true*/
-			eval('fnug.eval = '+bundle + ';');
+			eval('fnug.evil = ' + bundle + ';');
 			/*jslint evil: false*/
-			bundle = fnug.eval;
-			delete fnug.eval;
+			bundle = fnug.evil;
+			delete fnug.evil;
 		}
 	}
 
@@ -85,7 +87,12 @@ fnug.loadBundle = function (bundle) {
 				if (path.lastIndexOf('.js') === path.length - 3) {
 					fnug.loadScript(path, sequential);
 				} else if (path.lastIndexOf('.css') === path.length - 4) {
-					fnug.loadStyles(path);
+					if (ie) {
+						// ie can only handle a maximum of 31 stylesheets per page
+						iecss.push(path);
+					} else {
+						fnug.loadStyles(path);
+					}
 				}
 			}
 		} else {
@@ -95,6 +102,16 @@ fnug.loadBundle = function (bundle) {
 			if (cur.compJs) {
 				fnug.loadScript(cur.compJs, sequential);
 			}
+		}
+	}
+	
+	if (ie && iecss.length > 0) {
+		var start = 0;
+		var end = 0;
+		while (end < (iecss.length - 1)) {
+			start = end;
+			end = Math.min(end + 24, iecss.length - 1);
+			fnug.loadStyles('ie.css?f=' + iecss.slice(start, end).join(','));
 		}
 	}
 	
