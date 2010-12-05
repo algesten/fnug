@@ -136,7 +136,11 @@ public class DefaultResource extends AbstractResource {
      * @return the url of the resource or null if not found.
      */
     protected URL getResourceURL() {
-        return getClass().getResource(getFullPath());
+        URL url = Thread.currentThread().getContextClassLoader().getResource(getFullPath());
+        if (url == null) {
+            url = getClass().getResource(getFullPath());
+        }
+        return url;
     }
 
     /**

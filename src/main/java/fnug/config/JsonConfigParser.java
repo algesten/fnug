@@ -162,9 +162,12 @@ public class JsonConfigParser implements ConfigParser {
         if (!basePath.endsWith("/")) {
             throw new JsonConfigParseException(loc, "'basePath' must end with slash: " + basePath);
         } else {
-            URL url = getClass().getResource(basePath);
+            URL url = Thread.currentThread().getContextClassLoader().getResource(basePath);
             if (url == null) {
-                throw new JsonConfigParseException(loc, "No directory found for 'basePath': " + basePath);
+                url = getClass().getResource(basePath);
+                if (url == null) {
+                    throw new JsonConfigParseException(loc, "No directory found for 'basePath': " + basePath);
+                }
             }
         }
 
