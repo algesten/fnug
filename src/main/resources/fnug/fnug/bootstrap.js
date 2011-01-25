@@ -59,7 +59,8 @@ fnug.loadBundle = function (bundle) {
 
 	var webKit = navigator.userAgent.indexOf("AppleWebKit") > 0;
 	var ie = navigator.userAgent.indexOf("MSIE") > 0;
-	var sequential = webKit || ie;
+	var ff4 = navigator.userAgent.indexOf("Firefox/4") > 0;
+	var sequential = webKit || ie || ff4;
 
 	var iecss = ie ? [] : null;
 	
