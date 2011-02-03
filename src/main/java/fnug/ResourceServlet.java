@@ -107,8 +107,12 @@ public class ResourceServlet extends HttpServlet {
             resources.add(new DefaultResource("/fnug/", "bundles.js"));
 
             for (String s : configs) {
-                String basePath = s.substring(0, s.lastIndexOf(File.separator) + 1);
-                String path = s.substring(s.lastIndexOf(File.separator) + 1);
+                // normalize windowz strings in config to only use forward slashes.
+                if (File.separatorChar == '\\') {
+                    s = s.replace(File.separatorChar, '/');
+                }
+                String basePath = s.substring(0, s.lastIndexOf(CHAR_SLASH) + 1);
+                String path = s.substring(s.lastIndexOf(CHAR_SLASH) + 1);
                 resources.add(new DefaultResource(basePath, path));
             }
 
