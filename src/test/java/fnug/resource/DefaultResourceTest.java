@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -13,7 +14,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import fnug.resource.DefaultResource;
 import fnug.util.IOUtils;
 
 public class DefaultResourceTest {
@@ -35,6 +35,28 @@ public class DefaultResourceTest {
         new DefaultResource("/", "foo.js");
     }
 
+
+    @Test
+    public void testUTF8Path() throws UnsupportedEncodingException {
+
+        DefaultResource r = new DefaultResource("/", "ignored");
+
+        URL url = r.getResourceURL("/utf8-resource-å+ Ä=ö%[Ż.js");
+
+        Assert.assertNotNull(url);
+
+        String s = url.toExternalForm();
+
+        // ensure that url.toExternalForm() actually encodes using utf-8.
+        Assert.assertTrue(s.endsWith("/utf8-resource-%c3%a5+%20%c3%84%3d%c3%b6%25%5b%c5%bb.js"));
+
+        s = r.decode(s);
+
+        Assert.assertTrue(s, s.endsWith("/utf8-resource-å+ Ä=ö%[Ż.js"));
+
+    }
+
+
     @Test
     public void testGetters() {
 
@@ -44,6 +66,7 @@ public class DefaultResourceTest {
         Assert.assertEquals("/some/base/foo.js", r.getFullPath());
 
     }
+
 
     @Test
     public void testContentType() {
@@ -59,6 +82,7 @@ public class DefaultResourceTest {
         Assert.assertFalse((new DefaultResource("/", "foo.js")).isCss());
 
     }
+
 
     @Test
     public void testGetBytes() {
@@ -93,6 +117,7 @@ public class DefaultResourceTest {
         Assert.assertEquals("Hidden inside a jar...\n", s);
 
     }
+
 
     @Test
     public void testRemoveExtractedFile() throws Exception {
@@ -131,6 +156,7 @@ public class DefaultResourceTest {
 
     }
 
+
     @Test
     public void testUpdateJarFileTimestamp() throws Exception {
 
@@ -144,7 +170,7 @@ public class DefaultResourceTest {
         Method m = DefaultResource.class.getDeclaredMethod("getExtractDir", URL.class);
         m.setAccessible(true);
 
-        File extractDir = (File) m.invoke(r, r.getResourceURL());
+        File extractDir = (File) m.invoke(r, r.getResourceURL(r.getFullPath()));
 
         Assert.assertTrue(Math.abs(tmp.lastModified() - extractDir.lastModified()) < 1000);
 
@@ -159,6 +185,7 @@ public class DefaultResourceTest {
         Assert.assertTrue(Math.abs(tmp.lastModified() - extractDir.lastModified()) < 1000);
 
     }
+
 
     @Test
     public void testFindRequiresTags() throws Exception {
@@ -183,10 +210,12 @@ public class DefaultResourceTest {
 
     }
 
+
     @Test
     public void testCheckModifiedInterval() throws Exception {
 
         DefaultResource r = new DefaultResource("/", "notinjar.js", 0) {
+
             @Override
             protected long readLastModified() {
                 return System.currentTimeMillis();
@@ -204,6 +233,7 @@ public class DefaultResourceTest {
         Assert.assertEquals(l, r.getLastModified());
 
         r = new DefaultResource("/", "notinjar.js", 500) {
+
             @Override
             protected long readLastModified() {
                 return System.currentTimeMillis();
@@ -222,6 +252,7 @@ public class DefaultResourceTest {
 
     }
 
+
     private File makeTmpJar() throws IOException {
 
         File tmp = File.createTempFile("tmp", ".jar");
@@ -236,17 +267,21 @@ public class DefaultResourceTest {
 
     }
 
+
     private DefaultResource makeJarResource(String file, int checkModifiedInterval) {
         URL url = getClass().getResource("/test.jar");
         String jarPath = url.toExternalForm().substring(5);
         return makeJarResource(jarPath, file, checkModifiedInterval);
     }
 
+
     private DefaultResource makeJarResource(String jarPath, String file, int checkModifiedInterval) {
         return new DefaultResource("jar:file:" + jarPath + "!/", file, checkModifiedInterval) {
-            protected URL getResourceURL() {
+
+            @Override
+            protected URL getResourceURL(String fullPath) {
                 try {
-                    return new URL(getFullPath());
+                    return new URL(fullPath);
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }

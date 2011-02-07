@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -121,7 +122,7 @@ public class DefaultResource extends AbstractResource {
      */
     @Override
     protected Entry readEntry() {
-        URL url = getResourceURL();
+        URL url = getResourceURL(getFullPath());
         if (url == null) {
             return new Entry(-1l, EMPTY_BYTES);
         } else {
@@ -135,10 +136,10 @@ public class DefaultResource extends AbstractResource {
      * 
      * @return the url of the resource or null if not found.
      */
-    protected URL getResourceURL() {
-        URL url = Thread.currentThread().getContextClassLoader().getResource(getFullPath());
+    protected URL getResourceURL(String fullPath) {
+        URL url = Thread.currentThread().getContextClassLoader().getResource(fullPath);
         if (url == null) {
-            url = getClass().getResource(getFullPath());
+            url = DefaultResource.class.getResource(fullPath);
         }
         return url;
     }
@@ -175,7 +176,7 @@ public class DefaultResource extends AbstractResource {
 
     private void checkJarFile() {
         try {
-            extractJarFile(getResourceURL());
+            extractJarFile(getResourceURL(getFullPath()));
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to check jar file", e);
         }
@@ -209,9 +210,18 @@ public class DefaultResource extends AbstractResource {
     }
 
     private File extractFile(URL url) {
+       
         String s = url.toExternalForm();
+
         if (s.startsWith("file:")) {
-            return new File(s.substring(5));
+
+            s = s.substring(5);
+
+            // decode utf-8 url encoding taking '+' into account
+            s = decode(s);
+            
+            return new File(s);
+
         } else if (s.startsWith("jar:file:")) {
             try {
                 return extractJarFile(url);
@@ -219,16 +229,38 @@ public class DefaultResource extends AbstractResource {
                 throw new IllegalArgumentException("Failed to extract jar file", e);
             }
         }
+        
         throw new IllegalArgumentException("Unable to extract file from: " + s);
     }
+    
+    /**
+     * The URLClassLoader.getResource() encodes the returned URL as UTF-8, but it will
+     * not encode the '+' sign (encoding done via internal sun.net.www.ParseUtil). URLDecoder
+     * however will replace any '+' with space ' '.
+     * @param url url to decode
+     * @return the decoded url
+     */
+    protected String decode(String url) {
+        url = url.replace("+", "%2b");
+        try {
+            return URLDecoder.decode(url, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            // not happening
+            throw new RuntimeException();
+        }
+    }
 
-    private File extractJarFile(URL url) throws IOException {
+    protected File extractJarFile(URL url) throws IOException {
 
         String s = url.toExternalForm();
 
         String jarPath = s.substring(9, s.indexOf("!"));
         String filePath = s.substring(s.indexOf("!") + 1);
 
+        // decode utf-8 url encoded paths taking '+' into account.
+        jarPath = decode(jarPath);
+        filePath = decode(filePath);
+        
         if (filePath.startsWith(File.separator)) {
             filePath = filePath.substring(1);
         }
