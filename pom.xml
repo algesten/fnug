@@ -6,7 +6,7 @@
 	<groupId>foodev</groupId>
 	<artifactId>fnug</artifactId>
 	<name>fnug - Javascript Resource Bundler</name>
-	<version>0.27-SNAPSHOT</version>
+	<version>0.27</version>
 
 	<properties>
 		<project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
