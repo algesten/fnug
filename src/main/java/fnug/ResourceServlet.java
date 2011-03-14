@@ -139,6 +139,9 @@ public class ResourceServlet extends HttpServlet {
         resolver.checkModified();
 
         String path = req.getPathInfo();
+        if (path == null) {
+            path = "";
+        }
 
         String gzipHeader = req.getHeader(HEADER_ACCEPT_ENCODING);
         boolean gzip = gzipHeader != null && gzipHeader.indexOf(VALUE_GZIP) >= 0;
