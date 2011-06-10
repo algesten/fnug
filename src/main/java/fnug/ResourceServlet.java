@@ -130,18 +130,18 @@ public class ResourceServlet extends HttpServlet {
         prefix = prefix.endsWith(CHAR_SLASH) ?
                 prefix.substring(0, prefix.length() - 1) : prefix;
 
-        if (req.getPathInfo().equals(PATH_IE_CSS)) {
+        String path = req.getPathInfo();
+        if (path == null) {
+            path = "";
+        }
+
+        if (path.equals(PATH_IE_CSS)) {
             serviceIeIncludeCss(prefix, req, resp);
             return;
         }
 
         resolver.setThreadLocal();
         resolver.checkModified();
-
-        String path = req.getPathInfo();
-        if (path == null) {
-            path = "";
-        }
 
         String gzipHeader = req.getHeader(HEADER_ACCEPT_ENCODING);
         boolean gzip = gzipHeader != null && gzipHeader.indexOf(VALUE_GZIP) >= 0;
@@ -159,7 +159,7 @@ public class ResourceServlet extends HttpServlet {
         // when the servlet container does a 304 not modified, Content-Type is
         // set to null, this often results in the Content-Type being set to a
         // default by the servlet container or a web server/cache in front of
-        // the servlet container. Such deafult content type is often wrong about the
+        // the servlet container. Such default content type is often wrong about the
         // original resource (text/plain or similar). By always setting the
         // "correct" content type, we ensure to not pollute caches etc.
         // according to the HTTP spec, it's okay to set any meta header about the
