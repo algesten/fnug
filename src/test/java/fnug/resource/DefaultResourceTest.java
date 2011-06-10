@@ -41,7 +41,7 @@ public class DefaultResourceTest {
 
         DefaultResource r = new DefaultResource("/", "ignored");
 
-        URL url = r.getResourceURL("/utf8-resource-å+ Ä=ö%[Ż.js");
+        URL url = r.doGetResourceURL("/utf8-resource-å+ Ä=ö%[Ż.js");
 
         Assert.assertNotNull(url);
 
@@ -132,13 +132,22 @@ public class DefaultResourceTest {
         Field field = DefaultResource.class.getDeclaredField("file");
         field.setAccessible(true);
 
+        Method m = DefaultResource.class.getDeclaredMethod("getExtractDir", URL.class);
+        m.setAccessible(true);
+
+        URL resourceUrl = r.doGetResourceURL(r.getFullPath());
+        URL jarUrl = new URL(resourceUrl.toExternalForm().substring(4, resourceUrl.toExternalForm().indexOf("!")));
+        
+        File extractDir = (File) m.invoke(r, jarUrl);
+
         File f = (File) field.get(r);
         Assert.assertTrue(f.exists());
 
         Thread.sleep(10);
         r.checkModified();
 
-        f.delete();
+        IOUtils.rm(extractDir);
+        Assert.assertFalse(extractDir.exists());
 
         // should do nothing.
         Assert.assertNotNull(r.getBytes());
@@ -170,7 +179,10 @@ public class DefaultResourceTest {
         Method m = DefaultResource.class.getDeclaredMethod("getExtractDir", URL.class);
         m.setAccessible(true);
 
-        File extractDir = (File) m.invoke(r, r.getResourceURL(r.getFullPath()));
+        URL resourceUrl = r.doGetResourceURL(r.getFullPath());
+        URL jarUrl = new URL(resourceUrl.toExternalForm().substring(4, resourceUrl.toExternalForm().indexOf("!")));
+        
+        File extractDir = (File) m.invoke(r, jarUrl);
 
         Assert.assertTrue(Math.abs(tmp.lastModified() - extractDir.lastModified()) < 1000);
 
@@ -279,7 +291,7 @@ public class DefaultResourceTest {
         return new DefaultResource("jar:file:" + jarPath + "!/", file, checkModifiedInterval) {
 
             @Override
-            protected URL getResourceURL(String fullPath) {
+            protected URL doGetResourceURL(String fullPath) {
                 try {
                     return new URL(fullPath);
                 } catch (MalformedURLException e) {

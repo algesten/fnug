@@ -38,9 +38,10 @@ import fnug.util.IOUtils;
  */
 
 /**
- * Default file resource implementation. Relies on {@link Class#getResource(String)} to do its magic. The class also
- * handles the case where the class loader resolved resource is inside a jar-file. That jar file is then unpacked into a
- * temporary directory and the file last modified is read from there.
+ * Default file resource implementation. Relies on {@link Class#getResource(String)} to do its
+ * magic. The class also handles the case where the class loader resolved resource is inside a
+ * jar-file. That jar file is then unpacked into a temporary directory and the file last modified is
+ * read from there.
  * 
  * @author Martin Algesten
  * 
@@ -76,6 +77,7 @@ public class DefaultResource extends AbstractResource {
             }
             TMP_EXTRACT_DIR = f;
             Runtime.getRuntime().addShutdownHook(new Thread() {
+
                 @Override
                 public void run() {
                     LOG.info("Removing extract dir: " + TMP_EXTRACT_DIR.getAbsolutePath());
@@ -87,6 +89,7 @@ public class DefaultResource extends AbstractResource {
         }
     }
 
+
     /**
      * Constructs setting base path path and interval for checking.
      * 
@@ -95,17 +98,19 @@ public class DefaultResource extends AbstractResource {
      * @param path
      *            The path of the resource. See {@link #getPath()}.
      * @param checkModifiedInterval
-     *            the interval in millisecond that we are to check the resource last modified date. Any sooner checks
-     *            will just returned the previously read value. A value of 0 will disable modified checks.
+     *            the interval in millisecond that we are to check the resource last modified date.
+     *            Any sooner checks will just returned the previously read value. A value of 0 will
+     *            disable modified checks.
      */
     public DefaultResource(String basePath, String path, int checkModifiedInterval) {
         super(basePath, path);
         this.checkModifiedInterval = checkModifiedInterval;
     }
 
+
     /**
-     * Creates a new resource setting the base path and path. Assumed {@link #DEFAULT_CHECK_MODIFIED_INTERVAL} for
-     * checking modified times.
+     * Creates a new resource setting the base path and path. Assumed
+     * {@link #DEFAULT_CHECK_MODIFIED_INTERVAL} for checking modified times.
      * 
      * @param basePath
      *            The base path of the resource. See {@link #getBasePath()}.
@@ -116,13 +121,14 @@ public class DefaultResource extends AbstractResource {
         this(basePath, path, DEFAULT_CHECK_MODIFIED_INTERVAL);
     }
 
+
     /**
-     * Reads the entry from the class loader using {@link Class#getResource(String)}. Also handles the case where that
-     * resource is in a jar file.
+     * Reads the entry from the class loader using {@link Class#getResource(String)}. Also handles
+     * the case where that resource is in a jar file.
      */
     @Override
     protected Entry readEntry() {
-        URL url = getResourceURL(getFullPath());
+        URL url = doGetResourceURL(getFullPath());
         if (url == null) {
             return new Entry(-1l, EMPTY_BYTES);
         } else {
@@ -131,22 +137,46 @@ public class DefaultResource extends AbstractResource {
         }
     }
 
+
     /**
      * Returns the URL of the resource.
      * 
      * @return the url of the resource or null if not found.
      */
-    protected URL getResourceURL(String fullPath) {
-        URL url = Thread.currentThread().getContextClassLoader().getResource(fullPath);
+    protected URL doGetResourceURL(String fullPath) {
+        return getResourceURL(fullPath);
+    }
+
+
+    /**
+     * Returns the URL of the resource.
+     * 
+     * @return the url of the resource or null if not found.
+     */
+    public static URL getResourceURL(String fullPath) {
+
+        URL url = null;
+
+        if (Thread.currentThread().getContextClassLoader() != null) {
+            String clPath = fullPath;
+            // an initial slash will always result in a null resource
+            if (clPath.startsWith("/")) {
+                clPath = clPath.substring(1);
+            }
+            url = Thread.currentThread().getContextClassLoader().getResource(clPath);
+        }
+
         if (url == null) {
             url = DefaultResource.class.getResource(fullPath);
         }
+
         return url;
     }
 
+
     /**
-     * Returns the last modified date of the file. If the file was inside a jar-file, the jar file time stamp is also
-     * checked, and potentially extracted again.
+     * Returns the last modified date of the file. If the file was inside a jar-file, the jar file
+     * time stamp is also checked, and potentially extracted again.
      */
     @Override
     protected long readLastModified() {
@@ -162,9 +192,10 @@ public class DefaultResource extends AbstractResource {
         return cachedLastModified;
     }
 
+
     /**
-     * Tells if we are allowed to check the last modified date. This looks at the check interval to assert whether
-     * checking is allowed.
+     * Tells if we are allowed to check the last modified date. This looks at the check interval to
+     * assert whether checking is allowed.
      * 
      * @return whether a last modified date is allowed to be checked.
      */
@@ -174,13 +205,15 @@ public class DefaultResource extends AbstractResource {
                         (System.currentTimeMillis() - lastModifiedCheck) > checkModifiedInterval);
     }
 
+
     private void checkJarFile() {
         try {
-            extractJarFile(getResourceURL(getFullPath()));
+            extractJarFile(doGetResourceURL(getFullPath()));
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to check jar file", e);
         }
     }
+
 
     private File getFileForUrl(URL url) {
         if (file != null && file.isFile() && file.canRead()) {
@@ -192,6 +225,7 @@ public class DefaultResource extends AbstractResource {
         }
         return file;
     }
+
 
     private Entry readFileEntry(File file) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -209,8 +243,9 @@ public class DefaultResource extends AbstractResource {
         }
     }
 
+
     private File extractFile(URL url) {
-       
+
         String s = url.toExternalForm();
 
         if (s.startsWith("file:")) {
@@ -219,7 +254,7 @@ public class DefaultResource extends AbstractResource {
 
             // decode utf-8 url encoding taking '+' into account
             s = decode(s);
-            
+
             return new File(s);
 
         } else if (s.startsWith("jar:file:")) {
@@ -229,15 +264,18 @@ public class DefaultResource extends AbstractResource {
                 throw new IllegalArgumentException("Failed to extract jar file", e);
             }
         }
-        
+
         throw new IllegalArgumentException("Unable to extract file from: " + s);
     }
-    
+
+
     /**
-     * The URLClassLoader.getResource() encodes the returned URL as UTF-8, but it will
-     * not encode the '+' sign (encoding done via internal sun.net.www.ParseUtil). URLDecoder
-     * however will replace any '+' with space ' '.
-     * @param url url to decode
+     * The URLClassLoader.getResource() encodes the returned URL as UTF-8, but it will not encode
+     * the '+' sign (encoding done via internal sun.net.www.ParseUtil). URLDecoder however will
+     * replace any '+' with space ' '.
+     * 
+     * @param url
+     *            url to decode
      * @return the decoded url
      */
     protected String decode(String url) {
@@ -250,6 +288,7 @@ public class DefaultResource extends AbstractResource {
         }
     }
 
+
     protected File extractJarFile(URL url) throws IOException {
 
         String s = url.toExternalForm();
@@ -260,22 +299,26 @@ public class DefaultResource extends AbstractResource {
         // decode utf-8 url encoded paths taking '+' into account.
         jarPath = decode(jarPath);
         filePath = decode(filePath);
-        
+
         if (filePath.startsWith(File.separator)) {
             filePath = filePath.substring(1);
         }
 
-        File extractDir = getExtractDir(url);
+        // we only need one extract dir per jar
+        URL jarURL = new URL("file:" + jarPath);
+        File extractDir = getExtractDir(jarURL);
+
         File extractFile = new File(extractDir, filePath);
 
-        // 1000 ms tolerance for windoze
-        if (jarFile == null || Math.abs(extractDir.lastModified() - jarFile.lastModified()) > 1000
-                || !extractFile.exists()) {
-
+        if (jarFile == null) {
             jarFile = new File(jarPath);
             if (!jarFile.canRead()) {
                 throw new IllegalStateException("Unable to read jar file at: " + jarFile.getAbsolutePath());
             }
+        }
+
+        // 1000 ms tolerance for windoze
+        if (Math.abs(extractDir.lastModified() - jarFile.lastModified()) > 1000) {
 
             FileInputStream fis = new FileInputStream(jarFile);
             ZipInputStream zip = new ZipInputStream(fis);
@@ -313,13 +356,16 @@ public class DefaultResource extends AbstractResource {
 
     }
 
+
     private File getExtractDir(URL url) {
 
         String s = url.toExternalForm();
+        
         String md5sig = IOUtils.md5(s);
         return new File(TMP_EXTRACT_DIR, md5sig);
 
     }
+
 
     /**
      * {@inheritDoc}
@@ -340,6 +386,7 @@ public class DefaultResource extends AbstractResource {
         }
         return result;
     }
+
 
     private boolean isText() {
         return getContentType().startsWith(CONTENT_TYPE_TEXT);
