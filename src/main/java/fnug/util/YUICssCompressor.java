@@ -1,9 +1,10 @@
 /*
  * YUI Compressor
+ * http://developer.yahoo.com/yui/compressor/
  * Author: Julien Lecomte -  http://www.julienlecomte.net/
- * Author: Isaac Schlueter - http://foohack.com/ 
+ * Author: Isaac Schlueter - http://foohack.com/
  * Author: Stoyan Stefanov - http://phpied.com/
- * Copyright (c) 2009 Yahoo! Inc.  All rights reserved.
+ * Copyright (c) 2011 Yahoo! Inc.  All rights reserved.
  * The copyrights embodied in the content of this file are licensed
  * by Yahoo! Inc. under the BSD (revised) open source license.
  */
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 
 /**
  * Skillfully stealed from the YUI project. Hats off!
+ * 
+ * <p>Current version 2.4.6. https://github.com/yui/yuicompressor
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class YUICssCompressor {
@@ -51,6 +54,20 @@ public class YUICssCompressor {
         int totallen = css.length();
         String placeholder;
 
+        // // leave data urls alone to increase parse performance.
+        // sb = new StringBuffer();
+        // p = Pattern.compile("url\\(.*data\\:(.*)\\)");
+        // m = p.matcher(css);
+        // while (m.find()) {
+        // token = m.group();
+        // token = token.substring(1, token.length() - 1);
+        // preservedTokens.add(token);
+        // String preserver = "___YUICSSMIN_PRESERVED_TOKEN_" + (preservedTokens.size() - 1) + "___";
+        // m.appendReplacement(sb, preserver);
+        // }
+        // m.appendTail(sb);
+        // css = sb.toString();
+
         // collect all comment blocks...
         while ((startIndex = sb.indexOf("/*", startIndex)) >= 0) {
             endIndex = sb.indexOf("*/", startIndex + 2);
@@ -60,8 +77,7 @@ public class YUICssCompressor {
 
             token = sb.substring(startIndex + 2, endIndex);
             comments.add(token);
-            sb.replace(startIndex + 2, endIndex, "___YUICSSMIN_PRESERVE_CANDIDATE_COMMENT_" + (comments.size() - 1)
-                    + "___");
+            sb.replace(startIndex + 2, endIndex, "___YUICSSMIN_PRESERVE_CANDIDATE_COMMENT_" + (comments.size() - 1) + "___");
             startIndex += 2;
         }
         css = sb.toString();
@@ -79,8 +95,7 @@ public class YUICssCompressor {
             // one, maybe more? put'em back then
             if (token.indexOf("___YUICSSMIN_PRESERVE_CANDIDATE_COMMENT_") >= 0) {
                 for (i = 0, max = comments.size(); i < max; i += 1) {
-                    token = token.replace("___YUICSSMIN_PRESERVE_CANDIDATE_COMMENT_" + i + "___", comments.get(i)
-                            .toString());
+                    token = token.replace("___YUICSSMIN_PRESERVE_CANDIDATE_COMMENT_" + i + "___", comments.get(i).toString());
                 }
             }
 
@@ -93,6 +108,7 @@ public class YUICssCompressor {
         }
         m.appendTail(sb);
         css = sb.toString();
+
 
         // strings are safe, now wrestle the comments
         for (i = 0, max = comments.size(); i < max; i += 1) {
@@ -115,8 +131,7 @@ public class YUICssCompressor {
                 css = css.replace(placeholder, "___YUICSSMIN_PRESERVED_TOKEN_" + (preservedTokens.size() - 1) + "___");
                 i = i + 1; // attn: advancing the loop
                 preservedTokens.add("");
-                css = css.replace("___YUICSSMIN_PRESERVE_CANDIDATE_COMMENT_" + i + "___",
-                        "___YUICSSMIN_PRESERVED_TOKEN_" + (preservedTokens.size() - 1) + "___");
+                css = css.replace("___YUICSSMIN_PRESERVE_CANDIDATE_COMMENT_" + i + "___", "___YUICSSMIN_PRESERVED_TOKEN_" + (preservedTokens.size() - 1) + "___");
                 continue;
             }
 
@@ -127,8 +142,7 @@ public class YUICssCompressor {
                 if (startIndex > 2) {
                     if (css.charAt(startIndex - 3) == '>') {
                         preservedTokens.add("");
-                        css = css.replace(placeholder, "___YUICSSMIN_PRESERVED_TOKEN_" + (preservedTokens.size() - 1)
-                                + "___");
+                        css = css.replace(placeholder, "___YUICSSMIN_PRESERVED_TOKEN_" + (preservedTokens.size() - 1) + "___");
                     }
                 }
             }
@@ -136,6 +150,7 @@ public class YUICssCompressor {
             // in all other cases kill the comment
             css = css.replace("/*" + placeholder + "*/", "");
         }
+
 
         // Normalize all whitespace strings to single spaces. Easier to work with that way.
         css = css.replaceAll("\\s+", " ");
@@ -149,7 +164,7 @@ public class YUICssCompressor {
         while (m.find()) {
             String s = m.group();
             s = s.replaceAll(":", "___YUICSSMIN_PSEUDOCLASSCOLON___");
-            s = s.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
+            s = s.replaceAll( "\\\\", "\\\\\\\\" ).replaceAll( "\\$", "\\\\\\$" );
             m.appendReplacement(sb, s);
         }
         m.appendTail(sb);
@@ -187,11 +202,11 @@ public class YUICssCompressor {
         css = css.replaceAll(":0 0 0(;|})", ":0$1");
         css = css.replaceAll(":0 0(;|})", ":0$1");
 
+
         // Replace background-position:0; with background-position:0 0;
         // same for transform-origin
         sb = new StringBuffer();
-        p = Pattern
-                .compile("(?i)(background-position|transform-origin|webkit-transform-origin|moz-transform-origin|o-transform-origin|ms-transform-origin):0(;|})");
+        p = Pattern.compile("(?i)(background-position|transform-origin|webkit-transform-origin|moz-transform-origin|o-transform-origin|ms-transform-origin):0(;|})");
         m = p.matcher(css);
         while (m.find()) {
             m.appendReplacement(sb, m.group(1).toLowerCase() + ":0 0" + m.group(2));
@@ -228,18 +243,21 @@ public class YUICssCompressor {
         // would become
         // filter: chroma(color="#FFF");
         // which makes the filter break in IE.
-        p = Pattern
-                .compile("([^\"'=\\s])(\\s*)#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
+        p = Pattern.compile("([^\"'=\\s])(\\s*)#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
         m = p.matcher(css);
         sb = new StringBuffer();
         while (m.find()) {
-            // Test for AABBCC pattern
-            if (m.group(3).equalsIgnoreCase(m.group(4)) &&
+            if (m.group(1).equals("}")) {
+                // Likely an ID selector. Don't touch.
+                // #AABBCC is a valid ID. IDs are case-sensitive.
+                m.appendReplacement(sb, m.group());
+            } else if (m.group(3).equalsIgnoreCase(m.group(4)) &&
                     m.group(5).equalsIgnoreCase(m.group(6)) &&
                     m.group(7).equalsIgnoreCase(m.group(8))) {
-                m.appendReplacement(sb,
-                        (m.group(1) + m.group(2) + "#" + m.group(3) + m.group(5) + m.group(7)).toLowerCase());
+                // #AABBCC pattern
+                m.appendReplacement(sb, (m.group(1) + m.group(2) + "#" + m.group(3) + m.group(5) + m.group(7)).toLowerCase());
             } else {
+                // Any other color.
                 m.appendReplacement(sb, m.group().toLowerCase());
             }
         }
@@ -248,8 +266,7 @@ public class YUICssCompressor {
 
         // border: none -> border:0
         sb = new StringBuffer();
-        p = Pattern
-                .compile("(?i)(border|border-top|border-right|border-bottom|border-right|outline|background):none(;|})");
+        p = Pattern.compile("(?i)(border|border-top|border-right|border-bottom|border-right|outline|background):none(;|})");
         m = p.matcher(css);
         while (m.find()) {
             m.appendReplacement(sb, m.group(1).toLowerCase() + ":0" + m.group(2));
@@ -286,7 +303,7 @@ public class YUICssCompressor {
         css = css.replaceAll(";;+", ";");
 
         // restore preserved comments and strings
-        for (i = 0, max = preservedTokens.size(); i < max; i++) {
+        for(i = 0, max = preservedTokens.size(); i < max; i++) {
             css = css.replace("___YUICSSMIN_PRESERVED_TOKEN_" + i + "___", preservedTokens.get(i).toString());
         }
 
@@ -296,4 +313,5 @@ public class YUICssCompressor {
         // Write the output...
         out.write(css);
     }
+
 }
