@@ -57,10 +57,7 @@ fnug.bundle = "/***bundles***/";
 
 fnug.loadBundle = function (bundle) {
 
-	var webKit = navigator.userAgent.indexOf("AppleWebKit") > 0;
 	var ie = navigator.userAgent.indexOf("MSIE") > 0;
-	var ff4 = navigator.userAgent.indexOf("Firefox/4") > 0;
-	var sequential = webKit || ie || ff4;
 
 	var iecss = ie ? [] : null;
 	
@@ -86,7 +83,7 @@ fnug.loadBundle = function (bundle) {
 				}
 				var path = file.path;
 				if (path.lastIndexOf('.js') === path.length - 3) {
-					fnug.loadScript(path, sequential);
+					fnug.loadScript(path);
 				} else if (path.lastIndexOf('.css') === path.length - 4) {
 					if (ie) {
 						// ie can only handle a maximum of 31 stylesheets per page
@@ -101,7 +98,7 @@ fnug.loadBundle = function (bundle) {
 				fnug.loadStyles(cur.compCss);
 			}
 			if (cur.compJs) {
-				fnug.loadScript(cur.compJs, sequential);
+				fnug.loadScript(cur.compJs);
 			}
 		}
 	}

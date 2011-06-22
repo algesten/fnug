@@ -1,18 +1,13 @@
 /*global fnug document*/
 
-fnug.loadScript = function (path, sequential) {
-	if (sequential) {
-		/*jslint evil: true*/
-		document.write('<script type="text/javascript" src="' + 
-				fnug.resourcePath(path) + '"></script>');
-		/*jslint evil: false*/
-	} else {
-		var script = document.createElement('script');
-		script.type = 'text/javascript';
-		script.src = fnug.resourcePath(path);
-		var head = document.getElementsByTagName('head')[0];
-		head.appendChild(script);
-	}
+fnug.loadScript = function (path) {
+    // By document.write in the script tag we guarantee the load order
+    // creating tags is obviously nicer, but would require some mechanism
+    // that ensures the execution order of the parts.
+    /*jslint evil: true*/
+    document.write('<script type="text/javascript" src="' + 
+    		fnug.resourcePath(path) + '"></script>');
+    /*jslint evil: false*/
 };
 
 fnug.loadStyles = function (path, sequential) {
