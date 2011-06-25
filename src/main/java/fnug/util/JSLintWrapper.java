@@ -1,10 +1,5 @@
 package fnug.util;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,16 +25,16 @@ import com.googlecode.jslint4java.Option;
  */
 
 /**
- * Wrapper around JSLint4Java since that package doesn't manage the rhino Context thread local appropriately.
+ * Wrapper around JSLint4Java since that package doesn't manage the rhino Context thread local
+ * appropriately.
  */
 public class JSLintWrapper {
 
     private final static Logger LOG = LoggerFactory.getLogger(JSLintWrapper.class);
 
-    private static ContextFactory ctxFactory;
     private JSLintBuilder jsLintBuilder;
-    private Context ctx;
     private JSLint jsLint;
+
 
     /**
      * Construct passing the configuration arguments.
@@ -48,46 +43,20 @@ public class JSLintWrapper {
      *            configs
      */
     public JSLintWrapper(String... args) {
+
         if (args == null || args.length == 0) {
             throw new IllegalArgumentException("Null or empty config args");
         }
 
-        try {
+        jsLintBuilder = new JSLintBuilder();
 
-            // this calls Context.enterContext(), which means the thread now has
-            // a thread associated Context.
-            jsLintBuilder = new JSLintBuilder();
-            initCtx();
+        jsLint = jsLintBuilder.fromDefault();
 
-            try {
-                jsLint = jsLintBuilder.fromDefault();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        configure(args);
 
-            configure(args);
-
-        } finally {
-            // now we exit the context to make sure the thread is not polluted.
-            Context.exit();
-        }
 
     }
 
-    private void initCtx() {
-        try {
-            Field fCtx = jsLintBuilder.getClass().getDeclaredField("ctx");
-            fCtx.setAccessible(true);
-            ctx = (Context) fCtx.get(jsLintBuilder);
-            if (ctxFactory == null) {
-                Field fCtxFactory = jsLintBuilder.getClass().getDeclaredField("CONTEXT_FACTORY");
-                fCtxFactory.setAccessible(true);
-                ctxFactory = (ContextFactory) fCtxFactory.get(null);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void configure(String[] args) {
 
@@ -113,6 +82,7 @@ public class JSLintWrapper {
 
     }
 
+
     /**
      * Check for problems in JavaScript source.
      * 
@@ -124,19 +94,9 @@ public class JSLintWrapper {
      * @return a {@link JSLintResult}.
      */
     public JSLintResult lint(String systemId, String javaScript) {
-        try {
 
-            // reassociate the context with the thread.
-            ctxFactory.enterContext(ctx);
+        return jsLint.lint(systemId, javaScript);
 
-            return jsLint.lint(systemId, javaScript);
-
-        } finally {
-
-            // and remove it.
-            Context.exit();
-
-        }
     }
 
 }

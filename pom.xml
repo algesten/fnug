@@ -54,7 +54,7 @@
         <dependency>
             <groupId>com.googlecode.jslint4java</groupId>
             <artifactId>jslint4java</artifactId>
-            <version>1.4.4</version>
+            <version>1.4.8-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
