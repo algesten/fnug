@@ -61,6 +61,8 @@ fnug.loadBundle = function (bundle) {
 
 	var iecss = ie ? [] : null;
 	
+	var reportedLint = false;
+	
 	if (typeof bundle === 'string') {
 		if (window.JSON && JSON.parse) {
 			bundle = JSON.parse(bundle);
@@ -78,8 +80,9 @@ fnug.loadBundle = function (bundle) {
 		if (fnug.isDebug(cur.name, bundle)) {
 			for (var j = 0; j < cur.files.length; j++) {
 				var file = cur.files[j];
-				if (file.lint) {
-					fnug.showJSLintPopupButton(cur.name);
+				if (!reportedLint && file.lint) {
+				    reportedLint = true;
+					fnug.showJSLintPopupButton(bundle.name);
 				}
 				var path = file.path;
 				if (path.lastIndexOf('.js') === path.length - 3) {
