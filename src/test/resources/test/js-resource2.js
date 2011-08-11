@@ -1,4 +1,4 @@
-
+/*global alert*/
 /**
  * @requires test/js-resource2.js
  * @requires test/js-nonexistant.js
@@ -7,8 +7,8 @@
  */
 var a = function () { 
 	alert('this is jozt a test');
-}
+};
 
 var b = function () {
 	a();
-}
+};

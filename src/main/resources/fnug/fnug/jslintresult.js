@@ -1,4 +1,4 @@
-/*global fnug window*/
+/*global fnug, window*/
 
 fnug.jsLintBundles = [];
 

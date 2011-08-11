@@ -1,4 +1,4 @@
-
+/*global b*/
 /**
  * @requires test/js-resource2.js
  * @requires test/js-nonexistant.js
@@ -7,4 +7,4 @@
  */
 var c = function () { 
 	b();
-}
+};
