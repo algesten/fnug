@@ -39,3 +39,9 @@ h2 {
 	padding: 10px;
 	margin: 1em 0;
 }
+
+.count {
+    position: absolute;
+    right: 1.5em;
+    top: 0.5em;
+}
