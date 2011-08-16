@@ -55,8 +55,12 @@ var draw = function (bundle) {
 		p.innerHTML = 'No JSLint problems found.';
 		body.appendChild(p);
 	} else {
+        var countTxt = 'Files failing: ' + count;
+        if (document.getElementsByClassName) {
+            countTxt += ', errors: ' + document.getElementsByClassName('evidence').length;
+        }
         var countP = document.createElement('p');
-        countP.innerHTML = 'Files failing: ' + count;
+        countP.innerHTML = countTxt;
         countP.className = 'count';
         body.appendChild(countP);
 	}
