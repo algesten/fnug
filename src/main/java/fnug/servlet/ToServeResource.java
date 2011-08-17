@@ -35,7 +35,7 @@ public class ToServeResource implements ToServe {
 
         if (isJsonP) {
             String result = jsonp + "('";
-            result += escape(res.getBytes());
+            result += escapeJsonP(res.getBytes());
             result += "');";
             try {
                 bytes = result.getBytes("utf-8");
@@ -52,7 +52,7 @@ public class ToServeResource implements ToServe {
         return contentType != null && contentType.startsWith(MIME_TEXT);
     }
 
-    private String escape(byte[] bytes) {
+    private String escapeJsonP(byte[] bytes) {
 
         String s = null;
 
@@ -63,6 +63,8 @@ public class ToServeResource implements ToServe {
         }
 
         s = s.replace("'", "\\'");
+        s = s.replaceAll("\r", "\\\\r");
+        s = s.replaceAll("\n", "\\\\n");
 
         return s;
     }
