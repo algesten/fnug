@@ -80,7 +80,8 @@ public class JsonConfigParserTest {
             parser.parse(res);
             Assert.fail("");
         } catch (Exception e) {
-            Assert.assertEquals("At line 5 col 69: Empty config file 'testconfig2-empty.js'", e.getMessage());
+        	Assert.assertEquals("Failed to parse", e.getMessage());
+        	Assert.assertEquals("Invalid JSON or JavaScript configuration 'testconfig2-empty.js'", e.getCause().getMessage());
         }
 
     }
@@ -182,5 +183,79 @@ public class JsonConfigParserTest {
         }
 
     }
+    
+    @Test
+    public void testJavaScriptVar() throws Exception {
+
+        DefaultResource res = new DefaultResource("/", "testconfig10-javascript-var.js");
+
+        JsonConfigParser parser = new JsonConfigParser();
+
+        Config config = parser.parse(res);
+
+        Assert.assertNotNull(config);
+
+        BundleConfig[] bcfgs = config.getBundleConfigs();
+
+        Assert.assertNotNull(bcfgs);
+        Assert.assertEquals(1, bcfgs.length);
+
+        BundleConfig bcfg = bcfgs[0];
+
+        Assert.assertNotNull(bcfg);
+
+        Assert.assertEquals("testbundle1", bcfg.name());
+        Assert.assertEquals("/", bcfg.basePath());
+        Assert.assertEquals(42, bcfg.checkModifiedInterval());
+        Assert.assertNotNull(bcfg.jsLintArgs());
+        Assert.assertEquals(11, bcfg.jsLintArgs().length);
+        Assert.assertEquals("[white: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, " +
+                "bitwise: true, regexp: true, newcap: true, immed: true, maxlen: 80]", Arrays.asList(bcfg.jsLintArgs())
+                .toString());
+        Assert.assertNotNull(bcfg.jsCompileArgs());
+        Assert.assertEquals(1, bcfg.jsCompileArgs().length);
+        Assert.assertEquals("--debug", bcfg.jsCompileArgs()[0].toString());
+        Assert.assertNotNull(bcfg.files());
+        Assert.assertEquals(2, bcfg.files().length);
+        Assert.assertEquals("test/file1.js", bcfg.files()[0].toString());
+        Assert.assertEquals("test/file2.js", bcfg.files()[1].toString());
+    }
+    
+    @Test
+    public void testJavaScriptFunction() throws Exception {
+
+        DefaultResource res = new DefaultResource("/", "testconfig11-javascript-function.js");
+
+        JsonConfigParser parser = new JsonConfigParser();
+
+        Config config = parser.parse(res);
+
+        Assert.assertNotNull(config);
+
+        BundleConfig[] bcfgs = config.getBundleConfigs();
+
+        Assert.assertNotNull(bcfgs);
+        Assert.assertEquals(1, bcfgs.length);
+
+        BundleConfig bcfg = bcfgs[0];
+
+        Assert.assertNotNull(bcfg);
+
+        Assert.assertEquals("testbundle1", bcfg.name());
+        Assert.assertEquals("/", bcfg.basePath());
+        Assert.assertEquals(42, bcfg.checkModifiedInterval());
+        Assert.assertNotNull(bcfg.jsLintArgs());
+        Assert.assertEquals(11, bcfg.jsLintArgs().length);
+        Assert.assertEquals("[white: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, " +
+                "bitwise: true, regexp: true, newcap: true, immed: true, maxlen: 80]", Arrays.asList(bcfg.jsLintArgs())
+                .toString());
+        Assert.assertNotNull(bcfg.jsCompileArgs());
+        Assert.assertEquals(1, bcfg.jsCompileArgs().length);
+        Assert.assertEquals("--debug", bcfg.jsCompileArgs()[0].toString());
+        Assert.assertNotNull(bcfg.files());
+        Assert.assertEquals(2, bcfg.files().length);
+        Assert.assertEquals("test/file1.js", bcfg.files()[0].toString());
+        Assert.assertEquals("test/file2.js", bcfg.files()[1].toString());
+    }    
 
 }

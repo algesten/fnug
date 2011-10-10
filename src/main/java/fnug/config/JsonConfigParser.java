@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonLocation;
 import org.codehaus.jackson.JsonNode;
@@ -64,6 +65,8 @@ public class JsonConfigParser implements ConfigParser {
 
     private static final String[] EMPTY_STRINGS = new String[] {};
 
+    private static final Pattern jsonPattern = Pattern.compile(".*?(\\{.*\\}).*", Pattern.DOTALL);
+    
     private ObjectMapper mapper;
     private JsonFactory jsonFactory;
 
@@ -99,7 +102,23 @@ public class JsonConfigParser implements ConfigParser {
 
         try {
 
-            parser = jsonFactory.createJsonParser(res.getBytes());
+        	/* 
+        	 * Make sure the parser is fed JSON and not JavaScript
+        	 * 1. Fetch the bytes from the resource
+        	 * 2. Detect the encoding to be able to create a String
+        	 * 3. Strip away everything before first { and after last }
+        	 */
+        	byte[] jsonBytes = res.getBytes();
+        	JsonEncoding jsonEncoding = new EncodingDetector(jsonBytes).detectEncoding();
+        	String json = new String(jsonBytes, jsonEncoding.getJavaName());
+        	Matcher m = jsonPattern.matcher(json);
+        	if (m.matches()) {
+        		json = m.group(1);
+        	} else {
+        		throw new IllegalArgumentException("Invalid JSON or JavaScript configuration '" + res.getPath() + "'");
+        	}
+        	
+            parser = jsonFactory.createJsonParser(json);
 
             LinkedList<BundleConfig> bundleConfigs = new LinkedList<BundleConfig>();
 
