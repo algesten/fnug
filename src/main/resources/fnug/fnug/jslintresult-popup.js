@@ -17,6 +17,8 @@ var draw = function (bundle) {
 	var h1 = document.createElement('h1');
 	h1.innerHTML = bundle.name;
 
+	var count = 0;
+	
 	for (var i = 0; i < bundle.colls.length; i++) {
 
 		var cur = bundle.colls[i];
@@ -27,6 +29,8 @@ var draw = function (bundle) {
 			
 			if (file.lint) {
 				
+			    count++;
+			    
 				if (h1 !== null) {
 					body.appendChild(h1);
 					h1 = null;
@@ -50,6 +54,15 @@ var draw = function (bundle) {
 		var p = document.createElement('p');
 		p.innerHTML = 'No JSLint problems found.';
 		body.appendChild(p);
+	} else {
+        var countTxt = 'Files failing: ' + count;
+        if (document.getElementsByClassName) {
+            countTxt += ', errors: ' + document.getElementsByClassName('evidence').length;
+        }
+        var countP = document.createElement('p');
+        countP.innerHTML = countTxt;
+        countP.className = 'count';
+        body.appendChild(countP);
 	}
 	
 }

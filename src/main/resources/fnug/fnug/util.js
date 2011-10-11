@@ -1,4 +1,4 @@
-/*global fnug document*/
+/*global fnug, document*/
 
 fnug.loadScript = function (path) {
     // By document.write in the script tag we guarantee the load order
@@ -6,7 +6,7 @@ fnug.loadScript = function (path) {
     // that ensures the execution order of the parts.
     /*jslint evil: true*/
     document.write('<script type="text/javascript" src="' + 
-    		fnug.resourcePath(path) + '"></script>');
+            fnug.resourcePath(path) + '"></script>');
     /*jslint evil: false*/
 };
 

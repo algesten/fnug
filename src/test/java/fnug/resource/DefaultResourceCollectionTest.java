@@ -43,7 +43,7 @@ public class DefaultResourceCollectionTest {
 
         Assert.assertTrue(fullPath.startsWith("testbundle/"));
 
-        Assert.assertEquals(382590365, new String(c.getBytes()).hashCode());
+        Assert.assertEquals(-1353151324, new String(c.getBytes()).hashCode());
         Assert.assertSame(c.getBytes(), c.getJs());
 
         Assert.assertEquals(4593760, new String(c.getCss()).hashCode());

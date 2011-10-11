@@ -1,4 +1,4 @@
-/*global fnug window unescape*/
+/*global fnug, window, unescape*/
 
 /**
  * @requires fnug/util.js
@@ -14,7 +14,7 @@ fnug.populateDebug = function () {
 	var query = window.location.search;
 	if (query) {
 		var start = query.search(/[?&]debug=/);
-		var end;
+		var end, values, i;
 		if (start >= 0) {
 			start += 7;
 			end = query.indexOf('&', start);
@@ -31,8 +31,8 @@ fnug.populateDebug = function () {
 					// give up
 				}
 			}
-			var values = value.split(',');
-			for (var i = 0; i < values.length; i++) {
+			values = value.split(',');
+			for (i = 0; i < values.length; i++) {
 				if (values[i] === 'all') {
 					fnug.debugAll = true;
 				} else if (values[i] === 'true' || values[i] === '1') {
@@ -48,7 +48,7 @@ fnug.populateDebug = function () {
 };
 
 fnug.isDebug = function (bundleName, bundle) {
-	return fnug.debugAll || fnug.debugDefault && bundle && bundle.name === bundleName || 
+	return fnug.debugAll || (fnug.debugDefault && bundle && bundle.name) === bundleName || 
 		fnug.debug[bundleName];
 };
 
@@ -62,6 +62,7 @@ fnug.loadBundle = function (bundle) {
 	var iecss = ie ? [] : null;
 	
 	var reportedLint = false;
+	var i, j, cur, file;
 	
 	if (typeof bundle === 'string') {
 		if (window.JSON && JSON.parse) {
@@ -75,11 +76,11 @@ fnug.loadBundle = function (bundle) {
 		}
 	}
 
-	for (var i = 0; i < bundle.colls.length; i++) {
-		var cur = bundle.colls[i];
+	for (i = 0; i < bundle.colls.length; i++) {
+		cur = bundle.colls[i];
 		if (fnug.isDebug(cur.name, bundle)) {
-			for (var j = 0; j < cur.files.length; j++) {
-				var file = cur.files[j];
+			for (j = 0; j < cur.files.length; j++) {
+				file = cur.files[j];
 				if (!reportedLint && file.lint) {
 				    reportedLint = true;
 					fnug.showJSLintPopupButton(bundle.name);

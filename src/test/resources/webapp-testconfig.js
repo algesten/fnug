@@ -1,6 +1,6 @@
 {
 	test: {
-		jsLint: '/*jslint white: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, newcap: true, immed: true */',
+        jsLint: '/*jslint browser: true, continue: true, indent: 4, maxlen: 120, plusplus: true, sloppy: true, undef: true, unparam: true, vars: true */',
 		checkModified: 1000,
 		jsCompilerArgs: [],
 		files: [

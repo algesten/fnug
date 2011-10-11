@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletConfig;
@@ -55,6 +57,8 @@ public class ResourceServlet extends HttpServlet {
     private static final String PARAM_CALLBACK = "callback";
 
     public static final String UTF_8 = "utf-8";
+
+    private final static Pattern PROTO_HOST_PORT = Pattern.compile("(.*://[^/]+)/.*");
 
     public static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
     public static final String CONTENT_TYPE_JS = "text/javascript; charset=utf8";
@@ -129,6 +133,12 @@ public class ResourceServlet extends HttpServlet {
         String prefix = req.getContextPath() + req.getServletPath();
         prefix = prefix.endsWith(CHAR_SLASH) ?
                 prefix.substring(0, prefix.length() - 1) : prefix;
+
+        String reqUrl = req.getRequestURL().toString();
+        Matcher m = PROTO_HOST_PORT.matcher(reqUrl);
+        if (m.matches()) {
+            prefix = m.group(1) + prefix;
+        }
 
         String path = req.getPathInfo();
         if (path == null) {
