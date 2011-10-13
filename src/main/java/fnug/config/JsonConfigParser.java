@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonLocation;
 import org.codehaus.jackson.JsonNode;
@@ -105,12 +104,11 @@ public class JsonConfigParser implements ConfigParser {
         	/* 
         	 * Make sure the parser is fed JSON and not JavaScript
         	 * 1. Fetch the bytes from the resource
-        	 * 2. Detect the encoding to be able to create a String
+        	 * 2. Create a String from the bytes using UTF-8 encoding (convention)
         	 * 3. Strip away everything before first { and after last }
         	 */
         	byte[] jsonBytes = res.getBytes();
-        	JsonEncoding jsonEncoding = new EncodingDetector(jsonBytes).detectEncoding();
-        	String json = new String(jsonBytes, jsonEncoding.getJavaName());
+        	String json = new String(jsonBytes, "UTF-8");
         	Matcher m = jsonPattern.matcher(json);
         	if (m.matches()) {
         		json = m.group(1);
