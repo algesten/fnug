@@ -28,6 +28,7 @@ public interface AggregatedResource extends Resource {
      * Base path for an aggregated resource is set to the owning bundle's name prepended with a slash. That is for a
      * aggregated resource beloning to <code>mybundle</code>, the base path with be <code>mybundle/</code>.
      */
+    @Override
     String getBasePath();
 
     /**

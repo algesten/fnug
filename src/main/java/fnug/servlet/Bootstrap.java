@@ -108,10 +108,12 @@ public class Bootstrap implements ToServe {
 
     }
 
+    @Override
     public byte[] getBytes() {
         return bytes;
     }
 
+    @Override
     public long getLastModified() {
         return lastModified;
     }

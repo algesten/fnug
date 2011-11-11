@@ -120,6 +120,7 @@ public interface Resource extends HasLastModifiedBytes {
      * Notice that for resources pointing to non-existant files {@link #getBytes()} return an empty array, never null
      * (but {@link #getLastModified()} returns -1).
      */
+    @Override
     byte[] getBytes();
 
     /**
@@ -128,6 +129,7 @@ public interface Resource extends HasLastModifiedBytes {
      * <p>
      * For non-existing resource, {@link #getLastModified()} returns -1.
      */
+    @Override
     long getLastModified();
 
     /**
