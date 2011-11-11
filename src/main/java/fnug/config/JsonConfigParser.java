@@ -230,7 +230,7 @@ public class JsonConfigParser implements ConfigParser {
             throw new JsonConfigParseException(loc, "Key '" + key + "' is not an string value");
         }
 
-        return m.getValueAsText();
+        return m.asText();
 
     }
 
@@ -272,7 +272,7 @@ public class JsonConfigParser implements ConfigParser {
         String[] vals = new String[m.size()];
         int i = 0;
         for (JsonNode j : m) {
-            vals[i++] = j.getValueAsText();
+            vals[i++] = j.asText();
         }
         return vals;
 
