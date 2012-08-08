@@ -70,6 +70,8 @@ public class ResourceServlet extends HttpServlet {
     private static final String HEADER_DATE = "Date";
     private static final String HEADER_CACHE_CONTROL = "Cache-Control";
 
+    private static final String PARAMETER_HTTPS = "https";
+    
     private static final String VALUE_GZIP = "gzip";
 
     private static final long ONE_YEAR = 365l * 24l * 60l * 60l * 1000l;
@@ -134,6 +136,11 @@ public class ResourceServlet extends HttpServlet {
         prefix = prefix.endsWith(CHAR_SLASH) ?
                 prefix.substring(0, prefix.length() - 1) : prefix;
 
+        String paramHttps = req.getParameter(PARAMETER_HTTPS);
+        if (paramHttps != null && (paramHttps.equals("1") || paramHttps.equals("true"))) {
+            prefix = prefix.replace("http:", "https:");
+        }
+                
         String reqUrl = req.getRequestURL().toString();
         Matcher m = PROTO_HOST_PORT.matcher(reqUrl);
         if (m.matches()) {
