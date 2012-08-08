@@ -62,7 +62,6 @@ public class JsonResourceCollection {
 }
 
 @JsonSerialize(include = Inclusion.NON_NULL)
-@SuppressWarnings("unused")
 class JsonResourceCollectionFile {
     @JsonProperty
     private String path;
