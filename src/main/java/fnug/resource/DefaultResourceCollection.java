@@ -131,9 +131,6 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             ByteArrayOutputStream jsbaos = new ByteArrayOutputStream();
             ByteArrayOutputStream cssbaos = new ByteArrayOutputStream();
             for (Resource r : getAggregates()) {
-
-                System.out.println(r +" "+ r.isJs());
-                
                 if (r.isJs()) {
                     jsbaos.write(r.getBytes());
                 } else if (r.isCss()) {

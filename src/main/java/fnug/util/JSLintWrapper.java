@@ -1,12 +1,18 @@
 package fnug.util;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.googlecode.jslint4java.JSLint;
-import com.googlecode.jslint4java.JSLintBuilder;
-import com.googlecode.jslint4java.JSLintResult;
-import com.googlecode.jslint4java.Option;
+import ro.isdc.wro.extensions.processor.js.JsLintProcessor;
+import ro.isdc.wro.extensions.processor.support.linter.LinterError;
+import ro.isdc.wro.extensions.processor.support.linter.LinterException;
+import ro.isdc.wro.model.resource.Resource;
+import ro.isdc.wro.model.resource.ResourceType;
 
 /*
  Copyright 2010 Martin Algesten
@@ -25,15 +31,13 @@ import com.googlecode.jslint4java.Option;
  */
 
 /**
- * Wrapper around JSLint4Java since that package doesn't manage the rhino Context thread local
- * appropriately.
+ * Wrapper around JSLint4Java since that package doesn't manage the rhino Context thread local appropriately.
  */
 public class JSLintWrapper {
 
     private final static Logger LOG = LoggerFactory.getLogger(JSLintWrapper.class);
 
-    private JSLintBuilder jsLintBuilder;
-    private JSLint jsLint;
+    private String[] args;
 
 
     /**
@@ -48,37 +52,7 @@ public class JSLintWrapper {
             throw new IllegalArgumentException("Null or empty config args");
         }
 
-        jsLintBuilder = new JSLintBuilder();
-
-        jsLint = jsLintBuilder.fromDefault();
-
-        configure(args);
-
-
-    }
-
-
-    private void configure(String[] args) {
-
-        for (String arg : args) {
-
-            String[] split = arg.split("\\s*:\\s*");
-
-            Option opt;
-            try {
-                opt = Option.valueOf(split[0].toUpperCase());
-            } catch (Exception e) {
-                LOG.warn("Ignoring unknown JSLint option: " + arg);
-                continue;
-            }
-
-            if (split.length == 1 || split[1].equalsIgnoreCase("true")) {
-                jsLint.addOption(opt);
-            } else {
-                jsLint.addOption(opt, split[1]);
-            }
-
-        }
+        this.args = args;
 
     }
 
@@ -93,10 +67,66 @@ public class JSLintWrapper {
      * 
      * @return a {@link JSLintResult}.
      */
-    public JSLintResult lint(String systemId, String javaScript) {
+    public String lint(String systemId, String javaScript) {
 
-        return jsLint.lint(systemId, javaScript);
+        StringReader reader = new StringReader(javaScript);
+        StringWriter writer = new StringWriter();
+
+        @SuppressWarnings("unchecked")
+        final Collection<LinterError>[] errors = new Collection[1];
+
+        JsLintProcessor processor = new JsLintProcessor() {
+
+            @Override
+            protected void onLinterException(LinterException e, Resource resource) {
+                errors[0] = e.getErrors();
+            }
+        };
+
+        processor.setOptions(args);
+
+        try {
+            processor.process(Resource.create(systemId, ResourceType.JS), reader, writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        StringBuilder builder = null;
+
+        if (errors[0] != null) {
+            builder = new StringBuilder();
+            Collection<LinterError> errs = errors[0];
+            builder.append("<div id='errors'>");
+            for (LinterError err : errs) {
+                if (err == null) {
+                    continue;
+                }
+                builder.append("<p>Line ");
+                builder.append(err.getLine());
+                builder.append(" char ");
+                builder.append(err.getCharacter());
+                builder.append(": ");
+                builder.append(err.getReason());
+                if (err.getEvidence() != null) {
+                    builder.append("</p><p class='evidence'>");
+                    builder.append(err.getEvidence());
+                }
+                builder.append("</p>");
+            }
+            builder.append("</div>");
+        }
+
+        return builder == null ? null : builder.toString();
 
     }
+
+    // <div id=errors>
+    // <i>Error:</i><p>Problem at line 18 character 5: Expected an assignment or function call and instead saw an expression.</p>
+    //                <p class=evidence> dfg</p>
+    //              <p>Problem at line 18 character 8: Expected ';' and instead saw 'var'.</p>
+    //                 <p class=evidence> dfg</p><p>
+    // <i>Undefined variable:</i> <code><u>dfg</u></code>&nbsp;<i>10 </i> <small>quote</small></p>
+    // <p><i>Unused variable:</i> <code><u>zxcqwd</u></code>&nbsp;<i>10 </i> <small>quote</small></p>
+    // </div>
 
 }

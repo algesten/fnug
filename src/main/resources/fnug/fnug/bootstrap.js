@@ -86,7 +86,8 @@ fnug.loadBundle = function (bundle) {
 					fnug.showJSLintPopupButton(bundle.name);
 				}
 				var path = file.path;
-				if (path.lastIndexOf('.js') === path.length - 3) {
+				if (path.lastIndexOf('.js') === path.length - 3 ||
+				    path.lastIndexOf('.dust') === path.length - 5) {
 					fnug.loadScript(path);
 				} else if (path.lastIndexOf('.css') === path.length - 4) {
 					if (ie) {

@@ -5,8 +5,6 @@ import java.io.UnsupportedEncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.googlecode.jslint4java.JSLintResult;
-
 import fnug.config.BundleConfig;
 
 /*
@@ -35,11 +33,9 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle,
 
     private final static Logger LOG = LoggerFactory.getLogger(DefaultBundleResource.class);
 
-    private final static JSLintResult EMPTY_RESULT = (new JSLintResult.ResultBuilder("_empty_")).report("").build();
-
     private Bundle bundle;
 
-    private volatile JSLintResult jsLintResult;
+    private volatile String jsLintResult;
 
     /**
      * Constructs setting the necessary bundle and path. The {@link BundleConfig#basePath()} will be used as
@@ -68,11 +64,11 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle,
      * {@inheritDoc}
      */
     @Override
-    public JSLintResult getJSLintResult() {
+    public String getJSLintResult() {
         if (!isJs() || bundle.getJsLinter() == null || getLastModified() == -1) {
             return null;
         }
-        JSLintResult result = jsLintResult;
+        String result = jsLintResult;
         if (result == null) {
             synchronized (this) {
                 result = jsLintResult;
@@ -81,7 +77,7 @@ public class DefaultBundleResource extends DefaultResource implements HasBundle,
                         LOG.debug("Running JSLint: " + getFullPath());
                         jsLintResult = bundle.getJsLinter().lint(getFullPath(), new String(getBytes(), "UTF-8"));
                         if (jsLintResult == null) {
-                            jsLintResult = EMPTY_RESULT;
+                            jsLintResult = "";
                         }
                         result = jsLintResult;
                     } catch (UnsupportedEncodingException e) {

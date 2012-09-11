@@ -68,6 +68,17 @@ public abstract class AbstractCompiledResource extends DefaultResource implement
 
 
     /**
+     * Overridden to return the uncompiled bytes.
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    protected byte[] getBytesForFindRequires() {
+        return super.getBytes();
+    }
+
+
+    /**
      * Ditches the compiled bytes if the superclass indicates that modified has changed.
      * 
      * {@inheritDoc}

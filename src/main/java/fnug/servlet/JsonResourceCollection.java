@@ -7,8 +7,6 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
-import com.googlecode.jslint4java.JSLintResult;
-
 import fnug.resource.HasJSLintResult;
 import fnug.resource.Resource;
 import fnug.resource.ResourceCollection;
@@ -71,32 +69,7 @@ class JsonResourceCollectionFile {
     public JsonResourceCollectionFile(Resource r) {
         path = r.getPath();
         if (r instanceof HasJSLintResult) {
-            JSLintResult partResult = ((HasJSLintResult) r).getJSLintResult();
-            if (partResult != null && !partResult.getReport().isEmpty()) {
-                lint = filter(partResult.getReport());
-            }
+            lint = ((HasJSLintResult) r).getJSLintResult();
         }
     }
-
-    private String filter(String html) {
-        if (html == null) {
-            return null;
-        }
-        html = html.replace("<br>", "");
-
-        // functions are warnings, not errors, we can't afford to keep that in
-        // the bootstrap json
-        int functions = html.indexOf("<div id=functions>");
-        if (functions >= 0) {
-            html = html.substring(0, functions);
-        }
-
-        html = html.trim();
-        if (html.isEmpty()) {
-            return null;
-        } else {
-            return html;
-        }
-    }
-
 }

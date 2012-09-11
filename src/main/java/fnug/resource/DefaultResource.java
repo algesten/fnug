@@ -375,7 +375,7 @@ public class DefaultResource extends AbstractResource {
         LinkedList<String> result = new LinkedList<String>();
         if (isText()) {
             try {
-                String s = new String(getBytes(), "utf-8");
+                String s = new String(getBytesForFindRequires(), "utf-8");
                 Matcher m = REQUIRES_PAT.matcher(s);
                 while (m.find()) {
                     result.add(m.group(1));
@@ -385,6 +385,16 @@ public class DefaultResource extends AbstractResource {
             }
         }
         return result;
+    }
+
+
+    /**
+     * Overridable method for getting the bytes to use for finding requires tags.
+     * 
+     * @return the bytes to use. Defaults to {@link #getBytes()}
+     */
+    protected byte[] getBytesForFindRequires() {
+        return getBytes();
     }
 
 
