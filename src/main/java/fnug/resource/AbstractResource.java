@@ -97,11 +97,20 @@ public abstract class AbstractResource implements Resource {
     }
 
     /**
+     * Returns the content type for the given path by consulting a mime type map.
+     * @param path the path to consult.
+     * @return the content type.
+     */
+    public static String contentTypeForPath(String path) {
+        return TYPE_MAP.getContentType(path);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public String getContentType() {
-        return TYPE_MAP.getContentType(path);
+        return contentTypeForPath(path);
     }
 
     /**

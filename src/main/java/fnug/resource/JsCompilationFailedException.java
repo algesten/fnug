@@ -25,6 +25,18 @@ package fnug.resource;
 @SuppressWarnings("serial")
 public class JsCompilationFailedException extends RuntimeException {
 
+
+    /**
+     * Constructs without setting wrapped exception.
+     * 
+     * @param msg
+     *            The message
+     */
+    public JsCompilationFailedException(String msg) {
+        super(msg);
+    }
+
+
     /**
      * Constructs setting args.
      * 

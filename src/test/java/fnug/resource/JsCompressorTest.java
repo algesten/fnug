@@ -18,9 +18,10 @@ public class JsCompressorTest {
                 compressor.compress(("var a = function() { \n\n\n\n alert('this is a test'); };     " +
                         "var b = function() { a(); };").getBytes()));
 
-        Assert.assertEquals("var a=function(){alert(\"this is a test\")},b=function(){a()};\n", s);
+        Assert.assertEquals("var a=function(){alert(\"this is a test\")},b=function(){a()};", s);
 
     }
+
 
     @Test
     public void testCompressBadJs() throws Exception {
@@ -32,6 +33,10 @@ public class JsCompressorTest {
             Assert.fail();
         } catch (JsCompilationFailedException jse) {
             // expected with such rubbish code.
+            Assert.assertEquals("Compilation failed\n" +
+                    "JSC_PARSE_ERROR. Parse error. syntax error at [concatenated] line 1 : 23\n" +
+                    "JSC_PARSE_ERROR. Parse error. missing } after function body at [concatenated] line 1 : 24",
+                    jse.getMessage());
         }
 
     }

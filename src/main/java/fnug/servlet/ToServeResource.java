@@ -3,6 +3,7 @@ package fnug.servlet;
 import java.io.UnsupportedEncodingException;
 
 import fnug.ResourceServlet;
+import fnug.resource.AbstractResource;
 import fnug.resource.DefaultCompressedResource;
 import fnug.resource.Resource;
 
@@ -86,7 +87,18 @@ public class ToServeResource implements ToServe {
 
     @Override
     public String getContentType() {
-        return isJsonP ? ResourceServlet.CONTENT_TYPE_JS : res.getContentType();
+        
+        if (res.isJs()) {
+            return AbstractResource.CONTENT_TYPE_TEXT_JAVASCRIPT;
+        } else {
+            return isJsonP ? ResourceServlet.CONTENT_TYPE_JS : res.getContentType();
+        }
+        
+    }
+    
+    @Override
+    public String getCharacterEncoding() {
+        return ResourceServlet.UTF_8;
     }
 
 }

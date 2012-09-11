@@ -415,6 +415,7 @@ public class ResourceServlet extends HttpServlet {
 
                 resp.setDateHeader(HEADER_DATE, System.currentTimeMillis());
                 resp.setContentType(t.getContentType());
+                resp.setCharacterEncoding(t.getCharacterEncoding());
                 resp.setContentLength(toServeBytes.length);
                 resp.setDateHeader(HEADER_LAST_MODIFIED, t.getLastModified());
 

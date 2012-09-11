@@ -33,6 +33,8 @@ import fnug.util.JSLintWrapper;
  */
 public class DefaultBundle implements Bundle {
 
+    private static final String CONTENT_TYPE_TEXT_DUST = "text/dust";
+
     private final static Logger LOG = LoggerFactory.getLogger(DefaultBundle.class);
 
     private static final String SUFFIX_CSS = "css";
@@ -132,7 +134,20 @@ public class DefaultBundle implements Bundle {
      * @return the constructed resource, which is an instance of {@link DefaultBundleResource}.
      */
     protected Resource makeResource(String path) {
-        return new DefaultBundleResource(this, path);
+        
+        String type = AbstractResource.contentTypeForPath(path);
+
+        Resource r;
+        
+        if (type != null && type.startsWith(CONTENT_TYPE_TEXT_DUST)) {
+             r = new DustCompiledResource(getConfig().basePath(), path);
+             ((AbstractCompiledResource) r).setBundle(this);
+        } else {
+            r =  new DefaultBundleResource(this, path);
+        }
+        
+        return r;
+        
     }
 
     /**

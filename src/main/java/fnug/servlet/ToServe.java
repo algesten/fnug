@@ -22,6 +22,8 @@ public interface ToServe extends HasLastModifiedBytes {
 
     String getContentType();
 
+    String getCharacterEncoding();
+    
     boolean futureExpires();
 
 }

@@ -107,7 +107,7 @@ public class DefaultBundleTest {
         Assert.assertEquals("[test/js-nonexistant.js, test/js-requiredbycss.js, " +
                 "test/css-resource2.css, test/css-resource1.css, " +
                 "test/css-nonexistant.css, test/js-resource2.js, " +
-                "test/js-resource1.js]", Arrays.asList(coll.getAggregates()).toString());
+                "test/bbee.dusttest2.dust, test/js-resource1.js]", Arrays.asList(coll.getAggregates()).toString());
 
         Assert.assertEquals("[test/js-requiredbycss.js, test/js-resource2.js, test/js-resource1.js]", coll
                 .getExistingJsAggregates().toString());

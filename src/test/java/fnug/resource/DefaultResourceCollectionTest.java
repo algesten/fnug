@@ -43,7 +43,9 @@ public class DefaultResourceCollectionTest {
 
         Assert.assertTrue(fullPath.startsWith("testbundle/"));
 
-        Assert.assertEquals(-1353151324, new String(c.getBytes()).hashCode());
+        String s =  new String(c.getBytes());
+        
+        Assert.assertEquals(s, -909136381,s.hashCode());
         Assert.assertSame(c.getBytes(), c.getJs());
 
         Assert.assertEquals(4593760, new String(c.getCss()).hashCode());
@@ -55,14 +57,14 @@ public class DefaultResourceCollectionTest {
 
         Assert.assertEquals("testbundle/", compressedJs.getBasePath());
         Assert.assertEquals(c.getPath() + ".js", compressedJs.getPath());
-        Assert.assertEquals("var a=function(){alert(\"this is jozt a test\")},b=function(){a()},c=function(){b()};\n",
+        Assert.assertEquals("var a=function(){alert(\"this is jozt a test\")},b=function(){a()},c=function(){b()};",
                 new String(compressedJs.getBytes()));
         Assert.assertTrue(c.getBundle().getConfig().configResource().getLastModified() <= compressedJs
                 .getLastModified());
         Assert.assertSame(compressedJs, c.getCompressedJs());
 
-        Assert.assertEquals("body{background:black;color:white;font-size:14em}\n" +
-                "p{margin-top:14px 14px 14px 14px}\n" +
+        Assert.assertEquals("body{background:black;color:white;font-size:14em}" +
+                "p{margin-top:14px 14px 14px 14px}" +
                 "a{color:red}",
                 new String(compressedCss.getBytes()));
         Assert.assertEquals("testbundle/", compressedCss.getBasePath());
@@ -189,11 +191,6 @@ public class DefaultResourceCollectionTest {
 
                     @Override
                     public String[] jsLintArgs() {
-                        return null;
-                    }
-
-                    @Override
-                    public String[] jsCompileArgs() {
                         return null;
                     }
 

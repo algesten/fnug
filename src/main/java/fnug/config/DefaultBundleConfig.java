@@ -111,14 +111,6 @@ public class DefaultBundleConfig implements BundleConfig {
      * {@inheritDoc}
      */
     @Override
-    public String[] jsCompileArgs() {
-        return jsCompileArgs;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String[] files() {
         return files;
     }

@@ -70,13 +70,6 @@ public interface BundleConfig {
     int checkModifiedInterval();
 
     /**
-     * Additional compilation arguments passed to {@link JsCompressor}.
-     * 
-     * @return arguments passed to the javascript compressor.
-     */
-    String[] jsCompileArgs();
-
-    /**
      * Files that comprises this bundle. Additional dependencies will be discovered using
      * {@link Resource#findRequiresTags()}.
      * 

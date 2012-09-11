@@ -127,5 +127,10 @@ public class Bootstrap implements ToServe {
     public String getContentType() {
         return ResourceServlet.CONTENT_TYPE_JS;
     }
+    
+    @Override
+    public String getCharacterEncoding() {
+        return ResourceServlet.UTF_8;
+    }
 
 }

@@ -41,6 +41,8 @@ text/x-speech				talk
 text/css				css
 text/csv				csv
 
+text/dust               dust
+
 # IMAGE TYPES
 
 # X-Windows bitmap (b/w)

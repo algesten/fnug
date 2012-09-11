@@ -80,4 +80,9 @@ public class BundleNames implements ToServe {
         return isJsonP ? ResourceServlet.CONTENT_TYPE_JS : ResourceServlet.CONTENT_TYPE_JSON;
     }
 
+    @Override
+    public String getCharacterEncoding() {
+        return ResourceServlet.UTF_8;
+    }
+
 }

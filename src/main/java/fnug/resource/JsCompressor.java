@@ -1,9 +1,28 @@
 package fnug.resource;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.util.logging.Level;
 
-import googccwrap.CompilationFailedException;
-import googccwrap.GoogleClosureCompilerWrapper;
+import org.apache.commons.io.IOUtils;
+
+import ro.isdc.wro.config.jmx.WroConfiguration;
+import ro.isdc.wro.extensions.processor.js.GoogleClosureCompressorProcessor;
+import ro.isdc.wro.model.resource.Resource;
+import ro.isdc.wro.model.resource.ResourceType;
+
+import com.google.javascript.jscomp.CompilationLevel;
+import com.google.javascript.jscomp.Compiler;
+import com.google.javascript.jscomp.CompilerOptions;
+import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.JSSourceFile;
+import com.google.javascript.jscomp.Result;
 
 /*
  Copyright 2010 Martin Algesten
@@ -29,8 +48,6 @@ import googccwrap.GoogleClosureCompilerWrapper;
  */
 public class JsCompressor implements Compressor {
 
-    private GoogleClosureCompilerWrapper wrapper;
-
     /**
      * {@inheritDoc}
      */
@@ -39,30 +56,104 @@ public class JsCompressor implements Compressor {
         return "javascript";
     }
 
-    /**
-     * Constructs potentially sending configuration options to the wrapped google closure compiler.
-     * 
-     * @param args
-     *            arguments to send.
-     */
-    public JsCompressor(String... args) {
-        wrapper = new GoogleClosureCompilerWrapper(args);
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public byte[] compress(byte[] input) {
+
+        // thread local stuff
+        ro.isdc.wro.config.Context wroContext = ro.isdc.wro.config.Context.standaloneContext();
+        ro.isdc.wro.config.Context.set(wroContext, new WroConfiguration());
+
         try {
-            String s = wrapper.compileString(new String(input, "utf-8"));
-            return s.getBytes("utf-8");
+
+            GoogleClosureCompressorProcessor processor = new MyGoogleClosureCompressorProcessor();
+
+            StringReader reader = new StringReader(new String(input, "utf-8"));
+            StringWriter writer = new StringWriter();
+            processor.process(ro.isdc.wro.model.resource.Resource.create("[concatenated]", ResourceType.JS), reader,
+                    writer);
+
+            return writer.toString().getBytes("utf-8");
+
         } catch (UnsupportedEncodingException e) {
             // not happening.
             return null;
-        } catch (CompilationFailedException e) {
+        } catch (IOException e) {
             throw new JsCompilationFailedException(e.getMessage(), e);
         }
+    }
+
+
+    class MyGoogleClosureCompressorProcessor extends GoogleClosureCompressorProcessor {
+
+        @Override
+        public void process(final Resource resource, final Reader reader, final Writer writer)
+                throws IOException {
+
+            CompilationLevel compilationLevel;
+            CompilerOptions compilerOptions;
+
+            Field f;
+            try {
+                f = GoogleClosureCompressorProcessor.class.getDeclaredField("compilerOptions");
+                f.setAccessible(true);
+                compilerOptions = (CompilerOptions) f.get(this);
+
+                f = GoogleClosureCompressorProcessor.class.getDeclaredField("compilationLevel");
+                f.setAccessible(true);
+                compilationLevel = (CompilationLevel) f.get(this);
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            final String content = IOUtils.toString(reader);
+
+            try {
+
+
+                Compiler.setLoggingLevel(Level.SEVERE);
+                final Compiler compiler = new Compiler();
+                if (compilerOptions == null) {
+                    compilerOptions = newCompilerOptions();
+                }
+                compilationLevel.setOptionsForCompilationLevel(compilerOptions);
+                //make it play nice with GAE
+                compiler.disableThreads();
+                compiler.initOptions(compilerOptions);
+
+                final JSSourceFile extern = JSSourceFile.fromCode("externs.js", "");
+                final String fileName = resource == null ? "wro4j-processed-file.js" : resource.getUri();
+                final JSSourceFile input = JSSourceFile.fromInputStream(
+                        fileName,
+                        new ByteArrayInputStream(content.getBytes(ro.isdc.wro.config.Context.get().getConfig()
+                                .getEncoding())));
+                final Result result = compiler.compile(extern, input, compilerOptions);
+                if (result.success) {
+                    writer.write(compiler.toSource());
+                } else {
+
+                    StringBuilder msg = new StringBuilder("Compilation failed");
+
+                    if (result.errors != null) {
+                        for (JSError error : result.errors) {
+                            msg.append("\n");
+                            msg.append(error.toString());
+                        }
+                    }
+
+                    throw new JsCompilationFailedException(msg.toString());
+                }
+            } finally {
+                reader.close();
+                writer.close();
+            }
+
+        }
+
     }
 
 }

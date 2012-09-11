@@ -66,7 +66,7 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
         this.bundle = bundle;
         this.aggregates = aggregates == null ? EMPTY_RESOURCES : aggregates;
         this.dependencies = dependencies == null ? EMPTY_RESOURCES : dependencies;
-        jsCompressor = new JsCompressor(bundle.getConfig().jsCompileArgs());
+        jsCompressor = new JsCompressor();
         cssCompressor = new CssCompressor();
     }
 
@@ -131,6 +131,9 @@ public class DefaultResourceCollection extends AbstractAggregatedResource
             ByteArrayOutputStream jsbaos = new ByteArrayOutputStream();
             ByteArrayOutputStream cssbaos = new ByteArrayOutputStream();
             for (Resource r : getAggregates()) {
+
+                System.out.println(r +" "+ r.isJs());
+                
                 if (r.isJs()) {
                     jsbaos.write(r.getBytes());
                 } else if (r.isCss()) {

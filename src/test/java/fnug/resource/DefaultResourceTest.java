@@ -214,10 +214,10 @@ public class DefaultResourceTest {
         reqs = r.findRequiresTags();
 
         Assert.assertNotNull(reqs);
-        Assert.assertEquals(4, reqs.size());
+        Assert.assertEquals(5, reqs.size());
 
         Assert.assertEquals("[test/js-resource2.js, test/js-nonexistant.js, " +
-                        "test/css-resource1.css, test/css-nonexistant.css]",
+                        "test/css-resource1.css, test/css-nonexistant.css, test/bbee.dusttest2.dust]",
                 reqs.toString());
 
     }

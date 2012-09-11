@@ -5,7 +5,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
-import fnug.util.YUICssCompressor;
+import ro.isdc.wro.extensions.processor.css.YUICssCompressorProcessor;
 
 /*
  Copyright 2010 Martin Algesten
@@ -45,6 +45,8 @@ public class CssCompressor implements Compressor {
     @Override
     public byte[] compress(byte[] input) {
 
+        YUICssCompressorProcessor processor = new YUICssCompressorProcessor();
+        
         if (input == null) {
             return null;
         }
@@ -59,8 +61,7 @@ public class CssCompressor implements Compressor {
         StringWriter writer = new StringWriter();
 
         try {
-            YUICssCompressor cmp = new YUICssCompressor(reader);
-            cmp.compress(writer, 0);
+            processor.process(reader, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

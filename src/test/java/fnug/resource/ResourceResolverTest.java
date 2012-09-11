@@ -211,11 +211,6 @@ public class ResourceResolverTest {
                     }
 
                     @Override
-                    public String[] jsCompileArgs() {
-                        return null;
-                    }
-
-                    @Override
                     public String[] files() {
                         return null;
                     }
