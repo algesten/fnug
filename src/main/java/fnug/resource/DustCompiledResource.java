@@ -7,7 +7,6 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.FilenameUtils;
 
-import ro.isdc.wro.extensions.processor.js.DustJsProcessor;
 import ro.isdc.wro.extensions.processor.js.JsTemplateCompilerProcessor;
 import ro.isdc.wro.extensions.processor.support.dustjs.DustJs;
 import ro.isdc.wro.extensions.processor.support.template.AbstractJsTemplateCompiler;
