@@ -1,7 +1,6 @@
 package fnug.config;
 
 import fnug.resource.Bundle;
-import fnug.resource.JsCompressor;
 import fnug.resource.Resource;
 
 /*

@@ -5,9 +5,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ro.isdc.wro.extensions.processor.js.JsLintProcessor;
 import ro.isdc.wro.extensions.processor.support.linter.LinterError;
 import ro.isdc.wro.extensions.processor.support.linter.LinterException;
@@ -34,8 +31,6 @@ import ro.isdc.wro.model.resource.ResourceType;
  * Wrapper around JSLint4Java since that package doesn't manage the rhino Context thread local appropriately.
  */
 public class JSLintWrapper {
-
-    private final static Logger LOG = LoggerFactory.getLogger(JSLintWrapper.class);
 
     private String args;
 
