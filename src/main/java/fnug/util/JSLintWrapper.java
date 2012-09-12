@@ -28,7 +28,7 @@ import ro.isdc.wro.model.resource.ResourceType;
  */
 
 /**
- * Wrapper around JSLint4Java since that package doesn't manage the rhino Context thread local appropriately.
+ * Wrapper around wro4j jslinter.
  */
 public class JSLintWrapper {
 
@@ -69,7 +69,7 @@ public class JSLintWrapper {
      * @param javaScript
      *            a String of JavaScript source code.
      * 
-     * @return a {@link JSLintResult}.
+     * @return a lint result html string.
      */
     public String lint(String systemId, String javaScript) {
 
