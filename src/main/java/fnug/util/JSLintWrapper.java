@@ -37,7 +37,7 @@ public class JSLintWrapper {
 
     private final static Logger LOG = LoggerFactory.getLogger(JSLintWrapper.class);
 
-    private String[] args;
+    private String args;
 
 
     /**
@@ -46,12 +46,21 @@ public class JSLintWrapper {
      * @param args
      *            configs
      */
-    public JSLintWrapper(String... args) {
+    public JSLintWrapper(String args) {
 
-        if (args == null || args.length == 0) {
-            throw new IllegalArgumentException("Null or empty config args");
+        // change lint string to that which wro4j expects
+        if (args != null) {
+
+            if (args.indexOf("jslint ") == 0) {
+                args = args.substring(7);
+            }
+
+            args = args.replaceAll(" ", "");
+
+            args = args.replaceAll(":", "=");
+            
         }
-
+        
         this.args = args;
 
     }

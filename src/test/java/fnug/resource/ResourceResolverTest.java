@@ -201,7 +201,7 @@ public class ResourceResolverTest {
                     }
 
                     @Override
-                    public String[] jsLintArgs() {
+                    public String jsLintArgs() {
                         return null;
                     }
 

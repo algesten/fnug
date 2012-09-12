@@ -316,7 +316,7 @@ public class DefaultBundle implements Bundle {
      */
     @Override
     public JSLintWrapper getJsLinter() {
-        if (getConfig().jsLintArgs() == null || getConfig().jsLintArgs().length == 0 ||
+        if (getConfig().jsLintArgs() == null || getConfig().jsLintArgs().length() == 0 ||
                 ResourceResolver.getInstance() != null && 
                 ResourceResolver.getInstance().getGlobalConfig().isNoJsLint()) {
             return null;

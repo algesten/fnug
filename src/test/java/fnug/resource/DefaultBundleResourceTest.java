@@ -17,10 +17,8 @@ public class DefaultBundleResourceTest {
 
         String lint = r.getJSLintResult();
 
-        Assert.assertEquals("<div id='errors'><p>Line 1 char 9: " +
-        		"Expected exactly one space between 'function' and '('.</p><p class='evidence'>function() " +
-        		"{</p><p>Line 1 char 9: Missing name in function statement.</p><p class='evidence'>function() " +
-        		"{</p><p>Line 1 char 9: Stopping.  (33% scanned).</p></div>", lint);
+        Assert.assertEquals("<div id='errors'><p>Line 3 char 3: Expected 'var' at column 5, " +
+        		"not column 3.</p><p class='evidence'>  var d;</p></div>", lint);
 
     }
 
@@ -44,7 +42,7 @@ public class DefaultBundleResourceTest {
 
 
                     @Override
-                    public String[] jsLintArgs() {
+                    public String jsLintArgs() {
                         return null;
                     }
 
@@ -108,7 +106,7 @@ public class DefaultBundleResourceTest {
             @Override
             public JSLintWrapper getJsLinter() {
                 return new JSLintWrapper("jslint browser: true, continue: true, indent: 4, maxlen: 120, " +
-                		"plusplus: true, sloppy: true, undef: true, unparam: true, vars: true".split(","));
+                		"plusplus: true, sloppy: true, undef: true, unparam: true, vars: true");
             }
 
         };

@@ -49,7 +49,6 @@ public class JsonConfigParser implements ConfigParser {
 
     private static final String KEY_JS_LINT = "jsLint";
     private static final String KEY_CHECK_MODIFIED = "checkModified";
-    private static final String KEY_JS_COMPILER_ARGS = "jsCompilerArgs";
     private static final String KEY_FILES = "files";
     private static final String KEY_BASE_PATH = "basePath";
     private static final HashSet<String> ALL_KEYS = new HashSet<String>();
@@ -57,7 +56,6 @@ public class JsonConfigParser implements ConfigParser {
     static {
         ALL_KEYS.add(KEY_JS_LINT);
         ALL_KEYS.add(KEY_CHECK_MODIFIED);
-        ALL_KEYS.add(KEY_JS_COMPILER_ARGS);
         ALL_KEYS.add(KEY_FILES);
         ALL_KEYS.add(KEY_BASE_PATH);
     }
@@ -148,6 +146,8 @@ public class JsonConfigParser implements ConfigParser {
 
             return new DefaultConfig(bundleConfigs);
 
+        } catch (JsonConfigParseException je) {
+            throw je;
         } catch (Exception e) {
             if (parser != null) {
                 throw new JsonConfigParseException(parser.getCurrentLocation(), e);
@@ -169,10 +169,9 @@ public class JsonConfigParser implements ConfigParser {
             }
         }
 
-        String[] jsLintArgs = parseJsLintArgs(node, KEY_JS_LINT, loc);
+        String jsLintArgs = parseJsLintArgs(node, KEY_JS_LINT, loc);
         int checkModifiedInterval = parseInt(node, KEY_CHECK_MODIFIED, loc,
                 DefaultResource.DEFAULT_CHECK_MODIFIED_INTERVAL);
-        String[] jsCompileArgs = parseStringArray(node, KEY_JS_COMPILER_ARGS, loc, EMPTY_STRINGS);
         String[] files = parseStringArray(node, KEY_FILES, loc, EMPTY_STRINGS);
         String basePath = parseString(node, KEY_BASE_PATH, loc, configResource.getBasePath());
 
@@ -195,25 +194,24 @@ public class JsonConfigParser implements ConfigParser {
         }
 
         return new DefaultBundleConfig(configResource, name, basePath, jsLintArgs,
-                checkModifiedInterval, jsCompileArgs,
+                checkModifiedInterval,
                 files);
     }
 
-    private final static Pattern JSLINT_ARG_PAT = Pattern.compile("\\w+:\\s*\\w+");
-
-    private String[] parseJsLintArgs(JsonNode node, String key, JsonLocation loc) {
+    Pattern jsLintPattern = Pattern.compile("\\s*/\\*\\s*jslint\\s*((\\w+:\\s*\\w+)(,\\s*\\w+:\\s*\\w+)*)\\s*\\*/");
+    
+    private String parseJsLintArgs(JsonNode node, String key, JsonLocation loc) {
 
         String s = parseString(node, key, loc, "");
 
-        Matcher m = JSLINT_ARG_PAT.matcher(s);
-
-        LinkedList<String> args = new LinkedList<String>();
-
-        while (m.find()) {
-            args.add(m.group());
+        Matcher m = jsLintPattern.matcher(s);
+        
+        if (m.matches()) {
+            return m.group(1);
+        } else {
+            return "";
         }
-
-        return args.toArray(new String[args.size()]);
+        
     }
 
     private String parseString(JsonNode node, String key, JsonLocation loc, String def) {

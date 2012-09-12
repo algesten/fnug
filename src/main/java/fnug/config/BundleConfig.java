@@ -57,9 +57,9 @@ public interface BundleConfig {
     /**
      * The arguments used for JSLint. No arguments indicates that jslint is turned off.
      * 
-     * @return The arguments used for JSLint. Example: ["white: true", "onevar: true"].
+     * @return The arguments used for JSLint. Example: <code>white: true, onevar: true</code>
      */
-    String[] jsLintArgs();
+    String jsLintArgs();
 
     /**
      * The interval in milliseconds that we are to check the modified dates of resources resolved by this bundle. A

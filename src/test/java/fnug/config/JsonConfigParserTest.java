@@ -55,7 +55,7 @@ public class JsonConfigParserTest {
         Assert.assertEquals("/", bcfg.basePath());
         Assert.assertEquals(42, bcfg.checkModifiedInterval());
         Assert.assertNotNull(bcfg.jsLintArgs());
-        Assert.assertEquals(11, bcfg.jsLintArgs().length);
+        Assert.assertEquals(149, bcfg.jsLintArgs().length());
         Assert.assertEquals("[white: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, " +
                 "bitwise: true, regexp: true, newcap: true, immed: true, maxlen: 80]", Arrays.asList(bcfg.jsLintArgs())
                 .toString());
@@ -112,7 +112,8 @@ public class JsonConfigParserTest {
             parser.parse(res);
             Assert.fail();
         } catch (Exception e) {
-            Assert.assertEquals("At line 11 col 2: At line 11 col 2: Key 'checkModified' is not an integer value",
+            Assert.assertEquals("fnug.config.JsonConfigParseException", e.getClass().getName());
+            Assert.assertEquals("At line 10 col 2: Key 'checkModified' is not an integer value",
                     e.getMessage());
         }
 
@@ -157,7 +158,7 @@ public class JsonConfigParserTest {
             parser.parse(res);
             Assert.fail();
         } catch (JsonConfigParseException jcpe) {
-            Assert.assertEquals("At line 5 col 2: At line 5 col 2: 'basePath' must end with slash: /test",
+            Assert.assertEquals("At line 5 col 2: 'basePath' must end with slash: /test",
                     jcpe.getMessage());
         }
 
@@ -174,8 +175,7 @@ public class JsonConfigParserTest {
             parser.parse(res);
             Assert.fail();
         } catch (JsonConfigParseException jcpe) {
-            Assert.assertEquals(
-                    "At line 5 col 2: At line 5 col 2: No directory found for 'basePath': /does/not/exist/",
+            Assert.assertEquals("At line 5 col 2: No directory found for 'basePath': /does/not/exist/",
                     jcpe.getMessage());
         }
 
@@ -205,7 +205,7 @@ public class JsonConfigParserTest {
         Assert.assertEquals("/", bcfg.basePath());
         Assert.assertEquals(42, bcfg.checkModifiedInterval());
         Assert.assertNotNull(bcfg.jsLintArgs());
-        Assert.assertEquals(11, bcfg.jsLintArgs().length);
+        Assert.assertEquals(149, bcfg.jsLintArgs().length());
         Assert.assertEquals("[white: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, " +
                 "bitwise: true, regexp: true, newcap: true, immed: true, maxlen: 80]", Arrays.asList(bcfg.jsLintArgs())
                 .toString());
@@ -239,7 +239,7 @@ public class JsonConfigParserTest {
         Assert.assertEquals("/", bcfg.basePath());
         Assert.assertEquals(42, bcfg.checkModifiedInterval());
         Assert.assertNotNull(bcfg.jsLintArgs());
-        Assert.assertEquals(11, bcfg.jsLintArgs().length);
+        Assert.assertEquals(149, bcfg.jsLintArgs().length());
         Assert.assertEquals("[white: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, " +
                 "bitwise: true, regexp: true, newcap: true, immed: true, maxlen: 80]", Arrays.asList(bcfg.jsLintArgs())
                 .toString());
